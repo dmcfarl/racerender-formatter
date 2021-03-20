@@ -1,0 +1,64 @@
+<mat-horizontal-stepper [linear]="true" #stepper>
+    <mat-step [stepControl]="uploadFileFormGroup">
+        <form [formGroup]="uploadFileFormGroup">
+            <ng-template matStepLabel>Upload</ng-template>
+            <mat-form-field>
+                <mat-label>Name</mat-label>
+                <!--<input matInput placeholder="Last name, First name" formControlName="uploadCtrl" required>-->
+            </mat-form-field>
+            <div>
+                <button mat-button matStepperNext>Next</button>
+            </div>
+        </form>
+    </mat-step>
+    <!-- #docregion label -->
+    <mat-step [stepControl]="columnsFormGroup" label="Columns">
+        <!-- #enddocregion label -->
+        <form [formGroup]="columnsFormGroup">
+            <mat-form-field>
+                <mat-label>Address</mat-label>
+                <input matInput formControlName="columnsCtrl" placeholder="Ex. 1 Main St, New York, NY" required>
+            </mat-form-field>
+            <div>
+                <button mat-button matStepperPrevious>Back</button>
+                <button mat-button matStepperNext>Next</button>
+            </div>
+        </form>
+    </mat-step>
+    <!-- #docregion label -->
+    <mat-step [stepControl]="conversionsFormGroup" label="Conversions">
+        <!-- #enddocregion label -->
+        <form [formGroup]="conversionsFormGroup">
+            <mat-form-field>
+                <mat-label>Address</mat-label>
+                <input matInput formControlName="conversionsCtrl" placeholder="Ex. 1 Main St, New York, NY" required>
+            </mat-form-field>
+            <div>
+                <button mat-button matStepperPrevious>Back</button>
+                <button mat-button matStepperNext>Next</button>
+            </div>
+        </form>
+    </mat-step>
+    <!-- #docregion label -->
+    <mat-step [stepControl]="preciseFormGroup" label="Precise Timings">
+        <!-- #enddocregion label -->
+        <form [formGroup]="preciseFormGroup">
+            <mat-form-field>
+                <mat-label>Address</mat-label>
+                <input matInput formControlName="preciseCtrl" placeholder="Ex. 1 Main St, New York, NY" required>
+            </mat-form-field>
+            <div>
+                <button mat-button matStepperPrevious>Back</button>
+                <button mat-button matStepperNext>Next</button>
+            </div>
+        </form>
+    </mat-step>
+    <mat-step>
+        <ng-template matStepLabel>Download</ng-template>
+        <p>You are now done.</p>
+        <div>
+            <button mat-button matStepperPrevious>Back</button>
+            <button mat-button (click)="stepper.reset()">Reset</button>
+        </div>
+    </mat-step>
+</mat-horizontal-stepper>
