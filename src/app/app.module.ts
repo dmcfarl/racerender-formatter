@@ -8,10 +8,12 @@ import { ProgressComponent } from './components/progress/progress.component';
 import { ExtractorDirective } from './directives/extractor.directive';
 import { MultistepFormComponent } from './components/multistep-form/multistep-form.component';
 import { MatStepperModule } from '@angular/material/stepper';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
@@ -27,10 +29,12 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     BrowserAnimationsModule,
     FormsModule,
     MatStepperModule,
-    MatInputModule, 
-    MatButtonModule, 
+    MatIconModule,
+    MatInputModule,
+    MatButtonModule,
     MatAutocompleteModule,
     MatFormFieldModule,
+    MatProgressSpinnerModule,
     ReactiveFormsModule,
   ],
   providers: [],

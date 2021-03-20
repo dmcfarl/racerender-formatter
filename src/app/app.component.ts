@@ -94,6 +94,6 @@ export class AppComponent {
   }
 
   public extract(file: any): Extractor {
-    return new Extractor(file);
+    return new Extractor(file, null);
   }
 }

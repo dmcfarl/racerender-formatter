@@ -1,13 +1,13 @@
 <mat-horizontal-stepper [linear]="true" #stepper>
-    <mat-step [stepControl]="uploadFileFormGroup">
+    <mat-step [completed]="extractor!= null && extractor.parsed.length > 0" [stepControl]="uploadFileFormGroup" label="Upload">
         <form [formGroup]="uploadFileFormGroup">
-            <ng-template matStepLabel>Upload</ng-template>
-            <mat-form-field>
-                <mat-label>Name</mat-label>
-                <!--<input matInput placeholder="Last name, First name" formControlName="uploadCtrl" required>-->
-            </mat-form-field>
-            <div>
-                <button mat-button matStepperNext>Next</button>
+            <div class="container" appDragndrop (fileDropped)="onFileDropped($event)">
+                <mat-spinner *ngIf="extractor != null && extractor.parsed.length === 0" style="margin:25px auto;" [diameter]="150"></mat-spinner>
+                <input *ngIf="extractor == null || extractor.parsed.length > 0" type="file" #fileDropRef id="fileDropRef" multiple (change)="fileBrowseHandler($event.target.files)" />
+                <img *ngIf="extractor == null || extractor.parsed.length > 0" src="assets/img/dnd/ic-upload-file.svg" alt="">
+                <h3 *ngIf="extractor == null || extractor.parsed.length > 0">Drag and drop file here</h3>
+                <h3 *ngIf="extractor == null || extractor.parsed.length > 0">or</h3>
+                <label *ngIf="extractor == null || extractor.parsed.length > 0" for="fileDropRef">Browse for file</label>
             </div>
         </form>
     </mat-step>
@@ -58,7 +58,10 @@
         <p>You are now done.</p>
         <div>
             <button mat-button matStepperPrevious>Back</button>
-            <button mat-button (click)="stepper.reset()">Reset</button>
+            <button mat-button (click)="reset(stepper)">Reset</button>
         </div>
     </mat-step>
+    <!--<ng-template matStepperIcon="upload">
+        <mat-icon>file_upload</mat-icon>
+    </ng-template>-->
 </mat-horizontal-stepper>

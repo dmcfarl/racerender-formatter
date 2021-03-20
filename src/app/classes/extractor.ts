@@ -1,21 +1,27 @@
+import { MatStepper } from '@angular/material/stepper';
 import { parse, ParseConfig, ParseError, Parser, ParseResult } from 'papaparse';
 import { FileDisplay } from '../models/file-display';
 
 export class Extractor {
     parsed: Object[] = [];
     headers: string[] = null;
+    stepper: MatStepper;
 
-    constructor(fileDisplay: FileDisplay) {
+    /*constructor(fileDisplay: FileDisplay) {
         this.extract(fileDisplay);
+    }*/
+    constructor(file: File, stepper: MatStepper) {
+        this.stepper = stepper;
+        this.extract(file);
     }
 
     public getHeaders(): string[] {
         return this.headers;
     }
 
-    private extract(fileDisplay: FileDisplay): any {
-        fileDisplay.parsed = 0;
-        this.countLines(fileDisplay);
+    private extract(file: File /*fileDisplay: FileDisplay*/): any {
+        //fileDisplay.parsed = 0;
+        //this.countLines(fileDisplay);
         this.parsed = [];
         const config: ParseConfig = {
             header: true,
@@ -35,8 +41,13 @@ export class Extractor {
                 }
             },*/
             //Can only use one of step or complete:
-            complete: (results, file) => {
-              console.log("Parsing complete:", results, file);
+            complete: (results: ParseResult<any>, file: File) => {
+                this.parsed = results.data;
+                console.log("Parsing complete:", results, file);
+                // Use setTimeout here to get the stepper to recognize that the upload has ended.
+                setTimeout(() => {
+                    this.stepper.next();
+                }, 1);
             },
             error: (error: ParseError, file: File) => {
                 console.log("Error:", error);
@@ -46,21 +57,7 @@ export class Extractor {
             }
         };
 
-        parse(fileDisplay.file, config);
-    }
-
-    private countLines(fileDisplay: FileDisplay) {
-        const reader = new FileReader();
-        reader.onload = () => {
-            const match = this.ignoreProlog(reader.result.toString()).match(/(\r?\n)+/g);
-            // Don't count header
-            fileDisplay.parseLength = match.length - 1;
-            fileDisplay.progress = fileDisplay.parsed / fileDisplay.parseLength * 100;
-        };
-        reader.readAsText(fileDisplay.file);
-        // const stream = file.stream();
-        // const reader = stream.getReader();
-        // reader.read().
+        parse(file, config);
     }
 
     /**
