@@ -2,6 +2,7 @@ import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import { MatStepper } from '@angular/material/stepper';
 import { Extractor } from 'src/app/classes/extractor';
+import { Column } from 'src/app/models/column';
 
 @Component({
   selector: 'app-multistep-form',
@@ -42,6 +43,13 @@ export class MultistepFormComponent implements OnInit {
         this.stepper.next();
     }, 1);*/
     let x;
+  }
+
+  saveColumnSelection() {
+    let selectedColumns : string[] = this.columnsFormGroup.get('columnsCtrl').value;
+    this.extractor.columns.forEach((column: Column) => {
+      column.export = selectedColumns.indexOf(column.name) >= 0;
+    });
   }
   
   /**
