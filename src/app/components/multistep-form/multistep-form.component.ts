@@ -9,12 +9,11 @@ import { Extractor } from 'src/app/classes/extractor';
   styleUrls: ['./multistep-form.component.scss']
 })
 export class MultistepFormComponent implements OnInit {
-  @ViewChild("fileDropRef", { static: false }) fileDropEl: ElementRef;
-  @ViewChild("stepper", { static: false }) private stepper: MatStepper;
+  @ViewChild("stepper", { static: false }) stepper: MatStepper;
 
   extractor: Extractor;
 
-  uploadFileFormGroup: FormGroup;
+  columnsSelected = false;
   columnsFormGroup: FormGroup;
   conversionsFormGroup: FormGroup;
   preciseFormGroup: FormGroup;
@@ -22,9 +21,6 @@ export class MultistepFormComponent implements OnInit {
   constructor(private _formBuilder: FormBuilder) { }
 
   ngOnInit(): void {
-    this.uploadFileFormGroup = this._formBuilder.group({
-      uploadCtrl: ['', Validators.required]
-    });
     this.columnsFormGroup = this._formBuilder.group({
       columnsCtrl: ['', Validators.required]
     });
@@ -36,8 +32,16 @@ export class MultistepFormComponent implements OnInit {
     });
   }
 
-  reset(stepper : MatStepper): void {
-    stepper.reset();
+  reset(): void {
+    this.stepper.reset();
+  }
+
+  next(): void {
+    // Use setTimeout here to get the stepper to recognize that the upload has ended.
+    /*setTimeout(() => {
+        this.stepper.next();
+    }, 1);*/
+    let x;
   }
   
   /**
@@ -71,9 +75,9 @@ export class MultistepFormComponent implements OnInit {
     // // this.uploadFilesSimulator(0);
     if (files.length > 1) {
       alert("Only one file can be parsed at a time.");
-      this.extractor = new Extractor(files[0], this.stepper);
+      this.extractor = new Extractor(files[0], this);
     } else if (files.length === 1) {
-      this.extractor = new Extractor(files[0], this.stepper);
+      this.extractor = new Extractor(files[0], this);
     }
   }
 }

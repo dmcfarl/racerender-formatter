@@ -3,7 +3,18 @@
 }
 
 .mat-form-field {
-    margin-top: 16px;
+    //margin-top: 16px;
+    display: block;
+    padding: 0px;
+}
+
+.mat-form-field-infix {
+  width: 100%;
+  border-top: 0em;
+}
+
+.mat-form-field-appearance-legacy {
+  padding: 0px;
 }
 
 .container {

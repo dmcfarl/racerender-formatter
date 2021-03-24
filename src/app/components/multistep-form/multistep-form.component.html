@@ -1,27 +1,29 @@
 <mat-horizontal-stepper [linear]="true" #stepper>
-    <mat-step [completed]="extractor!= null && extractor.parsed.length > 0" [stepControl]="uploadFileFormGroup" label="Upload">
-        <form [formGroup]="uploadFileFormGroup">
-            <div class="container" appDragndrop (fileDropped)="onFileDropped($event)">
-                <mat-spinner *ngIf="extractor != null && extractor.parsed.length === 0" style="margin:25px auto;" [diameter]="150"></mat-spinner>
-                <input *ngIf="extractor == null || extractor.parsed.length > 0" type="file" #fileDropRef id="fileDropRef" multiple (change)="fileBrowseHandler($event.target.files)" />
-                <img *ngIf="extractor == null || extractor.parsed.length > 0" src="assets/img/dnd/ic-upload-file.svg" alt="">
-                <h3 *ngIf="extractor == null || extractor.parsed.length > 0">Drag and drop file here</h3>
-                <h3 *ngIf="extractor == null || extractor.parsed.length > 0">or</h3>
-                <label *ngIf="extractor == null || extractor.parsed.length > 0" for="fileDropRef">Browse for file</label>
-            </div>
-        </form>
+    <mat-step [completed]="extractor != null && extractor.parsed.length > 0" label="Upload">
+        <div class="container" appDragndrop (fileDropped)="onFileDropped($event)">
+            <mat-spinner *ngIf="extractor != null && extractor.parsed.length === 0" style="margin:25px auto;" [diameter]="150"></mat-spinner>
+            <input *ngIf="extractor == null || extractor.parsed.length > 0" type="file" #fileDropRef id="fileDropRef" multiple (change)="fileBrowseHandler($event.target.files)" />
+            <img *ngIf="extractor == null || extractor.parsed.length > 0" src="assets/img/dnd/ic-upload-file.svg" alt="">
+            <h3 *ngIf="extractor == null || extractor.parsed.length > 0">Drag and drop file here</h3>
+            <h3 *ngIf="extractor == null || extractor.parsed.length > 0">or</h3>
+            <label *ngIf="extractor == null || extractor.parsed.length > 0" for="fileDropRef">Browse for file</label>
+        </div>
     </mat-step>
     <!-- #docregion label -->
     <mat-step [stepControl]="columnsFormGroup" label="Columns">
         <!-- #enddocregion label -->
         <form [formGroup]="columnsFormGroup">
-            <mat-form-field>
-                <mat-label>Address</mat-label>
-                <input matInput formControlName="columnsCtrl" placeholder="Ex. 1 Main St, New York, NY" required>
+            <mat-form-field style="border-top: 0px;">
+                <input matInput hidden>
+                <mat-selection-list #columnSelection formControlName="columnsCtrl"> <!--*ngIf="extractor != null && extractor.columns != null && extractor.columns.length > 0">-->
+                    <mat-list-option *ngFor="let column of extractor != null ? extractor.columns : []" [selected]="column.export" value="{{column.name}}">
+                        {{column.name}}
+                    </mat-list-option>
+                </mat-selection-list>
             </mat-form-field>
             <div>
                 <button mat-button matStepperPrevious>Back</button>
-                <button mat-button matStepperNext>Next</button>
+                <button mat-button matStepperNext (click)="next()">Next</button>
             </div>
         </form>
     </mat-step>
@@ -58,7 +60,7 @@
         <p>You are now done.</p>
         <div>
             <button mat-button matStepperPrevious>Back</button>
-            <button mat-button (click)="reset(stepper)">Reset</button>
+            <button mat-button (click)="reset()">Reset</button>
         </div>
     </mat-step>
     <!--<ng-template matStepperIcon="upload">
