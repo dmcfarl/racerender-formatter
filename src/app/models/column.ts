@@ -1,12 +1,23 @@
-import { ColumnConversion } from "../classes/conversion";
+import { FormControl, FormGroup, Validators } from "@angular/forms";
+import { Conversion, DataConverter } from "../classes/dataconverter";
 
 export class Column {
     name: string;
-    export: boolean = true;
-    conversion: ColumnConversion = null;
+    isExport: boolean = true;
+    conversion: Conversion = null;
 
     constructor(name: string) {
         this.name = name;
+        this.conversion = DataConverter.estimateConversion(name);
+    }
+
+    static asFormGroup(column: Column): FormGroup {
+        const fg = new FormGroup({
+            isExport: new FormControl(column.isExport, Validators.required),
+            name: new FormControl(column.name, Validators.required),
+            conversion: new FormControl(column.conversion, Validators.nullValidator)
+        });
+        return fg;
     }
 }
 

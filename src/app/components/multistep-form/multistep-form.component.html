@@ -1,43 +1,62 @@
 <mat-horizontal-stepper [linear]="true" #stepper>
-    <mat-step [completed]="extractor != null && extractor.parsed.length > 0" label="Upload">
+    <mat-step [completed]="data != null && data.parsed.length > 0" label="Upload">
         <div class="container" appDragndrop (fileDropped)="onFileDropped($event)">
-            <mat-spinner *ngIf="extractor != null && extractor.parsed.length === 0" style="margin:25px auto;" [diameter]="150"></mat-spinner>
-            <input *ngIf="extractor == null || extractor.parsed.length > 0" type="file" #fileDropRef id="fileDropRef" multiple (change)="fileBrowseHandler($event.target.files)" />
-            <img *ngIf="extractor == null || extractor.parsed.length > 0" src="assets/img/dnd/ic-upload-file.svg" alt="">
-            <h3 *ngIf="extractor == null || extractor.parsed.length > 0">Drag and drop file here</h3>
-            <h3 *ngIf="extractor == null || extractor.parsed.length > 0">or</h3>
-            <label *ngIf="extractor == null || extractor.parsed.length > 0" for="fileDropRef">Browse for file</label>
+            <mat-spinner *ngIf="isExtracting" style="margin:25px auto;" [diameter]="150"></mat-spinner>
+            <input *ngIf="!isExtracting" type="file" #fileDropRef id="fileDropRef" multiple (change)="fileBrowseHandler($event.target.files)" />
+            <img *ngIf="!isExtracting" src="assets/img/dnd/ic-upload-file.svg" alt="">
+            <h3 *ngIf="!isExtracting">Drag and drop file here</h3>
+            <h3 *ngIf="!isExtracting">or</h3>
+            <label *ngIf="!isExtracting" for="fileDropRef">Browse for file</label>
         </div>
     </mat-step>
     <!-- #docregion label -->
-    <mat-step [stepControl]="columnsFormGroup" label="Columns">
+    <mat-step [stepControl]="columnsForm" label="Columns">
         <!-- #enddocregion label -->
-        <form [formGroup]="columnsFormGroup">
-            <mat-form-field style="border-top: 0px;">
-                <input matInput hidden>
-                <mat-selection-list #columnSelection formControlName="columnsCtrl"> <!--*ngIf="extractor != null && extractor.columns != null && extractor.columns.length > 0">-->
-                    <mat-list-option *ngFor="let column of extractor != null ? extractor.columns : []" [selected]="column.export" value="{{column.name}}">
-                        {{column.name}}
-                    </mat-list-option>
-                </mat-selection-list>
-            </mat-form-field>
+        <form [formGroup]="columnsForm">
+            <ng-container formArrayName="columns">
+                <mat-table [dataSource]="csvColumns.controls">
+                    <!-- Checkbox Column -->
+                    <ng-container matColumnDef="isExport">
+                        <!--<mat-header-cell *matHeaderCellDef>
+                            <mat-checkbox (change)="$event ? masterToggle() : null"
+                                        [checked]="isAllSelected()"
+                                        [indeterminate]="isSomeSelected()"
+                                        [aria-label]="checkboxLabel()">
+                            </mat-checkbox>
+                        </mat-header-cell>-->
+                        <mat-header-cell *matHeaderCellDef> Export? </mat-header-cell>
+                        <mat-cell *matCellDef="let column" [formGroup]="column">
+                            <input type="checkbox" formControlName="isExport"/>
+                        </mat-cell>
+                    </ng-container>
+
+                    <!-- Name Column -->
+                    <ng-container matColumnDef="column">
+                        <th mat-header-cell *matHeaderCellDef> Column </th>
+                        <td mat-cell *matCellDef="let column"> {{column.value.name}} </td>
+                    </ng-container>
+                    
+                    <!-- Conversion Column -->
+                    <ng-container matColumnDef="conversion">
+                        <mat-header-cell *matHeaderCellDef> Conversion </mat-header-cell>
+                        <mat-cell *matCellDef="let column" [formGroup]="column">
+                            <mat-form-field floatLabel="never">
+                                <mat-select formControlName="conversion" (selectionChange)="onConversionChange($event, column)">
+                                    <mat-option *ngFor="let conversion of conversions" [value]="conversion.value">
+                                        {{ conversion.label }}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </mat-cell>
+                    </ng-container>
+
+                    <mat-header-row *matHeaderRowDef="columnSelectColumns"></mat-header-row>
+                    <mat-row *matRowDef="let row; columns: columnSelectColumns;"></mat-row>
+                </mat-table>
+            </ng-container>
             <div>
                 <button mat-button matStepperPrevious>Back</button>
                 <button mat-button matStepperNext (click)="saveColumnSelection()">Next</button>
-            </div>
-        </form>
-    </mat-step>
-    <!-- #docregion label -->
-    <mat-step [stepControl]="conversionsFormGroup" label="Conversions">
-        <!-- #enddocregion label -->
-        <form [formGroup]="conversionsFormGroup">
-            <mat-form-field>
-                <mat-label>Address</mat-label>
-                <input matInput formControlName="conversionsCtrl" placeholder="Ex. 1 Main St, New York, NY" required>
-            </mat-form-field>
-            <div>
-                <button mat-button matStepperPrevious>Back</button>
-                <button mat-button matStepperNext>Next</button>
             </div>
         </form>
     </mat-step>

@@ -1,6 +1,6 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { parse, ParseConfig, ParseError, Parser, ParseResult } from 'papaparse';
-import { Extractor } from './classes/extractor';
+import { ExtractorService } from './services/extractor.service';
 import { FileDisplay } from './models/file-display';
 
 @Component({
@@ -14,7 +14,7 @@ export class AppComponent {
   files: FileDisplay[] = [];
 
   parsed: Object[] = [];
-  extractor: Extractor;
+  extractor: ExtractorService;
 
   /**
    * on file drop handler
@@ -93,7 +93,7 @@ export class AppComponent {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
   }
 
-  public extract(file: any): Extractor {
-    return new Extractor(file, null);
+  public extract(file: any): ExtractorService {
+    return new ExtractorService();//file, null);
   }
 }

@@ -1,8 +1,12 @@
+import { SelectionModel } from '@angular/cdk/collections';
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {AbstractControl, FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
 import { MatStepper } from '@angular/material/stepper';
-import { Extractor } from 'src/app/classes/extractor';
+import { MatTableDataSource } from '@angular/material/table';
+import { DataConverter, Conversion } from 'src/app/classes/dataconverter';
+import { ExtractorService } from 'src/app/services/extractor.service';
 import { Column } from 'src/app/models/column';
+import { CSVData } from 'src/app/models/csvdata';
 
 @Component({
   selector: 'app-multistep-form',
@@ -12,21 +16,19 @@ import { Column } from 'src/app/models/column';
 export class MultistepFormComponent implements OnInit {
   @ViewChild("stepper", { static: false }) stepper: MatStepper;
 
-  extractor: Extractor;
+  isExtracting: boolean = false;
+  data: CSVData;
 
-  columnsSelected = false;
-  columnsFormGroup: FormGroup;
-  conversionsFormGroup: FormGroup;
+  conversions = DataConverter.conversions;
+  columnSelectColumns: string[] = ['isExport','column','conversion'];
+  columnsForm: FormGroup;
   preciseFormGroup: FormGroup;
 
   constructor(private _formBuilder: FormBuilder) { }
 
   ngOnInit(): void {
-    this.columnsFormGroup = this._formBuilder.group({
-      columnsCtrl: ['', Validators.required]
-    });
-    this.conversionsFormGroup = this._formBuilder.group({
-      conversionsCtrl: ['', Validators.required]
+    this.columnsForm = this._formBuilder.group({
+      columns: ['', Validators.required]
     });
     this.preciseFormGroup = this._formBuilder.group({
       preciseCtrl: ['', Validators.required]
@@ -46,17 +48,14 @@ export class MultistepFormComponent implements OnInit {
   }
 
   saveColumnSelection() {
-    let selectedColumns : string[] = this.columnsFormGroup.get('columnsCtrl').value;
-    this.extractor.columns.forEach((column: Column) => {
-      column.export = selectedColumns.indexOf(column.name) >= 0;
-    });
+    this.data.columns = this.columnsForm.value;
   }
   
   /**
    * on file drop handler
    */
   onFileDropped($event) {
-    if (this.extractor == null || this.extractor.parsed.length > 0) {
+    if (this.data == null || this.data.parsed.length > 0) {
       this.extract($event);
     }
   }
@@ -82,10 +81,51 @@ export class MultistepFormComponent implements OnInit {
     // this.fileDropEl.nativeElement.value = "";
     // // this.uploadFilesSimulator(0);
     if (files.length > 1) {
-      alert("Only one file can be parsed at a time.");
-      this.extractor = new Extractor(files[0], this);
-    } else if (files.length === 1) {
-      this.extractor = new Extractor(files[0], this);
+      alert("Only one file can be parsed at a time. Parsing first file.");
+    } else if (files.length <= 0) {
+      alert("Need a file to parse!");
+      return;
     }
+    
+    this.isExtracting = true;
+    ExtractorService.extract(files[0]).then((data) => {
+      this.data = data;
+      this.columnsForm.setControl('columns', new FormArray(this.data.columns.map(Column.asFormGroup)));
+      this.isExtracting = false;
+      // Use setTimeout here to get the stepper to recognize that the upload has ended.
+      setTimeout(() => {
+        this.stepper.next();
+      }, 1);
+    });
+  }
+  /** Whether the number of selected elements matches the total number of rows. */
+  isAllSelected() {
+    // const numSelected = this.columnSelection.selected.length;
+    // const numRows = this.csvColumns.controls.length;
+    // return numSelected === numRows;
+    return false;
+  }
+
+  isSomeSelected() {
+    let someSelected = false;
+    for (let column in this.columnsForm.value.columns) {
+      someSelected = this.columnsForm.value.columns[column].isExport;
+      if (someSelected) {
+        break;
+      }
+    }
+
+    return someSelected;
+  }
+
+  /** Selects all rows if they are not all selected; otherwise clear columnSelection. */
+  masterToggle() {
+    // this.isAllSelected() ?
+    //     this.columnSelection.clear() :
+    //     this.csvColumns.controls.forEach(column => this.columnSelection.select(column));
+  }
+
+  get csvColumns(): FormArray {
+    return this.columnsForm.get('columns') as FormArray;
   }
 }
