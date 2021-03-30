@@ -13,6 +13,10 @@
     <mat-step [stepControl]="columnsForm" label="Columns">
         <!-- #enddocregion label -->
         <form [formGroup]="columnsForm">
+            <div>
+                <button mat-button matStepperPrevious>Back</button>
+                <button mat-button matStepperNext (click)="saveColumnSelection()">Next</button>
+            </div>
             <ng-container formArrayName="columns">
                 <mat-table [dataSource]="csvColumns.controls">
                     <!-- Checkbox Column -->
@@ -41,9 +45,23 @@
                         <mat-header-cell *matHeaderCellDef> Conversion </mat-header-cell>
                         <mat-cell *matCellDef="let column" [formGroup]="column">
                             <mat-form-field floatLabel="never">
-                                <mat-select formControlName="conversion" (selectionChange)="onConversionChange($event, column)">
-                                    <mat-option *ngFor="let conversion of conversions" [value]="conversion.value">
+                                <mat-select formControlName="conversion">
+                                    <mat-option *ngFor="let conversion of conversions" [value]="conversion">
                                         {{ conversion.label }}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </mat-cell>
+                    </ng-container>
+                    
+                    <!-- Transform Column -->
+                    <ng-container matColumnDef="transform">
+                        <mat-header-cell *matHeaderCellDef> Transform </mat-header-cell>
+                        <mat-cell *matCellDef="let column" [formGroup]="column">
+                            <mat-form-field floatLabel="never">
+                                <mat-select formControlName="transform">
+                                    <mat-option *ngFor="let transform of transforms" [value]="transform">
+                                        {{ transform.value }}
                                     </mat-option>
                                 </mat-select>
                             </mat-form-field>
@@ -61,16 +79,74 @@
         </form>
     </mat-step>
     <!-- #docregion label -->
-    <mat-step [stepControl]="preciseFormGroup" label="Precise Timings">
+    <mat-step [stepControl]="lapForm" label="Laps">
         <!-- #enddocregion label -->
-        <form [formGroup]="preciseFormGroup">
-            <mat-form-field>
-                <mat-label>Address</mat-label>
-                <input matInput formControlName="preciseCtrl" placeholder="Ex. 1 Main St, New York, NY" required>
-            </mat-form-field>
+        <form [formGroup]="lapForm">
             <div>
                 <button mat-button matStepperPrevious>Back</button>
-                <button mat-button matStepperNext>Next</button>
+                <button mat-button matStepperNext (click)="saveColumnSelection()">Next</button>
+            </div>
+            <ng-container formArrayName="laps">
+                <mat-table [dataSource]="laps.controls">
+                    <!-- Checkbox -->
+                    <ng-container matColumnDef="isExport">
+                        <!--<mat-header-cell *matHeaderCellDef>
+                            <mat-checkbox (change)="$event ? masterToggle() : null"
+                                        [checked]="isAllSelected()"
+                                        [indeterminate]="isSomeSelected()"
+                                        [aria-label]="checkboxLabel()">
+                            </mat-checkbox>
+                        </mat-header-cell>-->
+                        <mat-header-cell *matHeaderCellDef> Export? </mat-header-cell>
+                        <mat-cell *matCellDef="let lap" [formGroup]="lap">
+                            <input type="checkbox" formControlName="isExport"/>
+                        </mat-cell>
+                    </ng-container>
+
+                    <!-- Lap ID -->
+                    <ng-container matColumnDef="id">
+                        <th mat-header-cell *matHeaderCellDef> Lap # </th>
+                        <td mat-cell *matCellDef="let lap"> {{lap.value.id}} </td>
+                    </ng-container>
+                    
+                    <!-- Lap Time -->
+                    <ng-container matColumnDef="time">
+                        <mat-header-cell *matHeaderCellDef> Lap Time </mat-header-cell>
+                        <mat-cell *matCellDef="let lap" [formGroup]="lap">
+                            <mat-form-field floatLabel="never">
+                                <input matInput type="number" formControlName="time"/>
+                            </mat-form-field>
+                        </mat-cell>
+                    </ng-container>
+                    
+                    <!-- Sectors -->
+                    <ng-container matColumnDef="sector">
+                        <mat-header-cell *matHeaderCellDef> Sectors </mat-header-cell>
+                        <mat-cell *matCellDef="let lap" [formGroup]="lap">
+                            <div formArrayName="sectors">
+                                <div *ngFor="let sector of lapSectors(lap.value.id - 1).controls; let sectorIndex=index">
+                                    <div [formGroupName]="sectorIndex">
+                                        <input matInput type="number" formControlName="split"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--<mat-form-field floatLabel="never">
+                                <mat-select formControlName="transform">
+                                    <mat-option *ngFor="let transform of transforms" [value]="transform">
+                                        {{ transform.value }}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>-->
+                        </mat-cell>
+                    </ng-container>
+
+                    <mat-header-row *matHeaderRowDef="lapSelectColumns"></mat-header-row>
+                    <mat-row *matRowDef="let row; columns: lapSelectColumns;"></mat-row>
+                </mat-table>
+            </ng-container>
+            <div>
+                <button mat-button matStepperPrevious>Back</button>
+                <button mat-button matStepperNext (click)="saveLapSelection()">Next</button>
             </div>
         </form>
     </mat-step>

@@ -1,12 +1,12 @@
 import { FormArray } from '@angular/forms';
 import { parse, ParseConfig, ParseError, Parser, ParseResult } from 'papaparse';
-import { MultistepFormComponent } from '../components/multistep-form/multistep-form.component';
+import { MultistepFormComponent } from '../multistep-form.component';
 import { MatTableDataSource } from '@angular/material/table';
-import { Column } from '../models/column';
-import { CSVData } from '../models/csvdata';
+import { Column } from '../column';
+import { CSVData } from './csvdata';
 
 
-export class ExtractorService {
+export class CSVReaderService {
     multistepForm: MultistepFormComponent;
 
     public static async extract(file: File): Promise<CSVData> {
@@ -36,6 +36,12 @@ export class ExtractorService {
                 complete: (results: ParseResult<any>, file: File) => {
                     data.parsed = results.data;
                     data.columns = results.meta.fields.map(header => new Column(header));
+                    data.columns.unshift(new Column("Time (s)"));
+                    
+                    let headers = results.meta.fields.join(",");
+                    if (headers.indexOf("Manifold pressure") >= 0 && headers.indexOf("Barometric pressure") >= 0) {
+                        data.columns.push(new Column("Boost (kPa) *OBD"));
+                    }
                     //data.columns.forEach(column => this.columnMap.set(column.name, column));
                     /*for(let row of this.parsed) {
                         for (let header of Object.keys(row)) {

@@ -2,11 +2,12 @@ import { SelectionModel } from '@angular/cdk/collections';
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import {AbstractControl, FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
 import { MatStepper } from '@angular/material/stepper';
-import { MatTableDataSource } from '@angular/material/table';
-import { DataConverter, Conversion } from 'src/app/classes/dataconverter';
-import { ExtractorService } from 'src/app/services/extractor.service';
-import { Column } from 'src/app/models/column';
-import { CSVData } from 'src/app/models/csvdata';
+import { DataConverter, Conversion, DataTransformer } from 'src/app/components/multistep-form/transform/dataconverter';
+import { CSVReaderService } from 'src/app/components/multistep-form/reader/csvreader.service';
+import { Column } from 'src/app/components/multistep-form/column';
+import { CSVData } from 'src/app/components/multistep-form/reader/csvdata';
+import { LapReaderService } from './reader/lapreader.service';
+import { Lap, Race } from './race';
 
 @Component({
   selector: 'app-multistep-form',
@@ -18,11 +19,14 @@ export class MultistepFormComponent implements OnInit {
 
   isExtracting: boolean = false;
   data: CSVData;
+  race: Race;
 
   conversions = DataConverter.conversions;
-  columnSelectColumns: string[] = ['isExport','column','conversion'];
+  transforms = DataTransformer.transforms;
+  columnSelectColumns: string[] = ['isExport','column','conversion','transform'];
   columnsForm: FormGroup;
-  preciseFormGroup: FormGroup;
+  lapSelectColumns: string[] = ['isExport','id','time','sector'];//,'penalty'];
+  lapForm: FormGroup;
 
   constructor(private _formBuilder: FormBuilder) { }
 
@@ -30,8 +34,8 @@ export class MultistepFormComponent implements OnInit {
     this.columnsForm = this._formBuilder.group({
       columns: ['', Validators.required]
     });
-    this.preciseFormGroup = this._formBuilder.group({
-      preciseCtrl: ['', Validators.required]
+    this.lapForm = this._formBuilder.group({
+      laps: ['', Validators.required]
     });
   }
 
@@ -49,6 +53,9 @@ export class MultistepFormComponent implements OnInit {
 
   saveColumnSelection() {
     this.data.columns = this.columnsForm.value;
+  }
+  saveLapSelection() {
+    this.race.laps = this.lapForm.value;
   }
   
   /**
@@ -88,10 +95,14 @@ export class MultistepFormComponent implements OnInit {
     }
     
     this.isExtracting = true;
-    ExtractorService.extract(files[0]).then((data) => {
+    CSVReaderService.extract(files[0]).then((data) => {
       this.data = data;
       this.columnsForm.setControl('columns', new FormArray(this.data.columns.map(Column.asFormGroup)));
       this.isExtracting = false;
+      LapReaderService.extract(this.data.parsed).then((race) => {
+        this.race = race;
+        this.lapForm.setControl('laps', new FormArray(this.race.laps.map(Lap.asFormGroup)));
+      });
       // Use setTimeout here to get the stepper to recognize that the upload has ended.
       setTimeout(() => {
         this.stepper.next();
@@ -127,5 +138,13 @@ export class MultistepFormComponent implements OnInit {
 
   get csvColumns(): FormArray {
     return this.columnsForm.get('columns') as FormArray;
+  }
+
+  get laps(): FormArray {
+    return this.lapForm.get('laps') as FormArray;
+  }
+
+  lapSectors(lapIndex: number) : FormArray {
+    return this.laps.at(lapIndex).get("sectors") as FormArray;
   }
 }
