@@ -37,6 +37,8 @@ export class LapReaderService {
                     } else if (value["Trap name"] != null) {
                         // Add a new sector
                         let sector = new Sector();
+                        sector.dataRow = value;
+                        sector.dataRowIndex = index;
                         sector.split = value["UTC Time (s)"] - lap.lapStart["UTC Time (s)"];
                         sector.sector = lap.sectors.length > 0 ? sector.split - lap.sectors[lap.sectors.length - 1].split : sector.split;
                         lap.sectors.push(sector);
@@ -58,17 +60,6 @@ export class LapReaderService {
             if (race.laps.length == 0) {
                 reject("No laps found!");
             }
-
-            race.laps.forEach(lap => {
-                if (race.best == null) {
-                    race.best = lap;
-                } else if (lap.lapTime < race.best.lapTime) {
-                    lap.previousBest = race.best;
-                    race.best = lap;
-                } else {
-                    lap.previousBest = race.best;
-                }
-            });
 
             resolve(race);
         });
