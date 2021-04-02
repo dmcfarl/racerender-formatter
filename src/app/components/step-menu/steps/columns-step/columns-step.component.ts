@@ -28,4 +28,18 @@ export class ColumnsStepComponent implements OnInit {
   get columns(): Column[] {
     return this.raceService.csvData.columns;
   }
+
+  nextPage() {
+    this.raceService.csvData.columns.forEach(column => {
+      column.isExport = this.selectedColumns.includes(column);
+    });
+
+    if (this.raceService.csvData.columns.some(column => column.isExport)) {
+      this.router.navigate(['laps-step']);
+    }
+  }
+
+  prevPage() {
+      this.router.navigate(['upload-step']);
+  }
 }

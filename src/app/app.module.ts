@@ -36,6 +36,7 @@ import {TableModule} from 'primeng/table';
 import {InputTextModule} from 'primeng/inputtext';
 import {CheckboxModule} from 'primeng/checkbox';
 import {DropdownModule} from 'primeng/dropdown';
+import {CardModule} from 'primeng/card';
 
 @NgModule({
   declarations: [
@@ -65,6 +66,7 @@ import {DropdownModule} from 'primeng/dropdown';
     MatSelectModule,
     MatTableModule,
     ReactiveFormsModule,
+    CardModule,
     CheckboxModule,
     DropdownModule,
     FileUploadModule,
