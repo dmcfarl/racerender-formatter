@@ -26,6 +26,9 @@ import { StepRoutingModule } from './components/step-menu/step-routing.module';
 import { LapReaderService } from './components/multistep-form/reader/lapreader.service';
 import { CSVReaderService } from './components/multistep-form/reader/csvreader.service';
 import { RouterOutlet } from '@angular/router';
+import { ColumnsStepComponent } from './components/step-menu/steps/columns-step/columns-step.component';
+import { LapsStepComponent } from './components/step-menu/steps/laps-step/laps-step.component';
+import { DownloadStepComponent } from './components/step-menu/steps/download-step/download-step.component';
 
 
 @NgModule({
@@ -36,7 +39,10 @@ import { RouterOutlet } from '@angular/router';
     ExtractorDirective,
     MultistepFormComponent,
     StepMenuComponent,
-    UploadStepComponent
+    UploadStepComponent,
+    ColumnsStepComponent,
+    LapsStepComponent,
+    DownloadStepComponent
   ],
   imports: [
     BrowserModule,

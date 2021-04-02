@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { RaceService } from 'src/app/services/race.service';
 
 @Component({
   selector: 'app-upload-step',
@@ -7,7 +9,7 @@ import { Component, OnInit } from '@angular/core';
 })
 export class UploadStepComponent implements OnInit {
 
-  constructor() { }
+  constructor(public raceService: RaceService, private router: Router) { }
 
   ngOnInit(): void {
   }
