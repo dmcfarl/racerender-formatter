@@ -1,3 +1,6 @@
-<div class="p-div">
-    <p>upload-step works!</p>
+<div *ngIf="!isExtracting">
+    <p-fileUpload name="myfile[]" customUpload="true" accept="*.csv" (uploadHandler)="onUpload($event)" [auto]="true"></p-fileUpload>
+</div>
+<div *ngIf="isExtracting">
+    <p-progressSpinner></p-progressSpinner>
 </div>

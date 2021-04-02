@@ -13,6 +13,7 @@ const appRoutes: Routes = [
   { path: 'columns-step', component: ColumnsStepComponent },
   { path: 'laps-step', component: LapsStepComponent },
   { path: 'download-step', component: DownloadStepComponent },
+  { path: '', redirectTo: 'upload-step', pathMatch: 'full' }
 ];
 
 @NgModule({

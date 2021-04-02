@@ -3,14 +3,16 @@ import { Conversion, DataConverter, DataTransformer, Transform } from "./transfo
 
 export class Column {
     name: string;
+    exportName: string;
     isExport: boolean = true;
     conversion: Conversion;
     transform: Transform;
 
     constructor(name: string) {
         this.name = name;
-        this.conversion = DataConverter.estimateConversion(name);
-        this.transform = DataTransformer.estimateTransform(name);
+        this.exportName = name;
+        this.conversion = DataConverter.estimateConversion(this);
+        this.transform = DataTransformer.estimateTransform(this);
     }
 
     static asFormGroup(column: Column): FormGroup {

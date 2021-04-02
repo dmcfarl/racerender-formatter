@@ -17,6 +17,7 @@ export class RaceService {
         let promise = this.csvReaderService.extract(file);
         promise.then((data: CSVData) => {
             this.csvData = data;
+            this.extractLaps();
         }).catch((reason: any) => {
             console.log(reason);
         });

@@ -2,12 +2,12 @@ import { Column } from "../column";
 import { Lap } from "../race";
 
 export class Conversion {
-    value: string;
+    name: string;
     label: string;
     convert: (data: any) => any;
 
-    constructor(value: string, label: string, convert: (data: any) => any) {
-        this.value = value;
+    constructor(name: string, label: string, convert: (data: any) => any) {
+        this.name = name;
         this.label = label;
         this.convert = convert;
     }
@@ -41,14 +41,18 @@ export class DataConverter {
         })
     ];
 
-    public static estimateConversion(column: string): Conversion {
-        if (column.indexOf("(.C)") >= 0) {
+    public static estimateConversion(column: Column): Conversion {
+        if (column.name.indexOf("(.C)") >= 0) {
+            column.exportName.replace("(.C)", "(.F)");
             return DataConverter.conversions[5];
-        } else if (column.indexOf("(m)") >= 0 && column.indexOf("position") < 0) {
+        } else if (column.name.indexOf("(m)") >= 0 && column.name.indexOf("position") < 0) {
+            column.exportName.replace("(m)", "(mi)");
             return DataConverter.conversions[1];
-        } else if (column.indexOf("(m/s)") >= 0) {
+        } else if (column.name.indexOf("(m/s)") >= 0) {
+            column.exportName.replace("(m/s)", "(mph)");
             return DataConverter.conversions[3];
-        } else if (column.indexOf("(kPa)") >= 0) {
+        } else if (column.name.indexOf("(kPa)") >= 0) {
+            column.exportName.replace("(kPa)", "(psi)");
             return DataConverter.conversions[7];
         }
         return DataConverter.conversions[0];
@@ -56,11 +60,11 @@ export class DataConverter {
 }
 
 export class Transform {
-    value: string;
+    name: string;
     transform: (columns: Column, data: Object, lap: Lap) => any;
 
-    constructor(value: string, transform: (columns: Column, data: Object, lap: Lap) => any) {
-        this.value = value;
+    constructor(name: string, transform: (columns: Column, data: Object, lap: Lap) => any) {
+        this.name = name;
         this.transform = transform;
     }
 }
@@ -78,10 +82,10 @@ export class DataTransformer {
         })
     ]
 
-    public static estimateTransform(column: string): Transform {
-        if (column.indexOf("Boost") >= 0) {
+    public static estimateTransform(column: Column): Transform {
+        if (column.name.indexOf("Boost") >= 0) {
             return DataTransformer.transforms[2];
-        } else if (column.indexOf("Distance") >= 0) {
+        } else if (column.name.indexOf("Distance") >= 0) {
             return DataTransformer.transforms[1];
         }
         return DataTransformer.transforms[0];

@@ -29,7 +29,13 @@ import { RouterOutlet } from '@angular/router';
 import { ColumnsStepComponent } from './components/step-menu/steps/columns-step/columns-step.component';
 import { LapsStepComponent } from './components/step-menu/steps/laps-step/laps-step.component';
 import { DownloadStepComponent } from './components/step-menu/steps/download-step/download-step.component';
-
+import { FileUploadModule } from 'primeng/fileupload';
+import { HttpClientModule } from '@angular/common/http';
+import {ProgressSpinnerModule} from 'primeng/progressspinner';
+import {TableModule} from 'primeng/table';
+import {InputTextModule} from 'primeng/inputtext';
+import {CheckboxModule} from 'primeng/checkbox';
+import {DropdownModule} from 'primeng/dropdown';
 
 @NgModule({
   declarations: [
@@ -59,7 +65,14 @@ import { DownloadStepComponent } from './components/step-menu/steps/download-ste
     MatSelectModule,
     MatTableModule,
     ReactiveFormsModule,
+    CheckboxModule,
+    DropdownModule,
+    FileUploadModule,
+    HttpClientModule,
+    InputTextModule,
+    ProgressSpinnerModule,
     StepsModule,
+    TableModule,
     ToastModule,
     StepRoutingModule,
   ],
