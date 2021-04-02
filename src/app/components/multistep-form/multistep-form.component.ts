@@ -95,11 +95,11 @@ export class MultistepFormComponent implements OnInit {
     }
     
     this.isExtracting = true;
-    CSVReaderService.extract(files[0]).then((data) => {
+    new CSVReaderService().extract(files[0]).then((data) => {
       this.data = data;
       this.columnsForm.setControl('columns', new FormArray(this.data.columns.map(Column.asFormGroup)));
       this.isExtracting = false;
-      LapReaderService.extract(this.data.parsed).then((race) => {
+      new LapReaderService().extract(this.data.parsed).then((race) => {
         this.race = race;
         this.lapForm.setControl('laps', new FormArray(this.race.laps.map(Lap.asFormGroup)));
       });

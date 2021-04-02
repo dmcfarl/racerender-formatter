@@ -4,12 +4,14 @@ import { MultistepFormComponent } from '../multistep-form.component';
 import { MatTableDataSource } from '@angular/material/table';
 import { Column } from '../column';
 import { CSVData } from './csvdata';
+import { Injectable } from '@angular/core';
 
-
+@Injectable({
+    providedIn: 'root'
+})
 export class CSVReaderService {
-    multistepForm: MultistepFormComponent;
 
-    public static async extract(file: File): Promise<CSVData> {
+    public async extract(file: File): Promise<CSVData> {
         //fileDisplay.parsed = 0;
         //this.countLines(fileDisplay);
         let promise = new Promise<CSVData>((resolve, reject) => {
@@ -87,7 +89,7 @@ export class CSVReaderService {
      * @param text Incoming chunk of data (or potentially the whole file)
      * @returns 
      */
-    private static ignoreProlog(text: string): string {
+    private ignoreProlog(text: string): string {
         const pattern: string = text.indexOf('\r\n') > 0 ? '\r\n\r\n' : '\n\n';
         var index = text.indexOf(pattern);
         return index > 0 ? text.substring(index + pattern.length) : text;
@@ -100,7 +102,7 @@ export class CSVReaderService {
      * @param replacement 
      * @returns 
      */
-    private static replaceSecond(text: string, header: string, replacement: string) : string {
+    private replaceSecond(text: string, header: string, replacement: string) : string {
         var index = text.indexOf(header, text.indexOf(header) + header.length);
         return text.substr(0, index) + replacement + text.substr(index + header.length);
     }

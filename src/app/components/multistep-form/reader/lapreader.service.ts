@@ -1,7 +1,11 @@
+import { Injectable } from "@angular/core";
 import { Race, Lap, Sector, Session } from "../race";
 
+@Injectable({
+    providedIn: 'root'
+})
 export class LapReaderService {
-    public static async extract(data: Object[]): Promise<Race> {
+    public async extract(data: Object[]): Promise<Race> {
         let promise = new Promise<Race>((resolve, reject) => {
             let race: Race = new Race();
             let session: Session = null;

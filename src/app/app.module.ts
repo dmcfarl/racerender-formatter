@@ -18,6 +18,15 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {MatTableModule} from '@angular/material/table';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { StepMenuComponent } from './components/step-menu/step-menu.component';
+import { UploadStepComponent } from './components/step-menu/steps/upload-step/upload-step.component';
+import {StepsModule} from 'primeng/steps';
+import { ToastModule } from 'primeng/toast';
+import { StepRoutingModule } from './components/step-menu/step-routing.module';
+import { LapReaderService } from './components/multistep-form/reader/lapreader.service';
+import { CSVReaderService } from './components/multistep-form/reader/csvreader.service';
+import { RouterOutlet } from '@angular/router';
+
 
 @NgModule({
   declarations: [
@@ -25,7 +34,9 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     DragndropDirective,
     ProgressComponent,
     ExtractorDirective,
-    MultistepFormComponent
+    MultistepFormComponent,
+    StepMenuComponent,
+    UploadStepComponent
   ],
   imports: [
     BrowserModule,
@@ -42,8 +53,15 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     MatSelectModule,
     MatTableModule,
     ReactiveFormsModule,
+    StepsModule,
+    ToastModule,
+    StepRoutingModule,
   ],
-  providers: [],
+  providers: [
+    CSVReaderService,
+    LapReaderService,
+    RouterOutlet
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

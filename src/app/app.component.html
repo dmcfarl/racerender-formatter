@@ -338,7 +338,7 @@
 
   </div>
 
-  <div class="container" appDragndrop (fileDropped)="onFileDropped($event)">
+  <!--<div class="container" appDragndrop (fileDropped)="onFileDropped($event)">
     <input type="file" #fileDropRef id="fileDropRef" multiple (change)="fileBrowseHandler($event.target.files)" />
     <img src="assets/img/dnd/ic-upload-file.svg" alt="">
     <h3>Drag and drop file here</h3>
@@ -360,10 +360,11 @@
       </div>
       <img src="assets/img/dnd/ic-delete-file.svg" class="delete" width="20px" alt="file" (click)="deleteFile(i)">
     </div>
-  </div>
+  </div>-->
 
 
   <app-multistep-form></app-multistep-form>
+  <app-step-menu></app-step-menu>
 
   <!-- Resources -->
   <h2>Resources</h2>
