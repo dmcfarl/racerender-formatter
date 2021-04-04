@@ -8,15 +8,19 @@
         Choose the laps to export including any precise timing and penalties
     </ng-template>
     <ng-template pTemplate="content">
-        <div class="p-grid p-nogutter p-justify-between">
-            <p-button label="Back" (onClick)="prevPage()" icon="pi pi-angle-left"></p-button>
-            <p-button label="Next" (onClick)="nextPage()" icon="pi pi-angle-right" iconPos="right"></p-button>
+        <p-button label="Back" (onClick)="prevPage()" icon="pi pi-angle-left" [style]="{'margin-right': '.5em'}"></p-button>
+        <p-button label="Next" (onClick)="nextPage()" icon="pi pi-angle-right" iconPos="right"></p-button>
+        <div style="float: right;">
+            <p-radioButton name="lapSelect" value="bestGhost" [(ngModel)]="lapSelect" inputId="select1"></p-radioButton>
+            <label for="select1">Best and Previous Only</label>
+            <p-radioButton name="lapSelect" value="manual" [(ngModel)]="lapSelect" inputId="select2"></p-radioButton>
+            <label for="select2">Manual</label>
         </div>
-        <p-table [value]="laps" [(selection)]="selectedLaps" dataKey="id" styleClass="p-datatable-striped">
+        <p-table [value]="laps" [(selection)]="selectedLaps" dataKey="id" styleClass="p-datatable-striped" (onEditComplete)="updateBestLap()">
             <ng-template pTemplate="header">
                 <tr>
                     <th style="width: 3rem">
-                        <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                        <p-tableHeaderCheckbox [disabled]="lapSelect=='bestGhost'"></p-tableHeaderCheckbox>
                     </th>
                     <th>Lap #</th>
                     <th>Time</th>
@@ -27,15 +31,17 @@
             <ng-template pTemplate="body" let-lap let-expanded="expanded">
                 <tr>
                     <td>
-                        <p-tableCheckbox [value]="lap"></p-tableCheckbox>
+                        <p-tableCheckbox [value]="lap" [disabled]="lapSelect=='bestGhost'"></p-tableCheckbox>
                     </td>
                     <td>
                         {{lap.id}}
+                        <p-tag *ngIf="best.id==lap.id" styleClass="p-ml-2" severity="success" value="Best" [rounded]="true"></p-tag>
+                        <p-tag *ngIf="best.previousBest.id==lap.id" styleClass="p-ml-2" severity="warning" value="Previous" [rounded]="true"></p-tag>
                     </td>
                     <td pEditableColumn>
                         <p-cellEditor>
                             <ng-template pTemplate="input">
-                                <input pInputText type="text" [(ngModel)]="lap.lapTime" required>
+                                <input pInputText type="number" [(ngModel)]="lap.lapTime" required>
                                 <!--<p-inputNumber [(ngModel)]="lap.lapTime" [maxFractionDigits]="3" (input)="updateBestLap()"></p-inputNumber>-->
                             </ng-template>
                             <ng-template pTemplate="output">
@@ -44,45 +50,88 @@
                         </p-cellEditor>
                     </td>
                     <td>
-                        <button type="button" pButton pRipple [pRowToggler]="lap" class="p-button-text p-button-rounded p-button-plain" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
+                        <button type="button" pButton pRipple [pRowToggler]="lap" label="Expand" class="p-button-text p-button-rounded p-button-plain" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
                     </td>
                     <td>
-                        <button type="button" pButton pRipple [pRowToggler]="lap" class="p-button-text p-button-rounded p-button-plain" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
+                        <button type="button" pButton pRipple [pRowToggler]="lap" label="Expand" class="p-button-text p-button-rounded p-button-plain" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
                     </td>
                 </tr>
             </ng-template>
             <ng-template pTemplate="rowexpansion" let-lap>
                 <tr>
-                    <td colspan="3"></td>
-                    <td>
-                        <!--<div class="p-p-3">-->
-                            <p-table [value]="lap.sectors" dataKey="dataRowIndex" styleClass="p-datatable-striped">
-                                <ng-template pTemplate="header">
-                                    <tr>
-                                        <th>Splits</th>
-                                    </tr>
-                                </ng-template>
-                                <ng-template pTemplate="body" let-sector let-i="rowIndex">
-                                    <tr>
-                                        <td pEditableColumn>
-                                            <p-cellEditor>
-                                                <ng-template pTemplate="input">
-                                                    <input pInputText type="text" [(ngModel)]="sector.split" required><!--disabled="i+1==lap.sectors.size" required>-->
-                                                    <!--<p-inputNumber [(ngModel)]="sector.split" [maxFractionDigits]="3" (input)="updateSectors(lap)" disabled="i+1==lap.sectors.size"></p-inputNumber>-->
-                                                </ng-template>
-                                                <ng-template pTemplate="output">
-                                                    {{sector.split}}
-                                                </ng-template>
-                                            </p-cellEditor>
-                                        </td>
-                                    </tr>
-                                </ng-template>
-                            </p-table>
-                        <!--</div>-->
+                    <td colspan="2"></td>
+                    <td style="vertical-align: top;">
+                        <p-table [value]="lap.sectors" dataKey="dataRowIndex" styleClass="p-datatable-striped" (onEditComplete)="updateSectors(lap)">
+                            <ng-template pTemplate="header">
+                                <tr>
+                                    <th>Splits</th>
+                                    <th style="width: 3rem"></th>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-sector let-i="rowIndex">
+                                <tr>
+                                    <td pEditableColumn>
+                                        <p-cellEditor>
+                                            <ng-template pTemplate="input">
+                                                <input pInputText type="number" [(ngModel)]="sector.split" [disabled]="i+1==lap.sectors.length ? '' : null" required><!--disabled="i+1==lap.sectors.size" required>-->
+                                                <!--<p-inputNumber ngDefaultControl [(ngModel)]="sector.split" [maxFractionDigits]="3" (input)="updateSectors(lap)"></p-inputNumber>-->
+                                            </ng-template>
+                                            <ng-template pTemplate="output">
+                                                {{sector.split}}
+                                            </ng-template>
+                                        </p-cellEditor>
+                                    </td>
+                                    <td>
+                                        <button pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-danger" (click)="removeSector(i)"></button>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="summary">
+                                <button pButton pRipple type="button" icon="pi pi-plus" class="p-button-rounded p-button-success" (click)="addSector()"></button>
+                            </ng-template>
+                        </p-table>
                     </td>
-                    <td>
-                        <div class="p-p-3">
-                        </div>
+                    <td colspan="2" style="vertical-align: top;">
+                        <p-table [value]="lap.penalties" dataKey="dataRowIndex" styleClass="p-datatable-striped" (onEditComplete)="updateSectors(lap)">
+                            <ng-template pTemplate="header">
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Time</th>
+                                    <th style="width: 3rem"></th>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-penalty let-i="rowIndex">
+                                <tr>
+                                    <td pEditableColumn>
+                                        <p-cellEditor>
+                                            <ng-template pTemplate="input">
+                                                <p-dropdown [options]="penaltyTypes" [(ngModel)]="penalty.type" optionLabel="name" required></p-dropdown>
+                                            </ng-template>
+                                            <ng-template pTemplate="output">
+                                                {{penalty.type.name}}
+                                            </ng-template>
+                                        </p-cellEditor>
+                                    </td>
+                                    <td pEditableColumn>
+                                        <p-cellEditor>
+                                            <ng-template pTemplate="input">
+                                                <input pInputText type="number" [(ngModel)]="penalty.lapTime" required>
+                                                <!--<p-inputNumber ngDefaultControl [(ngModel)]="penalty.lapTime" [maxFractionDigits]="3" (input)="updateSectors(lap)"></p-inputNumber>-->
+                                            </ng-template>
+                                            <ng-template pTemplate="output">
+                                                {{penalty.lapTime}}
+                                            </ng-template>
+                                        </p-cellEditor>
+                                    </td>
+                                    <td>
+                                        <button pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-danger" (click)="removePenalty(lap, i)"></button>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="summary">
+                                <button pButton pRipple type="button" icon="pi pi-plus" class="p-button-rounded p-button-success" (click)="addPenalty(lap)"></button>
+                            </ng-template>
+                        </p-table>
                     </td>
                 </tr>
             </ng-template>
@@ -90,9 +139,7 @@
     </ng-template>
     
     <ng-template pTemplate="footer">
-        <div class="p-grid p-nogutter p-justify-between">
-            <p-button label="Back" (onClick)="prevPage()" icon="pi pi-angle-left"></p-button>
-            <p-button label="Next" (onClick)="nextPage()" icon="pi pi-angle-right" iconPos="right"></p-button>
-        </div>
+        <p-button label="Back" (onClick)="prevPage()" icon="pi pi-angle-left" [style]="{'margin-right': '.5em'}"></p-button>
+        <p-button label="Next" (onClick)="nextPage()" icon="pi pi-angle-right" iconPos="right"></p-button>
     </ng-template>
 </p-card>

@@ -3,6 +3,7 @@ import { Lap, Race, Sector } from "../components/multistep-form/race";
 import { CSVData } from "../components/multistep-form/reader/csvdata";
 import { CSVReaderService } from "../components/multistep-form/reader/csvreader.service";
 import { LapReaderService } from "../components/multistep-form/reader/lapreader.service";
+import { Rounder } from "../components/multistep-form/transform/rounder";
 
 @Injectable({
     providedIn: 'root'
@@ -38,21 +39,31 @@ export class RaceService {
     }
 
     updateBestLap() {
+        this.race.best = null;
         this.race.laps.forEach(lap => {
+            lap.lapTime = Rounder.round(lap.lapTime, 3);
             if (this.race.best == null) {
                 this.race.best = lap;
+                lap.previousBest = lap;
             } else if (lap.lapTime < this.race.best.lapTime) {
                 lap.previousBest = this.race.best;
                 this.race.best = lap;
             } else {
                 lap.previousBest = this.race.best;
             }
+            if (lap.sectors.length > 0) {
+                let lastSector = lap.sectors[lap.sectors.length - 1];
+                if (lastSector.split !== lap.lapTime) {
+                    lastSector.split = lap.lapTime;
+                    lastSector.sector = lap.sectors.length > 1 ? Rounder.round(lastSector.split - lap.sectors[lap.sectors.length - 2].split, 3) : lastSector.split;
+                }
+            }
         });
     }
 
     updateSectors(lap: Lap) {
         lap.sectors.forEach((sector: Sector, index: number) => {
-            sector.sector = sector.split - (index > 0 ? lap.sectors[index - 1].split : 0);
+            sector.sector = Rounder.round(sector.split - (index > 0 ? lap.sectors[index - 1].split : 0), 3);
         });
     }
 }

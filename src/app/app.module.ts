@@ -37,6 +37,8 @@ import {InputTextModule} from 'primeng/inputtext';
 import {CheckboxModule} from 'primeng/checkbox';
 import {DropdownModule} from 'primeng/dropdown';
 import {CardModule} from 'primeng/card';
+import {RadioButtonModule} from 'primeng/radiobutton';
+import { TagModule } from "primeng/tag";
 
 @NgModule({
   declarations: [
@@ -73,8 +75,10 @@ import {CardModule} from 'primeng/card';
     HttpClientModule,
     InputTextModule,
     ProgressSpinnerModule,
+    RadioButtonModule,
     StepsModule,
     TableModule,
+    TagModule,
     ToastModule,
     StepRoutingModule,
   ],

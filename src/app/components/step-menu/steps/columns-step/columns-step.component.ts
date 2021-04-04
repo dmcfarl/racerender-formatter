@@ -21,8 +21,9 @@ export class ColumnsStepComponent implements OnInit {
   ngOnInit(): void {
     if (this.raceService.csvData == null) {
       this.router.navigate(['upload-step']);
+    } else {
+      this.selectedColumns = this.raceService.csvData.columns.filter(column => column.isExport);
     }
-    this.selectedColumns = this.raceService.csvData.columns.filter(column => column.isExport);
   }
 
   get columns(): Column[] {

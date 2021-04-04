@@ -67,16 +67,44 @@ export class Sector {
     }
 }
 
-export enum PenaltyType {
-    TIME,
-    OFF,
-    DNF,
-    RERUN
+export class PenaltyType {
+    name: string;
+    penalize: (lapTime: number) => number;
+
+    constructor(name: string, penalize: (lapTime: number) => number) {
+        this.name = name;
+        this.penalize = penalize;
+    }
 }
 
 export class Penalty {
     type: PenaltyType;
     lapTime: number;
+
+    private static _DNF_TIME = 30 * 60;
+    private static _OFF_TIME = 20 * 60;
+    private static _RERUN_TIME = 40 * 60;
+    private static _TIME_TIME = 2 * 60;
+
+    static penaltyTypes: PenaltyType[] = [
+        new PenaltyType("DNF", (lapTime: number) => {
+            return Penalty._DNF_TIME;
+        }),
+        new PenaltyType("Off Course", (lapTime: number) => {
+            return lapTime !== Penalty._DNF_TIME ? Penalty._OFF_TIME : lapTime;
+        }),
+        new PenaltyType("Rerun", (lapTime: number) => {
+            return lapTime !== Penalty._DNF_TIME && lapTime !== Penalty._OFF_TIME ? Penalty._RERUN_TIME : lapTime;
+        }),
+        new PenaltyType("Time (+2s)", (lapTime: number) => {
+            return lapTime + Penalty._TIME_TIME;
+        })
+    ];
+
+    constructor(type: PenaltyType, lapTime: number) {
+        this.type = type;
+        this.lapTime = lapTime;
+    }
 
     static asFormGroup(penalty: Penalty): FormGroup {
         const fg = new FormGroup({

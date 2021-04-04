@@ -1,5 +1,6 @@
 import { Injectable } from "@angular/core";
 import { Race, Lap, Sector, Session } from "../race";
+import { Rounder } from "../transform/rounder";
 
 @Injectable({
     providedIn: 'root'
@@ -20,7 +21,7 @@ export class LapReaderService {
                         // Just crossed the start/finish for a new lap in the same session
                         lap.lapFinishIndex = index - 1;
                         lap.lapFinish = previousRow;
-                        lap.lapTime = lap.lapFinish["UTC Time (s)"] - lap.lapStart["UTC Time (s)"];
+                        lap.lapTime = Rounder.round(lap.lapFinish["UTC Time (s)"] - lap.lapStart["UTC Time (s)"], 3);
                         lap = null;
                     }
                     if (lap == null) {
@@ -39,15 +40,15 @@ export class LapReaderService {
                         let sector = new Sector();
                         sector.dataRow = value;
                         sector.dataRowIndex = index;
-                        sector.split = value["UTC Time (s)"] - lap.lapStart["UTC Time (s)"];
-                        sector.sector = lap.sectors.length > 0 ? sector.split - lap.sectors[lap.sectors.length - 1].split : sector.split;
+                        sector.split = Rounder.round(value["UTC Time (s)"] - lap.lapStart["UTC Time (s)"], 3);
+                        sector.sector = lap.sectors.length > 0 ? Rounder.round(sector.split - lap.sectors[lap.sectors.length - 1].split, 3) : sector.split;
                         lap.sectors.push(sector);
                     }
                 } else if (lap != null) {
                     // Row after last lap of the session
                     lap.lapFinishIndex = index - 1;
                     lap.lapFinish = previousRow;
-                    lap.lapTime = lap.lapFinish["UTC Time (s)"] - lap.lapStart["UTC Time (s)"];
+                    lap.lapTime = Rounder.round(lap.lapFinish["UTC Time (s)"] - lap.lapStart["UTC Time (s)"], 3);
                     lap = null;
                     session = null;
                 }
