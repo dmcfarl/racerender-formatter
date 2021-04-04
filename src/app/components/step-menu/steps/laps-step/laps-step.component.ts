@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { Lap, Penalty, PenaltyType, Sector } from 'src/app/components/step-menu/race';
+import { Lap, Penalty, PenaltyType, Sector, Session } from 'src/app/components/step-menu/race';
 import { Rounder } from 'src/app/components/step-menu/transform/rounder';
 import { RaceService } from 'src/app/services/race.service';
 
@@ -12,9 +12,10 @@ import { RaceService } from 'src/app/services/race.service';
 export class LapsStepComponent implements OnInit {
   lapSelect: string = "bestGhost";
 
-  selectedLaps: Lap[];
+  selectedSessions: Session[];
   // penaltyTypes: Object[] = Object.keys(PenaltyType).map(key => ({ label: PenaltyType[key], value: key}));
   // penaltyTypes: PenaltyType[] = [PenaltyType.TIME, PenaltyType.DNF, PenaltyType.OFF, PenaltyType.RERUN];
+  expandedSessions = {};
 
   constructor(public raceService: RaceService, private router: Router) { }
 
@@ -22,11 +23,13 @@ export class LapsStepComponent implements OnInit {
     if (this.raceService.race == null) {
       this.router.navigate(['columns-step']);
     }
+    this.expandedSessions = {};
+    this.raceService.race.sessions.forEach(session => (this.expandedSessions[session.sessionNum] = true));
     this.selectBestAndPrevious();
   }
 
-  get laps(): Lap[] {
-    return this.raceService.race.laps;
+  get sessions(): Session[] {
+    return this.raceService.race.sessions;
   }
 
   get penaltyTypes(): PenaltyType[] {
@@ -38,13 +41,19 @@ export class LapsStepComponent implements OnInit {
   }
 
   nextPage() {
-    this.raceService.race.laps.forEach(lap => {
-      lap.isExport = this.selectedLaps.includes(lap);
+    this.selectedSessions.forEach(session => {
+      session.isExport = true;
     });
-
-    if (this.raceService.race.laps.some(lap => lap.isExport)) {
+    if (this.selectedSessions.length > 0) {
       this.router.navigate(['download-step']);
     }
+    // this.raceService.race.laps.forEach(lap => {
+    //   lap.isExport = this.selectedLaps.includes(lap);
+    // });
+
+    // if (this.raceService.race.laps.some(lap => lap.isExport)) {
+    //   this.router.navigate(['download-step']);
+    // }
   }
 
   prevPage() {
@@ -102,6 +111,11 @@ export class LapsStepComponent implements OnInit {
   }
 
   selectBestAndPrevious() {
-    this.selectedLaps = [this.raceService.race.best, this.raceService.race.best.previousBest];
+    this.selectedSessions = [];
+    this.raceService.race.sessions.forEach(session => {
+      if (session.laps.includes(this.raceService.race.best) || session.laps.includes(this.raceService.race.best.previousBest)) {
+        this.selectedSessions.push(session);
+      }
+    });
   }
 }

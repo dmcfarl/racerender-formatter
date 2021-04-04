@@ -5,18 +5,20 @@ export class Race {
     best: Lap;
     sessions: Session[] = [];
     laps: Lap[] = [];
+    sessionBuffer: number = 15;
 }
 
 export class Session {
+    isExport: boolean = false;
     laps: Lap[] = [];
     sessionNum: number;
+    preciseSessionStart: number = 0;
     constructor(sessionNum: number) {
         this.sessionNum = sessionNum;
     }
 }
 
 export class Lap {
-    isExport: boolean = false;
     startBufferData: Object[] = [];
     lapData: Object[] = [];
     finishBufferData: Object[] = [];
@@ -43,7 +45,7 @@ export class Lap {
 
     static asFormGroup(lap: Lap): FormGroup {
         const fg = new FormGroup({
-            isExport: new FormControl(lap.isExport, Validators.required),
+            //isExport: new FormControl(lap.isExport, Validators.required),
             id: new FormControl(lap.id, Validators.pattern('[0-9]+')),
             time: new FormControl(lap.lapTime, Validators.pattern('[0-9]+(.[0-9]+)?')),
             sectors: new FormArray(lap.sectors.map(sector => Sector.asFormGroup(sector))),
