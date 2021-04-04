@@ -1,5 +1,5 @@
 import { FormControl, FormGroup, Validators } from "@angular/forms";
-import { Conversion, DataConverter, DataTransformer, Transform } from "./transform/dataconverter";
+import { Conversion, DataConverter, DataTransformer, Transform } from "../transform/dataconverter";
 
 export class Column {
     name: string;

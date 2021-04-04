@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { Lap, Penalty, PenaltyType, Sector } from 'src/app/components/multistep-form/race';
-import { Rounder } from 'src/app/components/multistep-form/transform/rounder';
+import { Lap, Penalty, PenaltyType, Sector } from 'src/app/components/step-menu/race';
+import { Rounder } from 'src/app/components/step-menu/transform/rounder';
 import { RaceService } from 'src/app/services/race.service';
 
 @Component({

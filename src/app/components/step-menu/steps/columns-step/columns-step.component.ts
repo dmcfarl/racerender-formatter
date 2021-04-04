@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { Column } from 'src/app/components/multistep-form/column';
-import { DataConverter, DataTransformer } from 'src/app/components/multistep-form/transform/dataconverter';
+import { Column } from 'src/app/components/step-menu/reader/column';
+import { DataConverter, DataTransformer } from 'src/app/components/step-menu/transform/dataconverter';
 import { RaceService } from 'src/app/services/race.service';
 
 @Component({

@@ -1,6 +1,6 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { parse, ParseConfig, ParseError, Parser, ParseResult } from 'papaparse';
-import { CSVReaderService } from './components/multistep-form/reader/csvreader.service';
+import { CSVReaderService } from './components/step-menu/reader/csvreader.service';
 import { FileDisplay } from './models/file-display';
 
 @Component({

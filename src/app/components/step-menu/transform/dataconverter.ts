@@ -1,4 +1,4 @@
-import { Column } from "../column";
+import { Column } from "../reader/column";
 import { Lap } from "../race";
 
 export class Conversion {

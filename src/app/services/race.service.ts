@@ -1,9 +1,9 @@
 import { Injectable } from "@angular/core";
-import { Lap, Race, Sector } from "../components/multistep-form/race";
-import { CSVData } from "../components/multistep-form/reader/csvdata";
-import { CSVReaderService } from "../components/multistep-form/reader/csvreader.service";
-import { LapReaderService } from "../components/multistep-form/reader/lapreader.service";
-import { Rounder } from "../components/multistep-form/transform/rounder";
+import { Lap, Race, Sector } from "../components/step-menu/race";
+import { CSVData } from "../components/step-menu/reader/csvdata";
+import { CSVReaderService } from "../components/step-menu/reader/csvreader.service";
+import { LapReaderService } from "../components/step-menu/reader/lapreader.service";
+import { Rounder } from "../components/step-menu/transform/rounder";
 
 @Injectable({
     providedIn: 'root'

@@ -1,8 +1,8 @@
 import { FormArray } from '@angular/forms';
 import { parse, ParseConfig, ParseError, Parser, ParseResult } from 'papaparse';
-import { MultistepFormComponent } from '../multistep-form.component';
+import { MultistepFormComponent } from '../../multistep-form/multistep-form.component';
 import { MatTableDataSource } from '@angular/material/table';
-import { Column } from '../column';
+import { Column } from './column';
 import { CSVData } from './csvdata';
 import { Injectable } from '@angular/core';
 

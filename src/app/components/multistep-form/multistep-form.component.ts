@@ -2,12 +2,12 @@ import { SelectionModel } from '@angular/cdk/collections';
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import {AbstractControl, FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
 import { MatStepper } from '@angular/material/stepper';
-import { DataConverter, Conversion, DataTransformer } from 'src/app/components/multistep-form/transform/dataconverter';
-import { CSVReaderService } from 'src/app/components/multistep-form/reader/csvreader.service';
-import { Column } from 'src/app/components/multistep-form/column';
-import { CSVData } from 'src/app/components/multistep-form/reader/csvdata';
-import { LapReaderService } from './reader/lapreader.service';
-import { Lap, Race } from './race';
+import { DataConverter, Conversion, DataTransformer } from 'src/app/components/step-menu/transform/dataconverter';
+import { CSVReaderService } from 'src/app/components/step-menu/reader/csvreader.service';
+import { Column } from 'src/app/components/step-menu/reader/column';
+import { CSVData } from 'src/app/components/step-menu/reader/csvdata';
+import { LapReaderService } from '../step-menu/reader/lapreader.service';
+import { Lap, Race } from '../step-menu/race';
 
 @Component({
   selector: 'app-multistep-form',
