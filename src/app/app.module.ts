@@ -39,6 +39,8 @@ import {DropdownModule} from 'primeng/dropdown';
 import {CardModule} from 'primeng/card';
 import {RadioButtonModule} from 'primeng/radiobutton';
 import { TagModule } from "primeng/tag";
+import { DatePipe } from '@angular/common';
+import { SessionWriterService } from './components/step-menu/writer/sessionwriter.service';
 
 @NgModule({
   declarations: [
@@ -85,7 +87,9 @@ import { TagModule } from "primeng/tag";
   providers: [
     CSVReaderService,
     LapReaderService,
-    RouterOutlet
+    SessionWriterService,
+    RouterOutlet,
+    DatePipe
   ],
   bootstrap: [AppComponent]
 })

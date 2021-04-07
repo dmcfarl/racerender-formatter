@@ -1,4 +1,3 @@
-import { splitAtColon } from "@angular/compiler/src/util";
 import { FormArray, FormControl, FormGroup, Validators } from "@angular/forms";
 
 export class Race {
@@ -27,6 +26,8 @@ export class Lap {
     lapDisplay: number;
     lapStart: Object;
     lapStartIndex: number;
+    lapStartPrecise: Object;
+    lapStartIndexPrecise: number;
     lapFinish: Object;
     lapFinishIndex: number;
     dataStartTime: number;
