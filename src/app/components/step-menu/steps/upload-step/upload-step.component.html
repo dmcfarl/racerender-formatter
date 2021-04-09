@@ -7,7 +7,11 @@
     </ng-template>
     <ng-template pTemplate="content">
         <div *ngIf="!isExtracting">
-            <p-fileUpload name="myfile[]" customUpload="true" accept="*.csv" (uploadHandler)="onUpload($event)" [auto]="true"></p-fileUpload>
+            <p-fileUpload name="myfile[]" customUpload="true" accept="*.csv" (uploadHandler)="onUpload($event)" [auto]="true">
+                <ng-template pTemplate="content" let-files>
+                    <h3 class="p-text-secondary" style="text-align: center;">Drag files here</h3>
+                </ng-template>
+            </p-fileUpload>
         </div>
         <div *ngIf="isExtracting">
             <p-progressSpinner [style]="{width: '200px', height: '200px'}" class="p-d-block p-mx-auto" animationDuration="2s"></p-progressSpinner>

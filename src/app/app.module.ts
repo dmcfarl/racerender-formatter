@@ -34,6 +34,7 @@ import { HttpClientModule } from '@angular/common/http';
 import {ProgressSpinnerModule} from 'primeng/progressspinner';
 import {TableModule} from 'primeng/table';
 import {InputTextModule} from 'primeng/inputtext';
+import {InputNumberModule} from 'primeng/inputnumber';
 import {CheckboxModule} from 'primeng/checkbox';
 import {DropdownModule} from 'primeng/dropdown';
 import {CardModule} from 'primeng/card';
@@ -75,6 +76,7 @@ import { SessionTransformService } from './components/step-menu/transform/sessio
     DropdownModule,
     FileUploadModule,
     HttpClientModule,
+    InputNumberModule,
     InputTextModule,
     ProgressSpinnerModule,
     RadioButtonModule,
