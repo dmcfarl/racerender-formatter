@@ -19,6 +19,7 @@
                     <th>Name</th>
                     <th>Conversion</th>
                     <th>Transform</th>
+                    <th>Round</th>
                 </tr>
             </ng-template>
             <ng-template pTemplate="body" let-column>
@@ -53,6 +54,16 @@
                             </ng-template>
                             <ng-template pTemplate="output">
                                 {{column.transform.name}}
+                            </ng-template>
+                        </p-cellEditor>
+                    </td>
+                    <td pEditableColumn>
+                        <p-cellEditor>
+                            <ng-template pTemplate="input">
+                                <p-dropdown [options]="roundOptions" [(ngModel)]="column.round" optionLabel="label"></p-dropdown>
+                            </ng-template>
+                            <ng-template pTemplate="output">
+                                {{column.round.label}}
                             </ng-template>
                         </p-cellEditor>
                     </td>

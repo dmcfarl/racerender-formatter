@@ -35,6 +35,7 @@ export class LapReaderService {
                         }
                         session.laps.push(lap);
                         lap.lapStartIndex = index;
+                        lap.lapStart = value;
                     } else if (value["Trap name"] != null) {
                         // Add a new sector
                         let sector = new Sector();

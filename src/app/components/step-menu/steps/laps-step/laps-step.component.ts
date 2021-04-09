@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { Lap, Penalty, PenaltyType, Sector, Session } from 'src/app/components/step-menu/race';
 import { Rounder } from 'src/app/components/step-menu/transform/rounder';
 import { RaceService } from 'src/app/services/race.service';
+import { SessionTransformService } from '../../transform/sessiontransform.service';
 
 @Component({
   selector: 'app-laps-step',
@@ -17,7 +18,7 @@ export class LapsStepComponent implements OnInit {
   // penaltyTypes: PenaltyType[] = [PenaltyType.TIME, PenaltyType.DNF, PenaltyType.OFF, PenaltyType.RERUN];
   expandedSessions = {};
 
-  constructor(public raceService: RaceService, private router: Router) { }
+  constructor(public raceService: RaceService, private router: Router, private sessionTransformService: SessionTransformService) { }
 
   ngOnInit(): void {
     if (this.raceService.race == null) {
@@ -43,6 +44,7 @@ export class LapsStepComponent implements OnInit {
   nextPage() {
     this.selectedSessions.forEach(session => {
       session.isExport = true;
+      this.sessionTransformService.transformSession(session);
     });
     if (this.selectedSessions.length > 0) {
       this.router.navigate(['download-step']);

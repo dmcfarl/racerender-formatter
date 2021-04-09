@@ -1,5 +1,6 @@
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { Conversion, DataConverter, DataTransformer, Transform } from "../transform/dataconverter";
+import { Round, Rounder } from "../transform/rounder";
 
 export class Column {
     name: string;
@@ -7,12 +8,14 @@ export class Column {
     isExport: boolean = true;
     conversion: Conversion;
     transform: Transform;
+    round: Round;
 
     constructor(name: string) {
         this.name = name;
         this.exportName = name;
         this.conversion = DataConverter.estimateConversion(this);
         this.transform = DataTransformer.estimateTransform(this);
+        this.round = Rounder.estimateRound(this);
     }
 
     static asFormGroup(column: Column): FormGroup {

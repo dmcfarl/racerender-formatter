@@ -40,7 +40,7 @@ import {CardModule} from 'primeng/card';
 import {RadioButtonModule} from 'primeng/radiobutton';
 import { TagModule } from "primeng/tag";
 import { DatePipe } from '@angular/common';
-import { SessionWriterService } from './components/step-menu/writer/sessionwriter.service';
+import { SessionTransformService } from './components/step-menu/transform/sessiontransform.service';
 
 @NgModule({
   declarations: [
@@ -87,7 +87,7 @@ import { SessionWriterService } from './components/step-menu/writer/sessionwrite
   providers: [
     CSVReaderService,
     LapReaderService,
-    SessionWriterService,
+    SessionTransformService,
     RouterOutlet,
     DatePipe
   ],

@@ -61,9 +61,9 @@ export class DataConverter {
 
 export class Transform {
     name: string;
-    transform: (columns: Column, data: Object, lap: Lap) => any;
+    transform: (column: Column, data: Object, lap: Lap) => any;
 
-    constructor(name: string, transform: (columns: Column, data: Object, lap: Lap) => any) {
+    constructor(name: string, transform: (column: Column, data: Object, lap: Lap) => any) {
         this.name = name;
         this.transform = transform;
     }
@@ -71,13 +71,13 @@ export class Transform {
 
 export class DataTransformer {
     static transforms: Transform[] = [
-        new Transform("None", (columns: Column, data: Object, lap: Lap) => { 
-            return data[columns.name];
+        new Transform("None", (column: Column, data: Object, lap: Lap) => { 
+            return data[column.name];
         }),
-        new Transform("Relative to Start", (columns: Column, data: Object, lap: Lap) => { 
-            return data[columns.name] - lap.lapStart[columns.name];
+        new Transform("Relative to Start", (column: Column, data: Object, lap: Lap) => { 
+            return lap != null ? data[column.name] - lap.lapStart[column.name] : 0;
         }),
-        new Transform("Boost (kPa)", (columns: Column, data: Object, lap: Lap) => { 
+        new Transform("Boost (kPa)", (column: Column, data: Object, lap: Lap) => { 
             return data["Manifold pressure (kPa) *OBD"] - data["Barometric pressure (kPa) *OBD"];
         })
     ]

@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { Column } from 'src/app/components/step-menu/reader/column';
 import { DataConverter, DataTransformer } from 'src/app/components/step-menu/transform/dataconverter';
 import { RaceService } from 'src/app/services/race.service';
+import { Rounder } from '../../transform/rounder';
 
 @Component({
   selector: 'app-columns-step',
@@ -13,6 +14,7 @@ export class ColumnsStepComponent implements OnInit {
   
   conversions = DataConverter.conversions;
   transforms = DataTransformer.transforms;
+  roundOptions = Rounder.roundOptions;
 
   selectedColumns: Column[];
 
