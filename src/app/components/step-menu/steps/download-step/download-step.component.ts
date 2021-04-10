@@ -1,4 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { RaceService } from 'src/app/services/race.service';
+import { RaceWriterService } from '../../writer/racewriter.service';
+import * as FileSaver from 'file-saver';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-download-step',
@@ -6,10 +10,22 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./download-step.component.css']
 })
 export class DownloadStepComponent implements OnInit {
+  isWriting: boolean = false;
 
-  constructor() { }
+  constructor(private raceService: RaceService, private router: Router, private raceWriterService: RaceWriterService) { }
 
   ngOnInit(): void {
+    if (this.raceService.race == null) {
+      this.router.navigate(['columns-step']);
+    }
   }
 
+  onDownload() {
+    this.isWriting = true;
+
+    this.raceWriterService.write().then((content: Blob) => {
+        this.isWriting = false;
+        FileSaver.saveAs(content, this.raceService.csvData.filename.replace(/csv$/i, "zip"));
+    });
+  }
 }

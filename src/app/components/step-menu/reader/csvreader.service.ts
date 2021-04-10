@@ -16,6 +16,7 @@ export class CSVReaderService {
         //this.countLines(fileDisplay);
         let promise = new Promise<CSVData>((resolve, reject) => {
             let data = new CSVData();
+            data.filename = file.name;
             const config: ParseConfig = {
                 header: true,
                 dynamicTyping: true,

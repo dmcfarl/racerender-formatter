@@ -1,5 +1,5 @@
 import { Column } from "../reader/column";
-import { Lap } from "../race";
+import { Lap, Race, Session } from "../race";
 
 export class Conversion {
     name: string;
@@ -61,9 +61,9 @@ export class DataConverter {
 
 export class Transform {
     name: string;
-    transform: (column: Column, data: Object, lap: Lap) => any;
+    transform: (column: Column, data: Object, race: Race, session: Session, lap: Lap) => any;
 
-    constructor(name: string, transform: (column: Column, data: Object, lap: Lap) => any) {
+    constructor(name: string, transform: (column: Column, data: Object, race: Race, session: Session, lap: Lap) => any) {
         this.name = name;
         this.transform = transform;
     }
@@ -71,22 +71,28 @@ export class Transform {
 
 export class DataTransformer {
     static transforms: Transform[] = [
-        new Transform("None", (column: Column, data: Object, lap: Lap) => { 
+        new Transform("None", (column: Column, data: Object, race: Race, session: Session, lap: Lap) => { 
             return data[column.name];
         }),
-        new Transform("Relative to Start", (column: Column, data: Object, lap: Lap) => { 
+        new Transform("Session Time", (column: Column, data: Object, race: Race, session: Session, lap: Lap) => {
+            // Find the true start of the session: lapStart anchor row with the sessionBuffer before it.
+            return data["UTC Time (s)"] - (session.laps[0].lapStart["UTC Time (s)"] - race.sessionBuffer);
+        }),
+        new Transform("Relative to Lap Start", (column: Column, data: Object, race: Race, session: Session, lap: Lap) => { 
             return lap != null ? data[column.name] - lap.lapStart[column.name] : 0;
         }),
-        new Transform("Boost (kPa)", (column: Column, data: Object, lap: Lap) => { 
+        new Transform("Boost (kPa)", (column: Column, data: Object, race: Race, session: Session, lap: Lap) => { 
             return data["Manifold pressure (kPa) *OBD"] - data["Barometric pressure (kPa) *OBD"];
         })
     ]
 
     public static estimateTransform(column: Column): Transform {
-        if (column.name.indexOf("Boost") >= 0) {
-            return DataTransformer.transforms[2];
-        } else if (column.name.indexOf("Distance") >= 0) {
+        if (column.name === "Time (s)") {
             return DataTransformer.transforms[1];
+        } else if (column.name.indexOf("Boost") >= 0) {
+            return DataTransformer.transforms[3];
+        } else if (column.name.indexOf("Distance") >= 0) {
+            return DataTransformer.transforms[2];
         }
         return DataTransformer.transforms[0];
     }

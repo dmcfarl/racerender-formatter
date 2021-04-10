@@ -5,7 +5,7 @@ import { Round, Rounder } from "../transform/rounder";
 export class Column {
     name: string;
     exportName: string;
-    isExport: boolean = true;
+    isExport: boolean;
     conversion: Conversion;
     transform: Transform;
     round: Round;
@@ -13,6 +13,7 @@ export class Column {
     constructor(name: string) {
         this.name = name;
         this.exportName = name;
+        this.isExport = name !== "Lap #" && name !== "Trap name";
         this.conversion = DataConverter.estimateConversion(this);
         this.transform = DataTransformer.estimateTransform(this);
         this.round = Rounder.estimateRound(this);

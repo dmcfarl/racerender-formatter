@@ -42,6 +42,7 @@ import {RadioButtonModule} from 'primeng/radiobutton';
 import { TagModule } from "primeng/tag";
 import { DatePipe } from '@angular/common';
 import { SessionTransformService } from './components/step-menu/transform/sessiontransform.service';
+import { RaceWriterService } from './components/step-menu/writer/racewriter.service';
 
 @NgModule({
   declarations: [
@@ -88,6 +89,7 @@ import { SessionTransformService } from './components/step-menu/transform/sessio
   ],
   providers: [
     CSVReaderService,
+    RaceWriterService,
     LapReaderService,
     SessionTransformService,
     RouterOutlet,
