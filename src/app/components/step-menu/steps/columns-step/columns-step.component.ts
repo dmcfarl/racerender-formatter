@@ -11,7 +11,7 @@ import { Rounder } from '../../transform/rounder';
   styleUrls: ['./columns-step.component.css']
 })
 export class ColumnsStepComponent implements OnInit {
-  
+
   conversions = DataConverter.conversions;
   transforms = DataTransformer.transforms;
   roundOptions = Rounder.roundOptions;
@@ -43,6 +43,6 @@ export class ColumnsStepComponent implements OnInit {
   }
 
   prevPage() {
-      this.router.navigate(['upload-step']);
+    this.router.navigate(['upload-step']);
   }
 }

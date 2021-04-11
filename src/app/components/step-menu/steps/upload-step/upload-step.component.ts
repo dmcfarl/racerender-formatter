@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { RaceService } from 'src/app/services/race.service';
-import { FileUploadModule } from 'primeng/fileupload';
 
 @Component({
   selector: 'app-upload-step',

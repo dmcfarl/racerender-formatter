@@ -13,6 +13,8 @@ export class LapReaderService {
             let lap: Lap = null;
             let previousRow: Object = data[0];
 
+            // Extract lap information by iterating over all of the data.
+            // Determine lap times, start and finish, and sector times based on "Lap #" column
             data.forEach((value, index) => {
                 let lapNum = value["Lap #"];
                 if (lapNum != null) {

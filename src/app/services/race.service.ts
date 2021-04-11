@@ -12,7 +12,7 @@ export class RaceService {
     csvData: CSVData;
     race: Race;
 
-    constructor(private csvReaderService: CSVReaderService, private lapReaderService: LapReaderService) {}
+    constructor(private csvReaderService: CSVReaderService, private lapReaderService: LapReaderService) { }
 
     extractData(file: File): Promise<CSVData> {
         let promise = this.csvReaderService.extract(file);
