@@ -6,11 +6,11 @@
         Download formatted results as a zip file
     </ng-template>
     <ng-template pTemplate="content">
-
-        <div *ngIf="!isWriting">
+        <p-button label="Back" (onClick)="prevPage()" icon="pi pi-angle-left" [style]="{'margin-right': '.5em'}"></p-button>
+        <div *ngIf="!isWriting" style="display: flex; justify-content: center; align-items: center;">
             <p-button label="Download" icon="pi pi-download" iconPos="left" (onClick)="onDownload()"></p-button>
         </div>
-        <div *ngIf="isWriting">
+        <div *ngIf="isWriting" style="display: flex; justify-content: center; align-items: center;">
             <p-progressSpinner [style]="{width: '200px', height: '200px'}" class="p-d-block p-mx-auto" animationDuration="2s"></p-progressSpinner>
         </div>
     </ng-template>

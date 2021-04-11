@@ -24,8 +24,12 @@ export class DownloadStepComponent implements OnInit {
     this.isWriting = true;
 
     this.raceWriterService.write().then((content: Blob) => {
-        this.isWriting = false;
-        FileSaver.saveAs(content, this.raceService.csvData.filename.replace(/csv$/i, "zip"));
+      this.isWriting = false;
+      FileSaver.saveAs(content, this.raceService.csvData.filename.replace(/csv$/i, "zip"));
     });
+  }
+
+  prevPage() {
+    this.router.navigate(['laps-step']);
   }
 }

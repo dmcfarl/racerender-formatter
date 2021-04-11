@@ -14,8 +14,6 @@ export class LapsStepComponent implements OnInit {
   lapSelect: string = "bestGhost";
 
   selectedSessions: Session[];
-  // penaltyTypes: Object[] = Object.keys(PenaltyType).map(key => ({ label: PenaltyType[key], value: key}));
-  // penaltyTypes: PenaltyType[] = [PenaltyType.TIME, PenaltyType.DNF, PenaltyType.OFF, PenaltyType.RERUN];
   expandedSessions = {};
 
   constructor(public raceService: RaceService, private router: Router, private sessionTransformService: SessionTransformService) { }
@@ -42,24 +40,19 @@ export class LapsStepComponent implements OnInit {
   }
 
   nextPage() {
-    this.selectedSessions.forEach(session => {
-      session.isExport = true;
-      this.sessionTransformService.transformSession(session);
+    this.raceService.race.sessions.forEach((session: Session) => {
+      session.isExport = this.selectedSessions.indexOf(session) >= 0;
+      if (session.isExport) {
+        this.sessionTransformService.transformSession(session);
+      }
     });
     if (this.selectedSessions.length > 0) {
       this.router.navigate(['download-step']);
     }
-    // this.raceService.race.laps.forEach(lap => {
-    //   lap.isExport = this.selectedLaps.includes(lap);
-    // });
-
-    // if (this.raceService.race.laps.some(lap => lap.isExport)) {
-    //   this.router.navigate(['download-step']);
-    // }
   }
 
   prevPage() {
-      this.router.navigate(['columns-step']);
+    this.router.navigate(['columns-step']);
   }
 
   updateBestLap() {

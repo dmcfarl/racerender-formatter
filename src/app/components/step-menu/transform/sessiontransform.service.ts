@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { RaceService } from "src/app/services/race.service";
-import { Lap, Sector, Session } from "../race";
+import { Lap, Session } from "../race";
 import { Column } from "../reader/column";
 import { Rounder } from "./rounder";
 
@@ -8,7 +8,7 @@ import { Rounder } from "./rounder";
     providedIn: 'root'
 })
 export class SessionTransformService {
-    
+
     constructor(private raceService: RaceService) { }
 
     transformSession(session: Session) {
@@ -27,6 +27,7 @@ export class SessionTransformService {
         startLap.lapStartIndexPrecise = startLap.lapStartIndex;
 
         // Buffer data prior to lapStart
+        // Only iterating over part of the array.  Don't want to use forEach here especially since this is reversed.
         for (let i = startLap.lapStartIndex - 1; i > 0 && this.getSessionTime(startLap.lapStartIndex, i) < this.raceService.race.sessionBuffer; i--) {
             if (session.preciseSessionStart < 0 && this.getSessionTime(i, startLap.lapStartIndex) > session.preciseSessionStart) {
                 // Precise lap start occurs before lapStart. Just set *Precise values instead of buffering since these should 
@@ -43,6 +44,7 @@ export class SessionTransformService {
             // Precise lap start occurs after lapStart. Continue buffering data until we hit the first row within the 
             // official start of the precise lap.
             let i = startLap.lapStartIndex;
+            // Only iterating over part of the array.  Don't want to use forEach here.
             for (i; i < csvData.length && this.getSessionTime(i, startLap.lapStartIndex) < session.preciseSessionStart; i++) {
                 startBuffer.push(this.transformRow(csvData[i], session, null));
             }
@@ -68,6 +70,9 @@ export class SessionTransformService {
             let nextSector = 0;
             let lapData: Object[][] = [];
             let sectorData: Object[] = [];
+
+            // Only iterating over part of the array.  Don't want to use forEach here.
+            // Also want to maintain where we are in the array for the next lap.
             for (i; i < csvData.length && this.getSessionTime(i, startLap.lapStartIndex) < lapTime + lap.lapTime; i++) {
                 // Add rows to the lap while under the lap time.
                 if (nextSector < lap.sectors.length && this.getSessionTime(i, startLap.lapStartIndex) > lapTime + lap.sectors[nextSector].split) {
@@ -100,7 +105,8 @@ export class SessionTransformService {
         let startLap: Lap = session.laps[0];
         let finishTime: number = session.laps.map(lap => lap.lapTime).reduce((prev, curr) => prev + curr, 0);
 
-        for (let i = session.laps[session.laps.length - 1].lapFinishIndex + 1;  i < csvData.length && this.getSessionTime(i, startLap.lapStartIndex) < finishTime + this.raceService.race.sessionBuffer; i++) {
+        // Only iterating over part of the array.  Don't want to use forEach here.
+        for (let i = session.laps[session.laps.length - 1].lapFinishIndex + 1; i < csvData.length && this.getSessionTime(i, startLap.lapStartIndex) < finishTime + this.raceService.race.sessionBuffer; i++) {
             // Buffer rows after the precise lap finish
             finishBuffer.push(this.transformRow(csvData[i], session, session.laps[session.laps.length - 1]));
         }
@@ -108,17 +114,16 @@ export class SessionTransformService {
         session.finishBufferData = finishBuffer;
     }
 
-    private getSessionTime(lhsIndex: number, rhsIndex: number) : number {
+    private getSessionTime(lhsIndex: number, rhsIndex: number): number {
         return this.raceService.csvData.parsed[lhsIndex]["UTC Time (s)"] - this.raceService.csvData.parsed[rhsIndex]["UTC Time (s)"];
     }
 
-    private transformRow(datum: Object, session: Session, lap: Lap) : Object {
+    private transformRow(datum: Object, session: Session, lap: Lap): Object {
         let transformed = {};
         this.raceService.csvData.columns.forEach((column: Column) => {
             if (column.isExport) {
-                let value = datum[column.name];
+                let value = column.transform.transform(column, datum, this.raceService.race, session, lap);
                 value = column.conversion.convert(value);
-                value = column.transform.transform(column, datum, this.raceService.race, session, lap);
                 if (typeof value === "number") {
                     value = Rounder.round(value, column.round.value);
                 }

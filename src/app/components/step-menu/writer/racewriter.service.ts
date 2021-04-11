@@ -2,7 +2,7 @@ import { DatePipe } from "@angular/common";
 import { Injectable } from "@angular/core";
 import { unparse, UnparseConfig } from "papaparse";
 import { RaceService } from "src/app/services/race.service";
-import { Lap, Penalty, Race, Sector, Session } from "../race";
+import { Lap, Race, Sector, Session } from "../race";
 import { Rounder } from "../transform/rounder";
 import * as JSZip from 'jszip';
 import { Column } from "../reader/column";
@@ -68,7 +68,7 @@ export class RaceWriterService {
         // Anchor row is the original start of the first lap of the session.  Subtract the session buffer to get to Session Time of 0.
         let sessionUTC = Rounder.round(session.laps[0].lapStart["UTC Time (s)"] - this.raceService.race.sessionBuffer, 3);
         let sessionTime = 0;
-        let firstTimingRow = this.getTimingRow(sessionTime, sessionUTC, -1, this.raceService.race, session, session.laps[0], session.laps[0].previousBest, false);
+        let firstTimingRow = this.getTimingRow(sessionTime, sessionUTC, -1, this.raceService.race, session, session.laps[0], session.laps[0].previousBest);
         const config: UnparseConfig = {
             header: true,
             newline: "\n",
@@ -79,7 +79,7 @@ export class RaceWriterService {
         // Only need the header once.  Set to false so that subsequent unparsing doesn't contain any headers.
         config.header = false;
         sessionTime += this.raceService.race.sessionBuffer + session.preciseSessionStart - 0.001;
-        data.push(unparse([this.getTimingRow(sessionTime, sessionUTC + sessionTime, -1, this.raceService.race, session, session.laps[0], session.laps[0].previousBest, false)], config));
+        data.push(unparse([this.getTimingRow(sessionTime, sessionUTC + sessionTime, -1, this.raceService.race, session, session.laps[0], session.laps[0].previousBest)], config));
         sessionTime += 0.001;
         // Lap 0 Comment
         data.push(this.getLapComment(0, sessionTime));
@@ -118,8 +118,7 @@ export class RaceWriterService {
             // Print a lap "separator" so that the LapList understands that these occurred in previous sessions.
             data.push(this.getLapComment(session.laps.length + 1, 0));
             // Print data for each lap that occurred in a previous session.
-            for (let i = 0; i < session.sessionNum - 1; i++) {
-                let previousSession = this.raceService.race.sessions[i];
+            this.raceService.race.sessions.filter((previousSession: Session) => previousSession.sessionNum < session.sessionNum).forEach((previousSession: Session) => {
                 previousSession.laps.forEach((lap: Lap) => {
                     lap.sectors.forEach((sector: Sector, index: number) => {
                         data.push(this.getSectorComment(index + 1, sector.sector));
@@ -128,7 +127,7 @@ export class RaceWriterService {
                     data.push(this.getLapComment(session.laps.length + 1 + lap.id, lapDisplay));
                     sessionTime += lapDisplay;
                 });
-            }
+            });
             sessionTime += this.raceService.race.sessionBuffer;
             // Print a row after all of the previous laps so that RaceRender won't cut off additional laps due to the data file not being long enough.
             data.push(unparse([this.getTimingRow(sessionTime, sessionUTC + sessionTime, lastLap.lapTime, this.raceService.race, session, lastLap, lastLap.previousBest)], config));
@@ -171,10 +170,9 @@ export class RaceWriterService {
 
         data.push(`# Start Point: ${bestLap.lapStartPrecise["Longitude (deg)"]},${bestLap.lapStartPrecise["Latitude (deg)"]} @ ${Rounder.round(bestLap.lapStartPrecise["Bearing (deg)"], 2)} deg`);
         // Don't print a sector for the finish line.  Handled as "End Point" instead.
-        for (let index = 0; index < bestLap.sectors.length - 1; index++) {
-            let sector = bestLap.sectors[index];
+        bestLap.sectors.filter((sector: Sector, index: number) => index < bestLap.sectors.length - 1).forEach((sector: Sector, index: number) => {
             data.push(`# Split Point ${index + 1}: ${sector.dataRow["Longitude (deg)"]},${sector.dataRow["Latitude (deg)"]} @ ${Rounder.round(sector.dataRow["Bearing (deg)"], 2)} deg`);
-        }
+        });
         data.push(`# End Point: ${bestLap.lapFinish["Longitude (deg)"]},${bestLap.lapFinish["Latitude (deg)"]} @ ${Rounder.round(bestLap.lapFinish["Bearing (deg)"], 2)} deg`);
 
         return data;
@@ -188,7 +186,7 @@ export class RaceWriterService {
         return `# Sector ${sectorNum}: ${this.datePipe.transform(seconds * 1000, 'HH:mm:ss.SSS', 'UTC')}`;
     }
 
-    private getTimingRow(sessionTime: number, utcTime: number, lapTime: number, race: Race, session: Session, currentLap: Lap, previousLap: Lap, writeSectors: boolean = true): Object {
+    private getTimingRow(sessionTime: number, utcTime: number, lapTime: number, race: Race, session: Session, currentLap: Lap, previousLap: Lap): Object {
         lapTime = Rounder.round(lapTime, 3);
         let timingData = {
             "Time": Rounder.round(sessionTime, 3),
@@ -200,7 +198,7 @@ export class RaceWriterService {
         };
         // Current Sectors
         currentLap.sectors.forEach((sector: Sector, index: number) => {
-            timingData[`Current Split ${index + 1}`] = writeSectors ? sector.split : 0;
+            timingData[`Current Split ${index + 1}`] = sector.split;
         });
 
         // Current Penalties
@@ -213,7 +211,7 @@ export class RaceWriterService {
         timingData["Previous Lap Number"] = (lapTime === currentLap.lapTime && currentLap.lapDisplay < previousLap.lapDisplay) ? currentLap.id : previousLap.id;
         // Previous Sectors
         previousLap.sectors.forEach((sector: Sector, index: number) => {
-            timingData[`Previous Split ${index + 1}`] = writeSectors ? sector.split : 0;
+            timingData[`Previous Split ${index + 1}`] = sector.split;
         });
 
         // Current Penalties
