@@ -22,7 +22,10 @@ export class RaceWriterService {
             zip.file(filename + "-timing.csv", this.writeSessionTiming(session));
         });
         zip.file("Display.csv", this.writeIntroDisplay());
-        // TODO: Export configuration from raceService: JSON.stringify
+        zip.file("Configuration.json", JSON.stringify({
+            columns: this.raceService.csvData.columns,
+            race: this.raceService.race.export()
+        }, null, 4));
 
         return zip.generateAsync({ type: "blob" });
     }

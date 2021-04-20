@@ -5,6 +5,21 @@ export class Race {
     sessions: Session[] = [];
     laps: Lap[] = [];
     sessionBuffer: number = 15;
+
+    export(): Object {
+        return {
+            sessions: this.sessions.map((session: Session) => session.export()),
+            sessionBuffer: this.sessionBuffer
+        };
+    }
+
+    static import(obj: Object): Race {
+        let race = new Race();
+        race.sessions = obj["sessions"].map((element: Object) => Session.import(element));
+        race.sessionBuffer = obj["sessionBuffer"];
+
+        return race;
+    }
 }
 
 export class Session {
@@ -14,13 +29,34 @@ export class Session {
     laps: Lap[] = [];
     sessionNum: number;
     preciseSessionStart: number = 0;
+
     constructor(sessionNum: number) {
         this.sessionNum = sessionNum;
+    }
+
+    export(): Object {
+        return {
+            isExport: this.isExport,
+            laps: this.laps.map((lap: Lap) => lap.export()),
+            sessionNum: this.sessionNum,
+            preciseSessionStart: this.preciseSessionStart
+        };
+    }
+
+    static import(obj: Object): Session {
+        let session = new Session(obj["sessionNum"]);
+        session.isExport = obj["isExport"];
+        session.laps = obj["laps"].map((element: Object) => Lap.import(element));
+        session.preciseSessionStart = obj["preciseSessionStart"];
+
+        return session;
     }
 }
 
 export class Lap {
     lapData: Object[][] = [];
+    editableData: Object[] = [];
+    editedData: Map<number, Object> = new Map();
     sectors: Sector[] = [];
     lapTime: number;
     lapStart: Object;
@@ -32,6 +68,7 @@ export class Lap {
     id: number;
     penalties: Penalty[] = [];
     previousBest: Lap;
+    overlay?: any;
 
     constructor(id: number) {
         this.id = id;
@@ -64,19 +101,54 @@ export class Lap {
 
         return lapDisplay;
     }
+
+    export(): Object {
+        return {
+            editedData: this.editedData,
+            sectors: this.sectors.map((sector: Sector) => sector.export()),
+            lapTime: this.lapTime,
+            id: this.id,
+            penalties: this.penalties
+        };
+    }
+
+    static import(obj: Object): Lap {
+        let lap = new Lap(obj["id"]);
+        lap.editedData = obj["editedData"];
+        lap.sectors = obj["sectors"].map((element: Object) => Sector.import(element));
+        lap.lapTime = obj["lapTime"];
+        lap.penalties = obj["penalties"];
+
+        return lap;
+    }
 }
 
 export class Sector {
-    dataRow: Object;
-    dataRowIndex: number;
     split: number;
     sector: number;
+    dataRow: Object;
+    dataRowIndex: number;
 
     static asFormGroup(sector: Sector): FormGroup {
         const fg = new FormGroup({
             split: new FormControl(sector.split, Validators.pattern('[0-9]+(.[0-9]+)?'))
         });
         return fg;
+    }
+
+    export(): Object {
+        return { 
+            split: this.split, 
+            sector: this.sector
+        };
+    }
+
+    static import(obj: Object): Sector {
+        let sector = new Sector();
+        sector.split = obj["split"];
+        sector.sector = obj["sector"];
+
+        return sector;
     }
 }
 
