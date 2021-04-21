@@ -59,9 +59,9 @@ export class LapReaderService {
                 previousRow = value;
             });
 
-            race.laps = [].concat(...race.sessions.map(session => session.laps));
+            race.allLaps = [].concat(...race.sessions.map(session => session.laps));
 
-            if (race.laps.length == 0) {
+            if (race.allLaps.length == 0) {
                 reject("No laps found!");
             }
 

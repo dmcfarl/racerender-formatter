@@ -11,6 +11,10 @@ export class Conversion {
         this.label = label;
         this.convert = convert;
     }
+
+    static exportFields(): string[] {
+        return ['name'];
+    }
 }
 
 export class DataConverter {
@@ -66,6 +70,10 @@ export class Transform {
     constructor(name: string, transform: (column: Column, data: Object, race: Race, session: Session, lap: Lap) => any) {
         this.name = name;
         this.transform = transform;
+    }
+
+    static exportFields(): string[] {
+        return ['name'];
     }
 }
 

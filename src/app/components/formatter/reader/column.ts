@@ -28,6 +28,10 @@ export class Column {
         });
         return fg;
     }
+
+    static exportFields(): string[] {
+        return ['name', 'exportName', 'isExport', 'conversion', 'transform', 'round'];
+    }
 }
 
 

@@ -2,10 +2,11 @@ import { DatePipe } from "@angular/common";
 import { Injectable } from "@angular/core";
 import { unparse, UnparseConfig } from "papaparse";
 import { RaceService } from "src/app/components/formatter/race.service";
-import { Lap, Race, Sector, Session } from "../race";
+import { allRaceExportFields, Lap, Race, Sector, Session } from "../race";
 import { Rounder } from "../transform/rounder";
 import * as JSZip from 'jszip';
 import { Column } from "../reader/column";
+import { allCSVDataExportFields } from "../reader/csvdata";
 
 @Injectable({
     providedIn: 'root'
@@ -23,9 +24,9 @@ export class RaceWriterService {
         });
         zip.file("Display.csv", this.writeIntroDisplay());
         zip.file("Configuration.json", JSON.stringify({
-            columns: this.raceService.csvData.columns,
-            race: this.raceService.race.export()
-        }, null, 4));
+            csvData: this.raceService.csvData,
+            race: this.raceService.race
+        }, allCSVDataExportFields().concat(allRaceExportFields()), 4));
 
         return zip.generateAsync({ type: "blob" });
     }
@@ -196,7 +197,7 @@ export class RaceWriterService {
             "UTC Time": Rounder.round(utcTime, 3),
             "Session Lap Start": session.laps[0].id,
             "Session Laps": session.laps.length,
-            "Total Laps": race.laps.length,
+            "Total Laps": race.allLaps.length,
             "Current Lap Number": currentLap.id
         };
         // Current Sectors

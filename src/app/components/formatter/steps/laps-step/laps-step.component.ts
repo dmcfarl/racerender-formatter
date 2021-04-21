@@ -75,7 +75,7 @@ export class LapsStepComponent implements OnInit {
   }
 
   addSector() {
-    this.raceService.race.laps.forEach(lap => {
+    this.raceService.race.allLaps.forEach(lap => {
       if (lap.sectors.length > 0) {
         let lastSector = lap.sectors[lap.sectors.length - 1];
         let sector = new Sector();
@@ -97,7 +97,7 @@ export class LapsStepComponent implements OnInit {
   }
 
   removeSector(i: number) {
-    this.raceService.race.laps.forEach(lap => {
+    this.raceService.race.allLaps.forEach(lap => {
       if (lap.sectors.length > 1) {
         lap.sectors.splice(i, 1);
         lap.sectors[i].sector = Rounder.round(lap.sectors[i].split - (lap.sectors.length > 1 ? lap.sectors[lap.sectors.length - 2].split : 0), 3);

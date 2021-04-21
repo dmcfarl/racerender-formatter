@@ -40,7 +40,7 @@ export class RaceService {
 
     updateBestLap() {
         this.race.best = null;
-        this.race.laps.forEach(lap => {
+        this.race.allLaps.forEach(lap => {
             lap.lapTime = Rounder.round(lap.lapTime, 3);
             if (this.race.best == null) {
                 this.race.best = lap;

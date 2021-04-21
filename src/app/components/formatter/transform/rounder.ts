@@ -8,6 +8,10 @@ export class Round {
         this.value = value;
         this.label = label;
     }
+
+    static exportFields(): string[] {
+        return ['value'];
+    }
 }
 
 export class Rounder {

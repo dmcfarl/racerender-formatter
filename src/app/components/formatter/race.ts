@@ -1,24 +1,17 @@
 import { FormArray, FormControl, FormGroup, Validators } from "@angular/forms";
 
+export function allRaceExportFields(): string[] {
+    return ['race'].concat(Race.exportFields(), Session.exportFields(), Lap.exportFields(), Sector.exportFields(), Penalty.exportFields(), PenaltyType.exportFields());
+}
+
 export class Race {
     best: Lap;
     sessions: Session[] = [];
-    laps: Lap[] = [];
+    allLaps: Lap[] = [];
     sessionBuffer: number = 15;
 
-    export(): Object {
-        return {
-            sessions: this.sessions.map((session: Session) => session.export()),
-            sessionBuffer: this.sessionBuffer
-        };
-    }
-
-    static import(obj: Object): Race {
-        let race = new Race();
-        race.sessions = obj["sessions"].map((element: Object) => Session.import(element));
-        race.sessionBuffer = obj["sessionBuffer"];
-
-        return race;
+    static exportFields(): string[] {
+        return ['sessions', 'sessionBuffer'];
     }
 }
 
@@ -34,22 +27,8 @@ export class Session {
         this.sessionNum = sessionNum;
     }
 
-    export(): Object {
-        return {
-            isExport: this.isExport,
-            laps: this.laps.map((lap: Lap) => lap.export()),
-            sessionNum: this.sessionNum,
-            preciseSessionStart: this.preciseSessionStart
-        };
-    }
-
-    static import(obj: Object): Session {
-        let session = new Session(obj["sessionNum"]);
-        session.isExport = obj["isExport"];
-        session.laps = obj["laps"].map((element: Object) => Lap.import(element));
-        session.preciseSessionStart = obj["preciseSessionStart"];
-
-        return session;
+    static exportFields(): string[] {
+        return ['isExport', 'laps', 'sessionNum', 'preciseSessionStart'];
     }
 }
 
@@ -102,24 +81,8 @@ export class Lap {
         return lapDisplay;
     }
 
-    export(): Object {
-        return {
-            editedData: this.editedData,
-            sectors: this.sectors.map((sector: Sector) => sector.export()),
-            lapTime: this.lapTime,
-            id: this.id,
-            penalties: this.penalties
-        };
-    }
-
-    static import(obj: Object): Lap {
-        let lap = new Lap(obj["id"]);
-        lap.editedData = obj["editedData"];
-        lap.sectors = obj["sectors"].map((element: Object) => Sector.import(element));
-        lap.lapTime = obj["lapTime"];
-        lap.penalties = obj["penalties"];
-
-        return lap;
+    static exportFields(): string[] {
+        return ['editedData', 'sectors', 'lapTime', 'id', 'penalties'];
     }
 }
 
@@ -136,19 +99,8 @@ export class Sector {
         return fg;
     }
 
-    export(): Object {
-        return { 
-            split: this.split, 
-            sector: this.sector
-        };
-    }
-
-    static import(obj: Object): Sector {
-        let sector = new Sector();
-        sector.split = obj["split"];
-        sector.sector = obj["sector"];
-
-        return sector;
+    static exportFields(): string[] {
+        return ['split', 'sector'];
     }
 }
 
@@ -161,6 +113,10 @@ export class PenaltyType {
         this.name = name;
         this.penalize = penalize;
         this.countPenalties = countPenalties;
+    }
+
+    static exportFields(): string[] {
+        return ['name'];
     }
 }
 
@@ -205,5 +161,9 @@ export class Penalty {
             lapTime: new FormControl(penalty.lapTime, Validators.pattern('[0-9]*(.[0-9]+)?'))
         });
         return fg;
+    }
+
+    static exportFields(): string[] {
+        return ['type', 'lapTime'];
     }
 }
