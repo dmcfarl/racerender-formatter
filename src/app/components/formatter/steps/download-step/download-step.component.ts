@@ -30,6 +30,6 @@ export class DownloadStepComponent implements OnInit {
   }
 
   prevPage() {
-    this.router.navigate(['formatter/laps-step']);
+    this.router.navigate(['formatter/edit-step']);
   }
 }

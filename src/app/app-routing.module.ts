@@ -7,6 +7,7 @@ import { EditorComponent } from './components/editor/editor.component';
 import { UploadStepComponent } from './components/formatter/steps/upload-step/upload-step.component';
 import { ColumnsStepComponent } from './components/formatter/steps/columns-step/columns-step.component';
 import { LapsStepComponent } from './components/formatter/steps/laps-step/laps-step.component';
+import { EditStepComponent } from './components/formatter/steps/edit-step/edit-step.component';
 import { DownloadStepComponent } from './components/formatter/steps/download-step/download-step.component';
 
 
@@ -19,6 +20,7 @@ const appRoutes: Routes = [
             { path: 'upload-step', component: UploadStepComponent },
             { path: 'columns-step', component: ColumnsStepComponent },
             { path: 'laps-step', component: LapsStepComponent },
+            { path: 'edit-step', component: EditStepComponent },
             { path: 'download-step', component: DownloadStepComponent }
         ]
     },

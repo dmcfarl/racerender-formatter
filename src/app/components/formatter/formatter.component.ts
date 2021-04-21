@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import {MenuItem} from 'primeng/api';
-import {MessageService} from 'primeng/api';
+import { MenuItem } from 'primeng/api';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-formatter',
@@ -30,6 +30,10 @@ export class FormatterComponent implements OnInit {
       {
         label: 'Laps',
         routerLink: '/formatter/laps-step'
+      },
+      {
+        label: 'Edit',
+        routerLink: '/formatter/edit-step'
       },
       {
         label: 'Download',

@@ -47,7 +47,7 @@ export class LapsStepComponent implements OnInit {
       }
     });
     if (this.selectedSessions.length > 0) {
-      this.router.navigate(['formatter/download-step']);
+      this.router.navigate(['formatter/edit-step']);
     }
   }
 

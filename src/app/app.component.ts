@@ -1,3 +1,4 @@
+/// <reference types="google.maps" />
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { MenuItem, MessageService } from 'primeng/api';
@@ -34,7 +35,6 @@ export class AppComponent implements OnInit {
         routerLink: AppRoutingModule.routes[2].path
       }*/
     ];
-    //this.activeItem = this.tabs.find((tab: MenuItem) => this.router.url.indexOf(tab.routerLink) >= 0);
     
     this.activeItem = this.tabs[0];
   }
