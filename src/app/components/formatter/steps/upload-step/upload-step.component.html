@@ -9,7 +9,7 @@
         <div style="height: 39px;"><!-- Import Buffer --></div>
         <p-button *ngIf="raceService.csvData != null" label="Next" (onClick)="nextPage()" icon="pi pi-angle-right" iconPos="right" [style]="{'margin-left': '99px'}"></p-button>
         <div *ngIf="!isExtracting" style="padding-top: .5em;">
-            <p-fileUpload name="myfile[]" customUpload="true" accept="*.csv" (uploadHandler)="onUpload($event)" [auto]="true">
+            <p-fileUpload name="myfile[]" customUpload="true" accept=".csv" (uploadHandler)="onUpload($event)" [auto]="true">
                 <ng-template pTemplate="content" let-files>
                     <h3 class="p-text-secondary" style="text-align: center;">Drag files here</h3>
                 </ng-template>
