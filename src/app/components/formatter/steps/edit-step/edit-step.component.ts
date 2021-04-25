@@ -97,8 +97,19 @@ export class EditStepComponent implements OnInit {
       };
       let path = new google.maps.Polyline(polylineOptions);
 
-      lap.editableData.forEach((row: Object) => {
-        let point = new google.maps.LatLng({ lat: row["Latitude (deg)"], lng: row["Longitude (deg)"] });
+      lap.editableData.forEach((row: Object, index: number) => {
+        let latitude = row["Latitude (deg)"];
+        let longitude = row["Longitude (deg)"];
+        if (index in lap.editedData) {
+          // Data has been previously edited. Use the edited data.
+          if ("Latitude (deg)" in lap.editedData[index]) {
+            latitude = lap.editedData[index]["Latitude (deg)"];
+          }
+          if ("Longitude (deg)" in lap.editedData[index]) {
+            longitude = lap.editedData[index]["Longitude (deg)"];
+          }
+        }
+        let point = new google.maps.LatLng({ lat: latitude, lng: longitude });
         path.getPath().push(point);
         bounds.extend(point);
       });
