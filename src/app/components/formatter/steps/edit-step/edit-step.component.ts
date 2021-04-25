@@ -141,11 +141,11 @@ export class EditStepComponent implements OnInit {
   }
 
   saveEditedVertex(index: any) {
-    if (!this.displayLap.editedData.has(index)) {
-      this.displayLap.editedData.set(index, {});
+    if (!(index in this.displayLap.editedData)) {
+      this.displayLap.editedData[index] = {};
     }
-    let editedRow = this.displayLap.editedData.get(index);
-    editedRow["Latitude (deg)"] = this.displayLap.overlay.getPath().getAt(index).lat;
-    editedRow["Longitude (deg)"] = this.displayLap.overlay.getPath().getAt(index).lng;
+    let editedRow = this.displayLap.editedData[index];
+    editedRow["Latitude (deg)"] = this.displayLap.overlay.getPath().getAt(index).lat();
+    editedRow["Longitude (deg)"] = this.displayLap.overlay.getPath().getAt(index).lng();
   }
 }

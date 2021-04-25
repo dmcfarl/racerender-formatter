@@ -8,6 +8,7 @@
         Choose the columns to export including any conversions and transformations.
     </ng-template>
     <ng-template pTemplate="content">
+        <app-import></app-import>
         <p-button label="Back" (onClick)="prevPage()" icon="pi pi-angle-left" [style]="{'margin-right': '.5em'}"></p-button>
         <p-button label="Next" (onClick)="nextPage()" icon="pi pi-angle-right" iconPos="right"></p-button>
         <p-table [value]="columns" [(selection)]="selectedColumns" dataKey="name"  styleClass="p-datatable-striped">

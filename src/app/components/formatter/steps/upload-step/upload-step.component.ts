@@ -23,4 +23,10 @@ export class UploadStepComponent implements OnInit {
     });
   }
 
+  nextPage() {
+    if (this.raceService.csvData != null) {
+      this.router.navigate(['formatter/columns-step']);
+    }
+  }
+
 }

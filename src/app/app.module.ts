@@ -44,6 +44,8 @@ import { HomeComponent } from './components/home/home.component';
 import { EditorComponent } from './components/editor/editor.component';
 import { AppRoutingModule } from './app-routing.module';
 import { EditStepComponent } from './components/formatter/steps/edit-step/edit-step.component';
+import { ImportComponent } from './components/formatter/reader/import/import.component';
+import { DialogModule } from 'primeng/dialog';
 
 @NgModule({
   declarations: [
@@ -55,7 +57,8 @@ import { EditStepComponent } from './components/formatter/steps/edit-step/edit-s
     DownloadStepComponent,
     HomeComponent,
     EditorComponent,
-    EditStepComponent
+    EditStepComponent,
+    ImportComponent
   ],
   imports: [
     BrowserModule,
@@ -74,6 +77,7 @@ import { EditStepComponent } from './components/formatter/steps/edit-step/edit-s
     ReactiveFormsModule,
     CardModule,
     CheckboxModule,
+    DialogModule,
     DropdownModule,
     FileUploadModule,
     HttpClientModule,

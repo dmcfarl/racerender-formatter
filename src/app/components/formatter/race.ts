@@ -35,7 +35,7 @@ export class Session {
 export class Lap {
     lapData: Object[][] = [];
     editableData: Object[] = [];
-    editedData: Map<number, Object> = new Map();
+    editedData: Object = {};
     sectors: Sector[] = [];
     lapTime: number;
     lapStart: Object;

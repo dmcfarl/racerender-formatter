@@ -1,0 +1,21 @@
+<div class="p-d-flex">
+    <p-button (click)="displayImport=true" icon="pi pi-upload" label="Import" class="p-ml-auto"></p-button>
+</div>
+<p-dialog header="Import Configuration" [(visible)]="displayImport" [modal]="true" [style]="{width: '50vw'}" [baseZIndex]="10000" [draggable]="false" [resizable]="false">
+    <p>Import a Configuration file from a previous download.</p>
+    
+    <div *ngIf="!isImporting">
+        <p-fileUpload name="myimport[]" customUpload="true" accept=".json" (uploadHandler)="onUpload($event)" [auto]="true">
+            <ng-template pTemplate="content" let-files>
+                <h3 class="p-text-secondary" style="text-align: center;">Drag files here</h3>
+            </ng-template>
+        </p-fileUpload>
+    </div>
+    <div *ngIf="isImporting" style="display: flex; justify-content: center; align-items: center;">
+        <p-progressSpinner [style]="{width: '200px', height: '200px'}" class="p-d-block p-mx-auto" animationDuration="2s"></p-progressSpinner>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <p-button icon="pi pi-times" (click)="displayImport=false" label="Cancel" styleClass="p-button-text"></p-button>
+    </ng-template>
+</p-dialog>

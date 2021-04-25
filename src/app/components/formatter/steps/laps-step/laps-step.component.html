@@ -8,13 +8,16 @@
         Choose the sessions/laps to export including any precise timing and penalties
     </ng-template>
     <ng-template pTemplate="content">
-        <p-button label="Back" (onClick)="prevPage()" icon="pi pi-angle-left" [style]="{'margin-right': '.5em'}"></p-button>
-        <p-button label="Next" (onClick)="nextPage()" icon="pi pi-angle-right" iconPos="right"></p-button>
-        <div style="float: right;">
-            <p-radioButton name="lapSelect" value="bestGhost" [(ngModel)]="lapSelect" inputId="select1" (click)="selectBestAndPrevious()"></p-radioButton>
-            <label for="select1">Best and Previous Only</label>
-            <p-radioButton name="lapSelect" value="manual" [(ngModel)]="lapSelect" inputId="select2"></p-radioButton>
-            <label for="select2">Manual</label>
+        <app-import></app-import>
+        <div class="p-d-flex p-ai-end">
+            <p-button label="Back" (onClick)="prevPage()" icon="pi pi-angle-left" [style]="{'margin-right': '.5em'}"></p-button>
+            <p-button label="Next" (onClick)="nextPage()" icon="pi pi-angle-right" iconPos="right"></p-button>
+            <div class="p-ml-auto">
+                <p-radioButton name="lapSelect" value="bestGhost" [(ngModel)]="lapSelect" inputId="select1" (click)="selectBestAndPrevious()"></p-radioButton>
+                <label for="select1">Best and Previous Only</label>
+                <p-radioButton name="lapSelect" value="manual" [(ngModel)]="lapSelect" inputId="select2"></p-radioButton>
+                <label for="select2">Manual</label>
+            </div>
         </div>
         <p-table [value]="sessions" [(selection)]="selectedSessions" [expandedRowKeys]="expandedSessions" dataKey="sessionNum" styleClass="p-datatable-striped">
             <ng-template pTemplate="header">

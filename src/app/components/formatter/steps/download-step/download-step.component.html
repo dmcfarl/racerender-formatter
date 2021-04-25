@@ -6,6 +6,7 @@
         Download formatted results as a zip file
     </ng-template>
     <ng-template pTemplate="content">
+        <div style="height: 39px;"><!-- Import Buffer --></div>
         <p-button label="Back" (onClick)="prevPage()" icon="pi pi-angle-left" [style]="{'margin-right': '.5em'}"></p-button>
         <div *ngIf="!isWriting" style="display: flex; justify-content: center; align-items: center;">
             <p-button label="Download" icon="pi pi-download" iconPos="left" (onClick)="onDownload()"></p-button>

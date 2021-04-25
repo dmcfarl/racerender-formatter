@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
-import { Lap, Race, Sector } from "./race";
-import { CSVData } from "./reader/csvdata";
+import { merge as _merge } from 'lodash';
+import { allRaceExportFields, Lap, Race, Sector } from "./race";
+import { allCSVDataExportFields, CSVData } from "./reader/csvdata";
 import { CSVReaderService } from "./reader/csvreader.service";
 import { LapReaderService } from "./reader/lapreader.service";
 import { Rounder } from "./transform/rounder";
@@ -65,5 +66,53 @@ export class RaceService {
         lap.sectors.forEach((sector: Sector, index: number) => {
             sector.sector = Rounder.round(sector.split - (index > 0 ? lap.sectors[index - 1].split : 0), 3);
         });
+    }
+
+    export(): string {
+        return JSON.stringify({
+            csvData: this.csvData,
+            race: this.race
+        }, this.replacerWithPath(this.exportReplacer), 4);
+    }
+
+    private exportReplacer(field: string, value: any, path: string, allowedFields: string[]) {
+        if (field === "editedData") {
+            console.log("editedData");
+        }
+        if (path !== "" && isNaN(+field) && allowedFields.indexOf(field) < 0 && path.indexOf("editedData") < 0) {
+            return undefined;
+        }
+        
+        return value;
+    }
+
+    private replacerWithPath(replacer: (arg0: string, arg1: any, arg2: string, arg3: string[]) => any) {
+        let m = new Map();
+        let allowedFields = allCSVDataExportFields().concat(allRaceExportFields());
+
+        return function (field: string, value: any) {
+            let path = m.get(this) + (Array.isArray(this) ? `[${field}]` : '.' + field);
+            if (value === Object(value)) m.set(value, path);
+            return replacer.call(this, field, value, path.replace(/undefined\.\.?/, ''), allowedFields);
+        }
+    }
+
+    import(config: File): Promise<Object> {
+        let promise = new Promise((resolve, reject) => {
+            let fileReader = new FileReader();
+            fileReader.onload = (event) => {
+                let data = JSON.parse(fileReader.result as string);
+
+                _merge(this, data);
+
+                resolve(data);
+            }
+            fileReader.onerror = (event) => {
+                reject(event);
+            }
+            fileReader.readAsText(config);
+        });
+
+        return promise;
     }
 }

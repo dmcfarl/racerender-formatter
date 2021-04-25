@@ -2,11 +2,10 @@ import { DatePipe } from "@angular/common";
 import { Injectable } from "@angular/core";
 import { unparse, UnparseConfig } from "papaparse";
 import { RaceService } from "src/app/components/formatter/race.service";
-import { allRaceExportFields, Lap, Race, Sector, Session } from "../race";
+import { Lap, Race, Sector, Session } from "../race";
 import { Rounder } from "../transform/rounder";
 import * as JSZip from 'jszip';
 import { Column } from "../reader/column";
-import { allCSVDataExportFields } from "../reader/csvdata";
 
 @Injectable({
     providedIn: 'root'
@@ -23,10 +22,7 @@ export class RaceWriterService {
             zip.file(filename + "-timing.csv", this.writeSessionTiming(session));
         });
         zip.file("Display.csv", this.writeIntroDisplay());
-        zip.file("Configuration.json", JSON.stringify({
-            csvData: this.raceService.csvData,
-            race: this.raceService.race
-        }, allCSVDataExportFields().concat(allRaceExportFields()), 4));
+        zip.file("Configuration.json", this.raceService.export());
 
         return zip.generateAsync({ type: "blob" });
     }
