@@ -44,14 +44,20 @@ export class RaceWriterService {
 
         // Unparse each lap
         session.laps.forEach((lap: Lap, lapIndex: number) => {
-            let startIndex = 0;
+            let lapDataIndex = 0;
             lap.lapData.forEach((sectorData: Object[], index: number) => {
-                data.push(unparse(sectorData, config));
+                // Push all data from the sector.
+                // Keep track of the index since that was what was used when editting the data.
+                // Assign the edited data on top of the existing row if it exists.
+                data.push(unparse(sectorData.map((row: Object, index: number) => 
+                    (index + lapDataIndex) in lap.editedData ? Object.assign({}, row, lap.editedData[index + lapDataIndex]) : row), 
+                    config));
                 if (index < lap.sectors.length) {
                     data.push(this.getSectorComment(index + 1, lap.sectors[index].sector));
                 } else {
                     console.warn("More data than sectors!");
                 }
+                lapDataIndex += sectorData.length;
             });
             data.push(this.getLapComment(lapIndex + 1, lap.lapTime));
         });
