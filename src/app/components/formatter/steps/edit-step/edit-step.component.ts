@@ -6,6 +6,7 @@ import { RaceService } from '../../race.service';
 import { Loader } from "@googlemaps/js-api-loader";
 import { environment } from '../../../../../environments/environment';
 import { Column } from '../../reader/column';
+import { Rounder } from '../../transform/rounder';
 
 @Component({
   selector: 'app-edit-step',
@@ -20,6 +21,7 @@ export class EditStepComponent implements OnInit {
   editField: Column;
   lapChoices: Lap[];
   mapBounds: google.maps.LatLngBounds;
+  infoWindow: google.maps.InfoWindow;
 
   constructor(public raceService: RaceService, private router: Router) { }
 
@@ -75,6 +77,10 @@ export class EditStepComponent implements OnInit {
     this.map = new google.maps.Map(document.getElementById("map") as HTMLElement, options);
     this.lapChoices.forEach((lap: Lap) => lap.overlay.setMap(this.map));
     this.map.fitBounds(this.mapBounds);
+    this.infoWindow = new google.maps.InfoWindow();
+    this.map.addListener("click", (event: google.maps.MapMouseEvent) => {
+      this.infoWindow.close();
+    });
   }
 
   showOverlays() {
@@ -115,6 +121,7 @@ export class EditStepComponent implements OnInit {
       });
 
       google.maps.event.addListener(path.getPath(), 'set_at', (index: any) => { this.saveEditedVertex(index) });
+      path.addListener("click", (event: google.maps.PolyMouseEvent) => { this.showInfoWindow(event) });
 
       path.setMap(this.map);
       path.getPath().getAt(1729)
@@ -158,5 +165,40 @@ export class EditStepComponent implements OnInit {
     let editedRow = this.displayLap.editedData[index];
     editedRow["Latitude (deg)"] = this.displayLap.overlay.getPath().getAt(index).lat();
     editedRow["Longitude (deg)"] = this.displayLap.overlay.getPath().getAt(index).lng();
+    if (index > 0) {
+      // Set the heading of the previous point
+      if (!((index - 1) in this.displayLap.editedData)) {
+        this.displayLap.editedData[(index - 1)] = {};
+      }
+      let previousRow = this.displayLap.editedData[(index - 1)];
+      previousRow["Bearing (deg)"] = Rounder.round(google.maps.geometry.spherical.computeHeading(
+        this.displayLap.overlay.getPath().getAt(index - 1),
+        this.displayLap.overlay.getPath().getAt(index)
+      ), 2);
+      if (previousRow["Bearing (deg)"] < 0) {
+        // Transform from -180 to 180 into 0 to 360 to match existing data
+        previousRow["Bearing (deg)"] = 360 + previousRow["Bearing (deg)"];
+      }
+    }
+    if (index < this.displayLap.editableData.length - 1) {
+      // Set the heading of the current point
+      editedRow["Bearing (deg)"] = Rounder.round(google.maps.geometry.spherical.computeHeading(
+        this.displayLap.overlay.getPath().getAt(index),
+        this.displayLap.overlay.getPath().getAt(index + 1)
+      ), 2);
+      if (editedRow["Bearing (deg)"] < 0) {
+        // Transform from -180 to 180 into 0 to 360 to match existing data
+        editedRow["Bearing (deg)"] = 360 + editedRow["Bearing (deg)"];
+      }
+    }
+  }
+
+  showInfoWindow(event: google.maps.PolyMouseEvent) {
+    this.infoWindow.close();
+    this.infoWindow = new google.maps.InfoWindow({
+      content: '<div style="color: black;"><h1>Hello World!</h1></div>',
+      position: this.displayLap.overlay.getPath().getAt(event.vertex)
+    });
+    this.infoWindow.open(this.map);
   }
 }
