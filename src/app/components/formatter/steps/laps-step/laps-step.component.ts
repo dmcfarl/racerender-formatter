@@ -46,6 +46,7 @@ export class LapsStepComponent implements OnInit {
         this.sessionTransformService.transformSession(session);
       }
     });
+    this.raceService.race.allLaps.forEach((lap: Lap) => lap.overlay = null);
     if (this.selectedSessions.length > 0) {
       this.router.navigate(['formatter/edit-step']);
     }

@@ -1,10 +1,12 @@
 import { Injectable } from "@angular/core";
 import { merge as _merge } from 'lodash';
-import { allRaceExportFields, Lap, Race, Sector } from "./race";
+import { allRaceExportFields, Lap, Penalty, PenaltyType, Race, Sector } from "./race";
+import { Column } from "./reader/column";
 import { allCSVDataExportFields, CSVData } from "./reader/csvdata";
 import { CSVReaderService } from "./reader/csvreader.service";
 import { LapReaderService } from "./reader/lapreader.service";
-import { Rounder } from "./transform/rounder";
+import { Conversion, DataConverter, DataTransformer, Transform } from "./transform/dataconverter";
+import { Round, Rounder } from "./transform/rounder";
 
 @Injectable({
     providedIn: 'root'
@@ -104,6 +106,18 @@ export class RaceService {
                 let data = JSON.parse(fileReader.result as string);
 
                 _merge(this, data);
+
+                // Didn't save functions in Configuration.json.
+                // Iterate through the options in order to find the exact object which has the needed functions.
+                this.csvData.columns.forEach((column: Column) => {
+                    column.conversion = DataConverter.conversions.find((conversion: Conversion) => conversion.name === column.conversion.name);
+                    column.transform = DataTransformer.transforms.find((transform: Transform) => transform.name === column.transform.name);
+                    column.round = Rounder.roundOptions.find((round: Round) => round.value === column.round.value);
+                });
+
+                this.race.allLaps.forEach((lap: Lap) => {
+                    lap.penalties.forEach((penalty: Penalty) => penalty.type = Penalty.penaltyTypes.find((penaltyType: PenaltyType) => penaltyType.name === penalty.type.name));
+                });
 
                 resolve(data);
             }
