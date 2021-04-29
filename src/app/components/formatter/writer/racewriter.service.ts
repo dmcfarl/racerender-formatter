@@ -49,8 +49,8 @@ export class RaceWriterService {
                 // Push all data from the sector.
                 // Keep track of the index since that was what was used when editting the data.
                 // Assign the edited data on top of the existing row if it exists.
-                data.push(unparse(sectorData.map((row: Object, index: number) => 
-                    (index + lapDataIndex) in lap.editedData ? Object.assign({}, row, lap.editedData[index + lapDataIndex]) : row), 
+                data.push(unparse(sectorData.map((row: Object) => 
+                    row["UTC Time (s)"] in lap.editedData ? Object.assign({}, row, lap.editedData[row["UTC Time (s)"]]) : row), 
                     config));
                 if (index < lap.sectors.length) {
                     data.push(this.getSectorComment(index + 1, lap.sectors[index].sector));
