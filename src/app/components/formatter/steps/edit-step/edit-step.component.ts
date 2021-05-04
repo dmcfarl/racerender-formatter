@@ -25,6 +25,7 @@ export class EditStepComponent implements OnInit {
   firstVertex: number = null;
   secondVertex: number = null;
   editOverlay: google.maps.Polyline;
+  debugPolygons: google.maps.Polygon[];
 
   constructor(public raceService: RaceService, private router: Router) { }
 
@@ -78,6 +79,42 @@ export class EditStepComponent implements OnInit {
       zoom: 15,
     };
     this.map = new google.maps.Map(document.getElementById("map") as HTMLElement, options);
+    const lineControlDiv = document.createElement("div");
+    lineControlDiv.style.clear = "both";
+
+    // Set CSS for the control border
+    const lineUI = document.createElement("div");
+    lineUI.id = "lineUI";
+    lineUI.title = "Click to transform the selection into a line";
+    lineUI.style.backgroundColor = "#fff";
+    lineUI.style.border = "2px solid #fff";
+    lineUI.style.borderRadius = "3px";
+    lineUI.style.boxShadow = "0 2px 6px rgba(0,0,0,.3)";
+    lineUI.style.cursor = "pointer";
+    lineUI.style.marginTop = "8px";
+    lineUI.style.marginBottom = "22px";
+    lineUI.style.textAlign = "center";
+    lineUI.title = "Click to recenter the map";
+    lineControlDiv.appendChild(lineUI);
+
+    // Set CSS for the control interior
+    const lineText = document.createElement("div");
+    lineText.id = "lineText";
+    lineText.style.color = "rgb(25,25,25)";
+    lineText.style.fontFamily = "Roboto,Arial,sans-serif";
+    lineText.style.fontSize = "16px";
+    lineText.style.lineHeight = "38px";
+    lineText.style.paddingLeft = "5px";
+    lineText.style.paddingRight = "5px";
+    lineText.innerHTML = "Line";
+    lineUI.appendChild(lineText);
+
+    lineUI.addEventListener("click", () => {
+      if (this.firstVertex != null && this.secondVertex != null) {
+        this.saveEditOverlay(0);
+      }
+    });
+
     this.lapChoices.forEach((lap: Lap) => lap.overlay.setMap(this.map));
     this.map.fitBounds(this.mapBounds);
     this.infoWindow = new google.maps.InfoWindow();
@@ -94,6 +131,11 @@ export class EditStepComponent implements OnInit {
       visible: false
     };
     this.editOverlay = new google.maps.Polyline(polylineOptions);
+
+    // @ts-ignore
+    lineControlDiv.index = 1;
+    lineControlDiv.style.paddingTop = "10px";
+    this.map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(lineControlDiv);
   }
 
   showOverlays() {
@@ -119,7 +161,7 @@ export class EditStepComponent implements OnInit {
       lap.editableData.forEach((row: Object, index: number) => {
         let latitude = row["Latitude (deg)"];
         let longitude = row["Longitude (deg)"];
-        let editIndex = this.getEditedDataIndex(index);
+        let editIndex = this.getEditedDataIndex(index, lap);
         if (editIndex in lap.editedData) {
           // Data has been previously edited. Use the edited data.
           if ("Latitude (deg)" in lap.editedData[editIndex]) {
@@ -226,9 +268,9 @@ export class EditStepComponent implements OnInit {
     return (a + b) / 2;
   }
 
-  private getEditedDataIndex(index: any): any {
-    if (index >= 0 && index < this.displayLap.editableData.length) {
-      return this.displayLap.editableData[index]["UTC Time (s)"];
+  private getEditedDataIndex(index: any, lap: Lap = this.displayLap): any {
+    if (index >= 0 && index < lap.editableData.length) {
+      return lap.editableData[index]["UTC Time (s)"];
     }
     return null;
   }
@@ -296,6 +338,9 @@ export class EditStepComponent implements OnInit {
   }
 
   private createLine(): Array<google.maps.LatLng> {
+    if (this.debugPolygons) {
+      this.debugPolygons.forEach((polygon: google.maps.Polygon) => polygon.setVisible(false));
+    }
     let path = new Array<google.maps.LatLng>();
     // Create straight line
     let startPoint = this.editOverlay.getPath().getAt(0);
@@ -314,6 +359,19 @@ export class EditStepComponent implements OnInit {
   }
 
   private createCurve(index: any): Array<google.maps.LatLng> {
+    if (this.debugPolygons == null) {
+      this.debugPolygons = new Array<google.maps.Polygon>();
+      let polygonOptions: google.maps.PolygonOptions = {
+        editable: true,
+        geodesic: true,
+        strokeColor: '#0000FF',
+        strokeOpacity: .75,
+        strokeWeight: 1
+      };
+      for (let i = 0; i < 4; i++) {
+       this.debugPolygons.push(new google.maps.Polygon(polygonOptions));
+      }
+    }
     let path = new Array<google.maps.LatLng>();
     // Create a curved line
     // Compute using two separate halves since it's unlikely that the exact middle
@@ -330,15 +388,20 @@ export class EditStepComponent implements OnInit {
     let bearingToCurve = this.getBearing(startPoint, curvePoint);
     let angleToCurve = bearingToEnd - bearingToCurve;
     let lengthToCurvePoint = google.maps.geometry.spherical.computeLength([startPoint, curvePoint]);
-    let height = lengthToCurvePoint * Math.sin(this.degreesToRadians(angleToCurve)) / Math.sin(this.degreesToRadians(90));
-    let halfLength = lengthToCurvePoint * Math.sin(this.degreesToRadians(90 - angleToCurve)) / Math.sin(this.degreesToRadians(90));
+    let height = lengthToCurvePoint * Math.sin(this.degreesToRadians(Math.abs(angleToCurve))) / Math.sin(this.degreesToRadians(90));
+    let halfLength = lengthToCurvePoint * Math.sin(this.degreesToRadians(90 - Math.abs(angleToCurve))) / Math.sin(this.degreesToRadians(90));
 
     // Compute the radius from the chord length and arc height
     let radius = Math.pow(halfLength * 2, 2) / (8 * height) + height / 2;
 
     // Find the origin of the circle
     let angleToOrigin = this.radiansToDegrees(Math.asin((radius - height) * Math.sin(this.degreesToRadians(90)) / radius));
-    let curveOrigin = google.maps.geometry.spherical.computeOffset(startPoint, radius, bearingToEnd + angleToOrigin);
+    let curveOrigin = google.maps.geometry.spherical.computeOffset(startPoint, radius, bearingToEnd + (angleToCurve < 0 ? -1 : 1) * angleToOrigin);
+    let crossPoint = google.maps.geometry.spherical.computeOffset(curvePoint, height, this.getBearing(curvePoint, curveOrigin));
+    this.debugPolygons[0].setPath([startPoint, curvePoint, crossPoint]);
+    this.debugPolygons[0].setMap(this.map);
+    this.debugPolygons[1].setPath([startPoint, curveOrigin, crossPoint]);
+    this.debugPolygons[1].setMap(this.map);
     
     // Find the angles used for computing the offsets along the curve
     let originAngle = 90 - angleToOrigin;
@@ -356,7 +419,7 @@ export class EditStepComponent implements OnInit {
 
     // Add all of the other points along the circle until index
     for (let i = 1; i <= index; i++) {
-      let point = google.maps.geometry.spherical.computeOffset(curveOrigin, radius, originHeading + (i / index * originAngle));
+      let point = google.maps.geometry.spherical.computeOffset(curveOrigin, radius, originHeading + (angleToCurve < 0 ? -1 : 1) * (i / index * originAngle));
       editRow = this.getEditedRow(this.firstVertex + i);
       editRow["Latitude (deg)"] = point.lat();
       editRow["Longitude (deg)"] = point.lng();
@@ -373,15 +436,20 @@ export class EditStepComponent implements OnInit {
     let endBearingToCurve = this.getBearing(endPoint, curvePoint);
     angleToCurve = endBearingToCurve - bearingToStart;
     lengthToCurvePoint = google.maps.geometry.spherical.computeLength([endPoint, curvePoint]);
-    height = lengthToCurvePoint * Math.sin(this.degreesToRadians(angleToCurve)) / Math.sin(this.degreesToRadians(90));
-    halfLength = lengthToCurvePoint * Math.sin(this.degreesToRadians(90 - angleToCurve)) / Math.sin(this.degreesToRadians(90));
+    height = lengthToCurvePoint * Math.sin(this.degreesToRadians(Math.abs(angleToCurve))) / Math.sin(this.degreesToRadians(90));
+    halfLength = lengthToCurvePoint * Math.sin(this.degreesToRadians(90 - Math.abs(angleToCurve))) / Math.sin(this.degreesToRadians(90));
 
     // Compute the radius from the chord length and arc height
     radius = Math.pow(halfLength * 2, 2) / (8 * height) + height / 2;
 
     // Find the origin of the circle
     angleToOrigin = this.radiansToDegrees(Math.asin((radius - height) * Math.sin(this.degreesToRadians(90)) / radius));
-    curveOrigin = google.maps.geometry.spherical.computeOffset(endPoint, radius, bearingToStart - angleToOrigin);
+    curveOrigin = google.maps.geometry.spherical.computeOffset(endPoint, radius, bearingToStart - (angleToCurve < 0 ? -1 : 1) * angleToOrigin);
+    this.debugPolygons[2].setPath([endPoint, curvePoint, crossPoint]);
+    this.debugPolygons[2].setMap(this.map);
+    this.debugPolygons[3].setPath([endPoint, curveOrigin, crossPoint]);
+    this.debugPolygons[3].setMap(this.map);
+    this.debugPolygons.forEach((polygon: google.maps.Polygon) => polygon.setVisible(true));
     
     // Find the angles used for computing the offsets along the curve
     originAngle = 90 - angleToOrigin;
@@ -391,7 +459,7 @@ export class EditStepComponent implements OnInit {
     previousPoint = path[path.length - 1];
     for (let i = index + 1; i < this.editOverlay.getPath().getLength(); i++) {
       let point = google.maps.geometry.spherical.computeOffset(curveOrigin, radius, 
-        originHeading + ((i - index) / (this.editOverlay.getPath().getLength() - index) * originAngle));
+        originHeading + (angleToCurve < 0 ? -1 : 1) * ((i - index) / (this.editOverlay.getPath().getLength() - index) * originAngle));
       editRow = this.getEditedRow(this.firstVertex + i);
       editRow["Latitude (deg)"] = point.lat();
       editRow["Longitude (deg)"] = point.lng();
@@ -422,6 +490,9 @@ export class EditStepComponent implements OnInit {
     this.secondVertex = null;
     if (this.editOverlay) {
       this.editOverlay.setVisible(false);
+    }
+    if (this.debugPolygons) {
+      this.debugPolygons.forEach((polygon: google.maps.Polygon) => polygon.setVisible(false));
     }
   }
 
