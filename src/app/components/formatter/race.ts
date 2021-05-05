@@ -127,7 +127,7 @@ export class Penalty {
     private static _DNF_COUNT = 15;
     private static _OFF_COUNT = 10;
     private static _RERUN_COUNT = 20;
-    private static _TIME_COUNT = 1;
+    private static _TIME_COUNT = 2;
 
     private static _TIME_MODIFIER = 2 * 60;
 
@@ -145,7 +145,7 @@ export class Penalty {
             (penalties: number) => { return penalties !== Penalty._DNF_COUNT && penalties !== Penalty._OFF_COUNT ? Penalty._RERUN_COUNT : penalties }
         ),
         new PenaltyType("Time (+2s)",
-            (lapTime: number) => { return lapTime < Penalty._OFF_COUNT * Penalty._TIME_MODIFIER ? lapTime + Penalty._TIME_COUNT * Penalty._TIME_MODIFIER : lapTime },
+            (lapTime: number) => { return lapTime < Penalty._OFF_COUNT * Penalty._TIME_MODIFIER ? lapTime + Penalty._TIME_COUNT : lapTime },
             (penalties: number) => { return penalties < Penalty._OFF_COUNT ? penalties + 1 : penalties }
         )
     ];

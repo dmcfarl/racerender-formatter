@@ -2,7 +2,7 @@ import { DatePipe } from "@angular/common";
 import { Injectable } from "@angular/core";
 import { unparse, UnparseConfig } from "papaparse";
 import { RaceService } from "src/app/components/formatter/race.service";
-import { Lap, Race, Sector, Session } from "../race";
+import { Lap, Penalty, Race, Sector, Session } from "../race";
 import { Rounder } from "../transform/rounder";
 import * as JSZip from 'jszip';
 import { Column } from "../reader/column";
@@ -129,9 +129,8 @@ export class RaceWriterService {
                     lap.sectors.forEach((sector: Sector, index: number) => {
                         data.push(this.getSectorComment(index + 1, sector.sector));
                     });
-                    let lapDisplay = lap.lapDisplay;
-                    data.push(this.getLapComment(session.laps.length + 1 + lap.id, lapDisplay));
-                    sessionTime += lapDisplay;
+                    data.push(this.getLapComment(session.laps.length + 1 + lap.id, lap.lapTime));
+                    sessionTime += lap.lapTime;
                 });
             });
             sessionTime += this.raceService.race.sessionBuffer;
@@ -222,6 +221,10 @@ export class RaceWriterService {
 
         // Current Penalties
         timingData["Previous Penalty"] = previousLap.getPenaltyCount(lapTime);
+
+        race.allLaps.filter((lap: Lap) => lap.id <= session.laps[session.laps.length - 1].id && lap.penalties.length > 0).forEach((lap: Lap) => {
+            timingData["Penalty Lap " + lap.id] = lap.penalties.reduce((count: number, curr: Penalty) => curr.type.countPenalties(count), 0);
+        });
 
         return timingData;
     }
