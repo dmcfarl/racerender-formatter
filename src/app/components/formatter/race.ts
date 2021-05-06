@@ -124,9 +124,9 @@ export class Penalty {
     type: PenaltyType;
     lapTime: number;
 
-    private static _DNF_COUNT = 15;
-    private static _OFF_COUNT = 10;
-    private static _RERUN_COUNT = 20;
+    private static _DNF_COUNT = 12;
+    private static _OFF_COUNT = 11;
+    private static _RERUN_COUNT = 10;
     private static _TIME_COUNT = 2;
 
     private static _TIME_MODIFIER = 2 * 60;
@@ -137,16 +137,16 @@ export class Penalty {
             (penalties: number) => { return Penalty._DNF_COUNT }
         ),
         new PenaltyType("Off Course",
-            (lapTime: number) => { return lapTime !== Penalty._DNF_COUNT * Penalty._TIME_MODIFIER ? Penalty._OFF_COUNT * Penalty._TIME_MODIFIER : lapTime; },
-            (penalties: number) => { return penalties !== Penalty._DNF_COUNT ? Penalty._OFF_COUNT : penalties }
+            (lapTime: number) => { return lapTime <= Penalty._OFF_COUNT * Penalty._TIME_MODIFIER ? Penalty._OFF_COUNT * Penalty._TIME_MODIFIER : lapTime; },
+            (penalties: number) => { return penalties <= Penalty._OFF_COUNT ? Penalty._OFF_COUNT : penalties }
         ),
         new PenaltyType("Rerun",
-            (lapTime: number) => { return lapTime !== Penalty._DNF_COUNT * Penalty._TIME_MODIFIER && lapTime !== Penalty._OFF_COUNT * Penalty._TIME_MODIFIER ? Penalty._RERUN_COUNT * Penalty._TIME_MODIFIER : lapTime; },
-            (penalties: number) => { return penalties !== Penalty._DNF_COUNT && penalties !== Penalty._OFF_COUNT ? Penalty._RERUN_COUNT : penalties }
+            (lapTime: number) => { return lapTime <= Penalty._RERUN_COUNT * Penalty._TIME_MODIFIER ? Penalty._RERUN_COUNT * Penalty._TIME_MODIFIER : lapTime; },
+            (penalties: number) => { return penalties <= Penalty._RERUN_COUNT ? Penalty._RERUN_COUNT : penalties }
         ),
         new PenaltyType("Time (+2s)",
-            (lapTime: number) => { return lapTime < Penalty._OFF_COUNT * Penalty._TIME_MODIFIER ? lapTime + Penalty._TIME_COUNT : lapTime },
-            (penalties: number) => { return penalties < Penalty._OFF_COUNT ? penalties + 1 : penalties }
+            (lapTime: number) => { return lapTime < Penalty._RERUN_COUNT * Penalty._TIME_MODIFIER ? lapTime + Penalty._TIME_COUNT : lapTime },
+            (penalties: number) => { return penalties < Penalty._RERUN_COUNT ? penalties + 1 : penalties }
         )
     ];
 
