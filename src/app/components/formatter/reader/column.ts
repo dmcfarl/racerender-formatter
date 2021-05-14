@@ -19,16 +19,6 @@ export class Column {
         this.round = Rounder.estimateRound(this);
     }
 
-    static asFormGroup(column: Column): FormGroup {
-        const fg = new FormGroup({
-            isExport: new FormControl(column.isExport, Validators.required),
-            name: new FormControl(column.name, Validators.required),
-            conversion: new FormControl(column.conversion, Validators.required),
-            transform: new FormControl(column.transform, Validators.required)
-        });
-        return fg;
-    }
-
     static exportFields(): string[] {
         return ['name', 'exportName', 'isExport', 'conversion', 'transform', 'round'];
     }

@@ -45,10 +45,11 @@ export class RaceService {
         this.race.best = null;
         this.race.allLaps.forEach(lap => {
             lap.lapTime = Rounder.round(lap.lapTime, 3);
+            let lapDisplay = lap.lapDisplay;
             if (this.race.best == null) {
                 this.race.best = lap;
                 lap.previousBest = lap;
-            } else if (lap.lapTime < this.race.best.lapTime) {
+            } else if (lapDisplay < this.race.best.lapDisplay) {
                 lap.previousBest = this.race.best;
                 this.race.best = lap;
             } else {

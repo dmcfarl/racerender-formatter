@@ -101,7 +101,7 @@ export class LapsStepComponent implements OnInit {
     this.raceService.race.allLaps.forEach(lap => {
       if (lap.sectors.length > 1) {
         lap.sectors.splice(i, 1);
-        lap.sectors[i].sector = Rounder.round(lap.sectors[i].split - (lap.sectors.length > 1 ? lap.sectors[lap.sectors.length - 2].split : 0), 3);
+        lap.sectors[i].sector = Rounder.round(lap.sectors[i].split - (i > 0 ? lap.sectors[i - 1].split : 0), 3);
       }
     });
   }

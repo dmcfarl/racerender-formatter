@@ -53,17 +53,6 @@ export class Lap {
         this.id = id;
     }
 
-    static asFormGroup(lap: Lap): FormGroup {
-        const fg = new FormGroup({
-            //isExport: new FormControl(lap.isExport, Validators.required),
-            id: new FormControl(lap.id, Validators.pattern('[0-9]+')),
-            time: new FormControl(lap.lapTime, Validators.pattern('[0-9]+(.[0-9]+)?')),
-            sectors: new FormArray(lap.sectors.map(sector => Sector.asFormGroup(sector))),
-            penalties: new FormControl(lap.penalties.map(penalty => Penalty.asFormGroup(penalty)))
-        });
-        return fg;
-    }
-
     getPenaltyCount(lapTime: number): number {
         let penaltyCount = 0;
         this.penalties.filter((penalty: Penalty) => penalty.lapTime <= lapTime).forEach((penalty: Penalty) => {
@@ -91,13 +80,6 @@ export class Sector {
     sector: number;
     dataRow: Object;
     dataRowIndex: number;
-
-    static asFormGroup(sector: Sector): FormGroup {
-        const fg = new FormGroup({
-            split: new FormControl(sector.split, Validators.pattern('[0-9]+(.[0-9]+)?'))
-        });
-        return fg;
-    }
 
     static exportFields(): string[] {
         return ['split', 'sector'];
@@ -153,14 +135,6 @@ export class Penalty {
     constructor(type: PenaltyType, lapTime: number) {
         this.type = type;
         this.lapTime = lapTime;
-    }
-
-    static asFormGroup(penalty: Penalty): FormGroup {
-        const fg = new FormGroup({
-            type: new FormControl(penalty.type, Validators.required),
-            lapTime: new FormControl(penalty.lapTime, Validators.pattern('[0-9]*(.[0-9]+)?'))
-        });
-        return fg;
     }
 
     static exportFields(): string[] {
