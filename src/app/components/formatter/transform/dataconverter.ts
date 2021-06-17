@@ -83,8 +83,8 @@ export class DataTransformer {
             return data[column.name];
         }),
         new Transform("Session Time", (column: Column, data: Object, race: Race, session: Session, lap: Lap) => {
-            // Find the true start of the session: lapStart anchor row with the sessionBuffer before it.
-            return data["UTC Time (s)"] - (session.laps[0].lapStart["UTC Time (s)"] - race.sessionBuffer);
+            // Find the true start of the session: lapAnchor row with the sessionBuffer before it.
+            return data["UTC Time (s)"] - (session.laps[0].lapAnchor["UTC Time (s)"] - race.sessionBuffer);
         }),
         new Transform("Relative to Lap Start", (column: Column, data: Object, race: Race, session: Session, lap: Lap) => {
             return lap != null ? data[column.name] - lap.lapStartPrecise[column.name] : 0;

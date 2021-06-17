@@ -38,6 +38,8 @@ export class Lap {
     editedData: Object = {};
     sectors: Sector[] = [];
     lapTime: number;
+    lapAnchor: Object;
+    lapAnchorIndex: number;
     lapStart: Object;
     lapStartIndex: number;
     lapStartPrecise: Object;

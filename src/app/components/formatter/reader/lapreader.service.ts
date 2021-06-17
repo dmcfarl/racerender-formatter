@@ -29,7 +29,6 @@ export class LapReaderService {
                     if (lap == null) {
                         // Create a new lap
                         lap = new Lap(lapNum);
-                        lap.lapStart = value;
                         if (session == null) {
                             // Create a new session
                             session = new Session(race.sessions.length + 1);
@@ -38,14 +37,24 @@ export class LapReaderService {
                         session.laps.push(lap);
                         lap.lapStartIndex = index;
                         lap.lapStart = value;
+                        lap.lapAnchorIndex = index;
+                        lap.lapAnchor = value;
                     } else if (value["Trap name"] != null) {
-                        // Add a new sector
-                        let sector = new Sector();
-                        sector.dataRow = value;
-                        sector.dataRowIndex = index;
-                        sector.split = Rounder.round(value["UTC Time (s)"] - lap.lapStart["UTC Time (s)"], 3);
-                        sector.sector = lap.sectors.length > 0 ? Rounder.round(sector.split - lap.sectors[lap.sectors.length - 1].split, 3) : sector.split;
-                        lap.sectors.push(sector);
+                        if (value["Trap name"].toLowerCase().indexOf("start") >= 0) {
+                            lap.lapStartIndex = index;
+                            lap.lapStart = value;
+                            if (session.preciseSessionStart === 0) {
+                                session.preciseSessionStart = lap.lapStart["UTC Time (s)"] - lap.lapAnchor["UTC Time (s)"];
+                            }
+                        } else {
+                            // Add a new sector
+                            let sector = new Sector();
+                            sector.dataRow = value;
+                            sector.dataRowIndex = index;
+                            sector.split = Rounder.round(value["UTC Time (s)"] - lap.lapStart["UTC Time (s)"], 3);
+                            sector.sector = lap.sectors.length > 0 ? Rounder.round(sector.split - lap.sectors[lap.sectors.length - 1].split, 3) : sector.split;
+                            lap.sectors.push(sector);
+                        }
                     }
                 } else if (lap != null) {
                     // Row after last lap of the session

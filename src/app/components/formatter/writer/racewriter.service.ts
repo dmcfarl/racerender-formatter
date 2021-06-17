@@ -72,7 +72,7 @@ export class RaceWriterService {
         let data = this.writePrologue();
 
         // Anchor row is the original start of the first lap of the session.  Subtract the session buffer to get to Session Time of 0.
-        let sessionUTC = Rounder.round(session.laps[0].lapStart["UTC Time (s)"] - this.raceService.race.sessionBuffer, 3);
+        let sessionUTC = Rounder.round(session.laps[0].lapAnchor["UTC Time (s)"] - this.raceService.race.sessionBuffer, 3);
         let sessionTime = 0;
         let firstTimingRow = this.getTimingRow(sessionTime, sessionUTC, -1, this.raceService.race, session, session.laps[0], session.laps[0].previousBest);
         const config: UnparseConfig = {

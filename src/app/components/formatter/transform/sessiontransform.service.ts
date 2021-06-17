@@ -28,8 +28,8 @@ export class SessionTransformService {
 
         // Buffer data prior to lapStart
         // Only iterating over part of the array.  Don't want to use forEach here especially since this is reversed.
-        for (let i = startLap.lapStartIndex - 1; i > 0 && this.getSessionTime(startLap.lapStartIndex, i) < this.raceService.race.sessionBuffer; i--) {
-            if (session.preciseSessionStart < 0 && this.getSessionTime(i, startLap.lapStartIndex) > session.preciseSessionStart) {
+        for (let i = startLap.lapAnchorIndex - 1; i > 0 && this.getSessionTime(startLap.lapAnchorIndex, i) < this.raceService.race.sessionBuffer; i--) {
+            if (session.preciseSessionStart < 0 && this.getSessionTime(i, startLap.lapAnchorIndex) > session.preciseSessionStart) {
                 // Precise lap start occurs before lapStart. Just set *Precise values instead of buffering since these should 
                 // actually be a part of lapData instead.
                 startLap.lapStartPrecise = csvData[i];
@@ -43,9 +43,9 @@ export class SessionTransformService {
         if (session.preciseSessionStart > 0) {
             // Precise lap start occurs after lapStart. Continue buffering data until we hit the first row within the 
             // official start of the precise lap.
-            let i = startLap.lapStartIndex;
+            let i = startLap.lapAnchorIndex;
             // Only iterating over part of the array.  Don't want to use forEach here.
-            for (i; i < csvData.length && this.getSessionTime(i, startLap.lapStartIndex) < session.preciseSessionStart; i++) {
+            for (i; i < csvData.length && this.getSessionTime(i, startLap.lapAnchorIndex) < session.preciseSessionStart; i++) {
                 startBuffer.push(this.transformRow(csvData[i], session, null));
             }
             startLap.lapStartPrecise = csvData[i];
@@ -73,9 +73,9 @@ export class SessionTransformService {
 
             // Only iterating over part of the array.  Don't want to use forEach here.
             // Also want to maintain where we are in the array for the next lap.
-            for (i; i < csvData.length && this.getSessionTime(i, startLap.lapStartIndex) < lapTime + lap.lapTime; i++) {
+            for (i; i < csvData.length && this.getSessionTime(i, startLap.lapAnchorIndex) < lapTime + lap.lapTime; i++) {
                 // Add rows to the lap while under the lap time.
-                if (nextSector < lap.sectors.length && this.getSessionTime(i, startLap.lapStartIndex) > lapTime + lap.sectors[nextSector].split) {
+                if (nextSector < lap.sectors.length && this.getSessionTime(i, startLap.lapAnchorIndex) > lapTime + lap.sectors[nextSector].split) {
                     // Found the row for the next sector. Set it and move on to the following sector.
                     lap.sectors[nextSector].dataRowIndex = i;
                     lap.sectors[nextSector].dataRow = csvData[i];
@@ -106,7 +106,7 @@ export class SessionTransformService {
         let finishTime: number = session.laps.map(lap => lap.lapTime).reduce((prev, curr) => prev + curr, 0);
 
         // Only iterating over part of the array.  Don't want to use forEach here.
-        for (let i = session.laps[session.laps.length - 1].lapFinishIndex + 1; i < csvData.length && this.getSessionTime(i, startLap.lapStartIndex) < finishTime + this.raceService.race.sessionBuffer; i++) {
+        for (let i = session.laps[session.laps.length - 1].lapFinishIndex + 1; i < csvData.length && this.getSessionTime(i, startLap.lapStartIndexPrecise) < finishTime + this.raceService.race.sessionBuffer; i++) {
             // Buffer rows after the precise lap finish
             finishBuffer.push(this.transformRow(csvData[i], session, session.laps[session.laps.length - 1]));
         }
