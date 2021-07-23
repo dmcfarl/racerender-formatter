@@ -7,6 +7,7 @@ import { Loader } from "@googlemaps/js-api-loader";
 import { environment } from '../../../../../environments/environment';
 import { Column } from '../../reader/column';
 import { Rounder } from '../../transform/rounder';
+import { Bezier, Point } from "bezier-js";
 
 @Component({
   selector: 'app-edit-step',
@@ -24,7 +25,9 @@ export class EditStepComponent implements OnInit {
   infoWindow: google.maps.InfoWindow;
   firstVertex: number = null;
   secondVertex: number = null;
+  dragPoint: google.maps.Marker = null;
   editOverlay: google.maps.Polyline;
+  dragOverlay: google.maps.Polyline;
   debugPolygons: google.maps.Polygon[];
 
   constructor(public raceService: RaceService, private router: Router) { }
@@ -123,7 +126,7 @@ export class EditStepComponent implements OnInit {
       this.hideSegment();
     });
     let polylineOptions: google.maps.PolylineOptions = {
-      editable: true,
+      editable: false,
       geodesic: true,
       strokeColor: '#F57C00',
       strokeOpacity: 1,
@@ -131,6 +134,15 @@ export class EditStepComponent implements OnInit {
       visible: false
     };
     this.editOverlay = new google.maps.Polyline(polylineOptions);
+    let polylineDragOptions: google.maps.PolylineOptions = {
+      editable: false,
+      geodesic: true,
+      strokeColor: '#FF0000',
+      strokeOpacity: 1,
+      strokeWeight: 3,
+      visible: false
+    };
+    this.dragOverlay = new google.maps.Polyline(polylineDragOptions);
 
     // @ts-ignore
     lineControlDiv.index = 1;
@@ -139,7 +151,7 @@ export class EditStepComponent implements OnInit {
   }
 
   showOverlays() {
-    this.lapChoices.forEach((lap: Lap) => lap.overlay.setEditable(lap.id === this.displayLap.id));
+    this.lapChoices.forEach((lap: Lap) => lap.overlay.setOptions({zIndex: lap.id === this.displayLap.id ? 2 : 1}));
   }
 
   getOverlay(lap: Lap): google.maps.LatLngBounds {
@@ -150,7 +162,7 @@ export class EditStepComponent implements OnInit {
         this.extractEditableData(lap);
       }
       let polylineOptions: google.maps.PolylineOptions = {
-        editable: lap.id === this.displayLap.id,
+        editable: false,//lap.id === this.displayLap.id,
         geodesic: true,
         strokeColor: lap.id === this.raceService.race.best.id ? '#00FF00' : '#FFFF00',
         strokeOpacity: 0.5,
@@ -264,10 +276,6 @@ export class EditStepComponent implements OnInit {
     return bearing;
   }
 
-  private avg(a, b) {
-    return (a + b) / 2;
-  }
-
   private getEditedDataIndex(index: any, lap: Lap = this.displayLap): any {
     if (index >= 0 && index < lap.editableData.length) {
       return lap.editableData[index]["UTC Time (s)"];
@@ -284,7 +292,7 @@ export class EditStepComponent implements OnInit {
     let editIndex = this.getEditedDataIndex(index);
     // Create the object in the editedData section if not already created
     if (!(editIndex in this.displayLap.editedData)) {
-      this.displayLap.editedData[editIndex] = {};
+      this.displayLap.editedData[editIndex] = { "UTC Time (s)": editIndex };
     }
     return this.displayLap.editedData[editIndex];
   }
@@ -301,24 +309,56 @@ export class EditStepComponent implements OnInit {
     return this.displayLap.editableData[index];
   }
 
-  showSegment(event: google.maps.PolyMouseEvent) {
+  showSegment(event: google.maps.MapMouseEvent) {
+    this.infoWindow.close();
     if (this.firstVertex == null) {
-      this.firstVertex = event.vertex;
+      this.firstVertex = this.findClosestVertex(event.latLng);
+      this.showInfoWindow(this.firstVertex);
     } else if (this.secondVertex == null) {
-      this.secondVertex = event.vertex;
+      this.secondVertex = this.findClosestVertex(event.latLng);
       let start = this.firstVertex < this.secondVertex ? this.firstVertex : this.secondVertex;
       let end = this.firstVertex < this.secondVertex ? this.secondVertex : this.firstVertex;
       this.firstVertex = start;
       this.secondVertex = end;
 
+      if (this.dragPoint !== null) {
+        this.dragPoint.setMap(null);
+        google.maps.event.clearListeners(this.dragPoint, 'dragstart');
+        google.maps.event.clearListeners(this.dragPoint, 'drag');
+        google.maps.event.clearListeners(this.dragPoint, 'dragend');
+        this.dragPoint = null;
+      }
       let path = new Array<google.maps.LatLng>();
       for (let i = start; i <= end; i++) {
-        path.push(this.displayLap.overlay.getPath().getAt(i));
+        let point: google.maps.LatLng = this.displayLap.overlay.getPath().getAt(i);
+        if (this.dragPoint == null && i >= start + ((end - start) / 2)) {
+          // Place marker in the middle
+          this.dragPoint = new google.maps.Marker({
+            position: point,
+            /*icon: { 
+              path: google.maps.SymbolPath.CIRCLE,
+              strokeWeight: 2,
+              strokeColor: "#FF0000"
+            },*/
+            map: null,
+            draggable: (i != start && i != end)
+          });
+          google.maps.event.addListener(this.dragPoint, 'dragstart', (event: google.maps.MapMouseEvent) => { this.dragStartCurve(event) });
+          google.maps.event.addListener(this.dragPoint, 'drag', (event: google.maps.MapMouseEvent) => { this.dragCurve(event) });
+          google.maps.event.addListener(this.dragPoint, 'dragend', (event: google.maps.MapMouseEvent) => { this.dragEndCurve(event) });
+        }
+
+        path.push(point);
       }
       this.editOverlay.setPath(path);
-      google.maps.event.addListener(this.editOverlay.getPath(), 'set_at', (index: any) => { this.saveEditOverlay(index) });
+      this.dragOverlay.setPath(path);
+      //google.maps.event.addListener(this.editOverlay.getPath(), 'set_at', (index: any) => { this.saveEditOverlay(index) });
       this.editOverlay.setMap(this.map);
+      this.dragOverlay.setMap(null);
       this.editOverlay.setVisible(true);
+      this.dragOverlay.setVisible(false);
+      this.dragPoint.setMap(this.map);
+      this.dragPoint.setVisible(true);
     } else {
       this.hideSegment();
     }
@@ -331,7 +371,7 @@ export class EditStepComponent implements OnInit {
     } else {
       newEditPath = this.createCurve(index);
     }
-    let newLapPath = this.displayLap.overlay.getPath().getArray().slice(0, this.firstVertex).concat(...newEditPath, ...this.displayLap.overlay.getPath().getArray().slice(this.secondVertex));
+    let newLapPath = this.displayLap.overlay.getPath().getArray().slice(0, this.firstVertex).concat(...newEditPath, ...this.displayLap.overlay.getPath().getArray().slice(this.secondVertex + 1));
     this.displayLap.overlay.setPath(newLapPath);
     this.editOverlay.setPath(newEditPath);
     google.maps.event.addListener(this.editOverlay.getPath(), 'set_at', (index: any) => { this.saveEditOverlay(index) });
@@ -354,6 +394,85 @@ export class EditStepComponent implements OnInit {
       editRow["Longitude (deg)"] = point.lng();
       editRow["Bearing (deg)"] = bearing;
     }
+
+    return path;
+  }
+
+  private dragStartCurve(event: google.maps.MapMouseEvent) {
+    this.dragOverlay.setMap(this.map);
+    this.dragOverlay.setVisible(true);
+  }
+
+  private dragCurve(event: google.maps.MapMouseEvent): Array<google.maps.LatLng> {
+    let path = new Array<google.maps.LatLng>();
+
+    let startPoint = this.editOverlay.getPath().getAt(0);
+    let curvePoint = event.latLng;
+    let endPoint = this.editOverlay.getPath().getAt(this.editOverlay.getPath().getLength() - 1);
+
+    let distanceToStart = google.maps.geometry.spherical.computeLength([startPoint, curvePoint]);
+    let distanceToEnd = google.maps.geometry.spherical.computeLength([curvePoint, endPoint]);
+    let t = distanceToStart / (distanceToStart + distanceToEnd);
+
+    let bezier = Bezier.quadraticFromPoints(
+      { x: startPoint.lng(), y: startPoint.lat() }, 
+      { x: curvePoint.lng(), y: curvePoint.lat() }, 
+      { x: endPoint.lng(), y: endPoint.lat() }, 
+      t);
+    let curvePoints: Point[] = bezier.getLUT(20);
+
+    curvePoints.forEach((point: Point) => path.push(new google.maps.LatLng({ lat: point.y, lng: point.x })));
+
+    this.dragOverlay.setPath(path);
+
+    return path;
+  }
+
+  // TODO: Swap to Markers, use this to create a standard curve underneath. Setup dragend that does t across all the nodes by time
+  private dragEndCurve(event: google.maps.MapMouseEvent): Array<google.maps.LatLng> {
+    this.dragOverlay.setVisible(false);
+    this.dragOverlay.setMap(null);
+
+    let path = new Array<google.maps.LatLng>();
+
+    let startPoint = this.editOverlay.getPath().getAt(0);
+    let curvePoint = event.latLng;
+    let endPoint = this.editOverlay.getPath().getAt(this.editOverlay.getPath().getLength() - 1);
+
+    let distanceToStart = google.maps.geometry.spherical.computeLength([startPoint, curvePoint]);
+    let distanceToEnd = google.maps.geometry.spherical.computeLength([curvePoint, endPoint]);
+    let t = distanceToStart / (distanceToStart + distanceToEnd);
+
+    let bezier = Bezier.quadraticFromPoints(
+      { x: startPoint.lng(), y: startPoint.lat() }, 
+      { x: curvePoint.lng(), y: curvePoint.lat() }, 
+      { x: endPoint.lng(), y: endPoint.lat() }, 
+      t);
+
+    let firstRow = this.getEditedRow(this.firstVertex);
+    let lastRow = this.getEditedRow(this.firstVertex + this.editOverlay.getPath().getLength());
+    let startTime = firstRow["UTC Time (s)"];
+    let totalTime = lastRow["UTC Time (s)"] - startTime;
+
+    let previousPoint = this.displayLap.overlay.getPath().getAt(this.firstVertex - 1);
+    this.editOverlay.getPath().forEach((value: google.maps.LatLng, index: number) => {
+      // Find point on the curve
+      let editRow = this.getEditedRow(this.firstVertex + index);
+      let t = (editRow["UTC Time (s)"] - startTime) / totalTime;
+      let point: Point = bezier.get(t);
+
+      // Edit row values
+      editRow["Latitude (deg)"] = point.y;
+      editRow["Longitude (deg)"] = point.x;
+      let latLng: google.maps.LatLng = new google.maps.LatLng({ lat: point.y, lng: point.x });
+      editRow["Bearing (deg)"] = this.getBearing(previousPoint, latLng);
+      previousPoint = latLng;
+      path.push(latLng);
+    });
+
+    let newLapPath = this.displayLap.overlay.getPath().getArray().slice(0, this.firstVertex).concat(...path, ...this.displayLap.overlay.getPath().getArray().slice(this.secondVertex + 1));
+    this.displayLap.overlay.setPath(newLapPath);
+    this.editOverlay.setPath(path);
 
     return path;
   }
@@ -397,15 +516,27 @@ export class EditStepComponent implements OnInit {
     // Find the origin of the circle
     let angleToOrigin = this.radiansToDegrees(Math.asin((radius - height) * Math.sin(this.degreesToRadians(90)) / radius));
     let curveOrigin = google.maps.geometry.spherical.computeOffset(startPoint, radius, bearingToEnd + (angleToCurve < 0 ? -1 : 1) * angleToOrigin);
-    let crossPoint = google.maps.geometry.spherical.computeOffset(curvePoint, height, this.getBearing(curvePoint, curveOrigin));
-    this.debugPolygons[0].setPath([startPoint, curvePoint, crossPoint]);
-    this.debugPolygons[0].setMap(this.map);
-    this.debugPolygons[1].setPath([startPoint, curveOrigin, crossPoint]);
-    this.debugPolygons[1].setMap(this.map);
     
     // Find the angles used for computing the offsets along the curve
     let originAngle = 90 - angleToOrigin;
     let originHeading = this.getBearing(curveOrigin, startPoint);
+    
+    // Double check that we end up in the right spot
+    let lengthCheck = google.maps.geometry.spherical.computeLength([startPoint, google.maps.geometry.spherical.computeOffset(curveOrigin, radius, 
+      originHeading + (angleToCurve < 0 ? -1 : 1) * (1 / (this.editOverlay.getPath().getLength() - index) * originAngle))]);
+    if (lengthCheck > 3) {
+      angleToCurve = angleToCurve * -1;
+      angleToOrigin = this.radiansToDegrees(Math.asin((radius - height) * Math.sin(this.degreesToRadians(90)) / radius));
+      curveOrigin = google.maps.geometry.spherical.computeOffset(startPoint, radius, bearingToEnd + (angleToCurve < 0 ? -1 : 1) * angleToOrigin);
+      originAngle = 90 - angleToOrigin;
+      originHeading = this.getBearing(curveOrigin, curvePoint);
+    }
+    let crossPoint = google.maps.geometry.spherical.computeOffset(curvePoint, height, this.getBearing(curvePoint, curveOrigin));
+    this.debugPolygons[2].setPath([endPoint, curvePoint, crossPoint]);
+    this.debugPolygons[2].setMap(this.map);
+    this.debugPolygons[3].setPath([endPoint, curveOrigin, crossPoint]);
+    this.debugPolygons[3].setMap(this.map);
+    this.debugPolygons.forEach((polygon: google.maps.Polygon) => polygon.setVisible(true));
 
     // Add points along the circle
     // Add the initial starting point
@@ -445,15 +576,27 @@ export class EditStepComponent implements OnInit {
     // Find the origin of the circle
     angleToOrigin = this.radiansToDegrees(Math.asin((radius - height) * Math.sin(this.degreesToRadians(90)) / radius));
     curveOrigin = google.maps.geometry.spherical.computeOffset(endPoint, radius, bearingToStart - (angleToCurve < 0 ? -1 : 1) * angleToOrigin);
+    
+    // Find the angles used for computing the offsets along the curve
+    originAngle = 90 - angleToOrigin;
+    originHeading = this.getBearing(curveOrigin, curvePoint);
+
+    // Double check that we end up in the right spot
+    lengthCheck = google.maps.geometry.spherical.computeLength([curvePoint, google.maps.geometry.spherical.computeOffset(curveOrigin, radius, 
+      originHeading + (angleToCurve < 0 ? -1 : 1) * (1 / (this.editOverlay.getPath().getLength() - index) * originAngle))]);
+    if (lengthCheck > 3) {
+      angleToCurve = angleToCurve * -1;
+      angleToOrigin = this.radiansToDegrees(Math.asin((radius - height) * Math.sin(this.degreesToRadians(90)) / radius));
+      curveOrigin = google.maps.geometry.spherical.computeOffset(endPoint, radius, bearingToStart - (angleToCurve < 0 ? -1 : 1) * angleToOrigin);
+      originAngle = 90 - angleToOrigin;
+      originHeading = this.getBearing(curveOrigin, curvePoint);
+    }
+    crossPoint = google.maps.geometry.spherical.computeOffset(curvePoint, height, this.getBearing(curvePoint, curveOrigin));
     this.debugPolygons[2].setPath([endPoint, curvePoint, crossPoint]);
     this.debugPolygons[2].setMap(this.map);
     this.debugPolygons[3].setPath([endPoint, curveOrigin, crossPoint]);
     this.debugPolygons[3].setMap(this.map);
     this.debugPolygons.forEach((polygon: google.maps.Polygon) => polygon.setVisible(true));
-    
-    // Find the angles used for computing the offsets along the curve
-    originAngle = 90 - angleToOrigin;
-    originHeading = this.getBearing(curveOrigin, curvePoint);
 
     // Add points along the circle
     previousPoint = path[path.length - 1];
@@ -491,18 +634,35 @@ export class EditStepComponent implements OnInit {
     if (this.editOverlay) {
       this.editOverlay.setVisible(false);
     }
+    if (this.dragPoint) {
+      this.dragPoint.setVisible(false);
+    }
     if (this.debugPolygons) {
       this.debugPolygons.forEach((polygon: google.maps.Polygon) => polygon.setVisible(false));
     }
   }
 
-  showInfoWindow(event: google.maps.PolyMouseEvent) {
+  showInfoWindow(vertex: number) {
     this.infoWindow.close();
-    let row = event.vertex in this.displayLap.editedData ? Object.assign({}, this.displayLap.editableData[event.vertex], this.displayLap.editedData[event.vertex]) : this.displayLap.editableData[event.vertex];
+    let row = vertex in this.displayLap.editedData ? Object.assign({}, this.displayLap.editableData[vertex], this.displayLap.editedData[vertex]) : this.displayLap.editableData[vertex];
     this.infoWindow = new google.maps.InfoWindow({
-      content: `<div style="color: black;"><p>Index: ${event.vertex}<br/>Edit Index: ${row["UTC Time (s)"]}<br/>Time: ${row["Time (s)"]}<br/>Lat: ${row["Latitude (deg)"]}<br/>Lng: ${row["Longitude (deg)"]}<br/>Bear: ${row["Bearing (deg)"]}</p></div>`,
-      position: this.displayLap.overlay.getPath().getAt(event.vertex)
+      content: `<div style="color: black;"><p>Index: ${vertex}<br/>Edit Index: ${row["UTC Time (s)"]}<br/>Time: ${row["Time (s)"]}<br/>Lat: ${row["Latitude (deg)"]}<br/>Lng: ${row["Longitude (deg)"]}<br/>Bear: ${row["Bearing (deg)"]}</p></div>`,
+      position: this.displayLap.overlay.getPath().getAt(vertex)
     });
     this.infoWindow.open(this.map);
+  }
+
+  findClosestVertex(latLng: google.maps.LatLng) : number {
+    let vertex: number = 0;
+    let vertexDistance: number = -1;
+    this.displayLap.overlay.getPath().forEach((editPoint: google.maps.LatLng, index: number) => {
+      let distance = google.maps.geometry.spherical.computeDistanceBetween(editPoint, latLng);
+      if (vertexDistance === -1 || distance < vertexDistance) {
+        vertex = index;
+        vertexDistance = distance;
+      }
+    });
+
+    return vertex;
   }
 }
