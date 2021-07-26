@@ -120,6 +120,8 @@ export class RaceService {
                     lap.penalties.forEach((penalty: Penalty) => penalty.type = Penalty.penaltyTypes.find((penaltyType: PenaltyType) => penaltyType.name === penalty.type.name));
                 });
 
+                this.updateBestLap();
+
                 resolve(data);
             }
             fileReader.onerror = (event) => {
