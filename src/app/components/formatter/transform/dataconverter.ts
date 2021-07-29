@@ -90,7 +90,7 @@ export class DataTransformer {
             return lap != null ? data[column.name] - lap.lapStartPrecise[column.name] : 0;
         }),
         new Transform("Boost (kPa)", (column: Column, data: Object, race: Race, session: Session, lap: Lap) => {
-            return data["Manifold pressure (kPa) *OBD"] - data["Barometric pressure (kPa) *OBD"];
+            return data["Manifold pressure (kPa) *obd"] - data["Barometric pressure (kPa) *obd"];
         })
     ]
 
