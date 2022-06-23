@@ -40,13 +40,13 @@ export class LapReaderService {
                         lap.lapAnchorIndex = index;
                         lap.lapAnchor = value;
                     } else if (value["Trap name"] != null) {
-                        if (value["Trap name"].toLowerCase().indexOf("start") >= 0) {
+                        if (value["Trap name"].toLowerCase().startsWith("start") >= 0) {
                             lap.lapStartIndex = index;
                             lap.lapStart = value;
                             if (session.preciseSessionStart === 0) {
                                 session.preciseSessionStart = lap.lapStart["UTC Time (s)"] - lap.lapAnchor["UTC Time (s)"];
                             }
-                        } else {
+                        } else if (value["Trap name"].toLowerCase().startsWith("sector")) {
                             // Add a new sector
                             let sector = new Sector();
                             sector.dataRow = value;
