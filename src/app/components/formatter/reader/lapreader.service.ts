@@ -40,7 +40,7 @@ export class LapReaderService {
                         lap.lapAnchorIndex = index;
                         lap.lapAnchor = value;
                     } else if (value["Trap name"] != null) {
-                        if (value["Trap name"].toLowerCase().startsWith("start") >= 0) {
+                        if (value["Trap name"].toLowerCase().startsWith("start")) {
                             lap.lapStartIndex = index;
                             lap.lapStart = value;
                             if (session.preciseSessionStart === 0) {
