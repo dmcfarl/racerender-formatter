@@ -46,7 +46,7 @@ export class LapReaderService {
                             if (session.preciseSessionStart === 0) {
                                 session.preciseSessionStart = lap.lapStart["UTC Time (s)"] - lap.lapAnchor["UTC Time (s)"];
                             }
-                        } else if (value["Trap name"].toLowerCase().startsWith("sector")) {
+                        } else if (value["Trap name"].toLowerCase().startsWith("sector") || value["Trap name"].toLowerCase().startsWith("finish")) {
                             // Add a new sector
                             let sector = new Sector();
                             sector.dataRow = value;
