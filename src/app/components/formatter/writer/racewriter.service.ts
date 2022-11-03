@@ -96,7 +96,7 @@ export class RaceWriterService {
             // Remove any duplicates by using a Set but then converting back into an array.
             let eventTimes = [...new Set(lap.sectors.map(sector => sector.split).concat(...lap.penalties.map(penalty => penalty.lapTime)))];
             // Sort the events so that we com across them in order.
-            eventTimes.sort();
+            eventTimes.sort((a: number, b: number) => a - b);
 
             let nextSector = 0;
             eventTimes.forEach((lapTime: number) => {
