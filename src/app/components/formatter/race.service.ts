@@ -48,7 +48,7 @@ export class RaceService {
             let lapDisplay = lap.lapDisplay;
             if (this.race.best == null) {
                 this.race.best = lap;
-                lap.previousBest = lap;
+                lap.previousBest = Lap.getEmptyLap(lap);
             } else if (lapDisplay < this.race.best.lapDisplay) {
                 lap.previousBest = this.race.best;
                 this.race.best = lap;

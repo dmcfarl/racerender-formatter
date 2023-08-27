@@ -75,6 +75,18 @@ export class Lap {
     static exportFields(): string[] {
         return ['editedData', 'sectors', 'lapTime', 'id', 'penalties'];
     }
+
+    static getEmptyLap(lap: Lap): Lap {
+        const empty = new Lap(0);
+        empty.lapTime = -1;
+        const emptySector = new Sector();
+        emptySector.split = -1;
+        emptySector.sector = -1;
+        for(let i = 0; i < lap.sectors.length; i++) {
+            empty.sectors.push(emptySector);
+        }
+        return empty;
+    }
 }
 
 export class Sector {

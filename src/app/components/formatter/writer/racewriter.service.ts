@@ -133,10 +133,10 @@ export class RaceWriterService {
                     sessionTime += lap.lapTime;
                 });
             });
-            sessionTime += this.raceService.race.sessionBuffer;
-            // Print a row after all of the previous laps so that RaceRender won't cut off additional laps due to the data file not being long enough.
-            data.push(unparse([this.getTimingRow(sessionTime, sessionUTC + sessionTime, lastLap.lapTime, this.raceService.race, session, lastLap, lastLap.previousBest)], config));
         }
+        sessionTime += this.raceService.race.sessionBuffer;
+        // Print a row after all of the previous laps so that RaceRender won't cut off additional laps due to the data file not being long enough.
+        data.push(unparse([this.getTimingRow(sessionTime, sessionUTC + sessionTime, lastLap.lapTime, this.raceService.race, session, lastLap, lastLap.previousBest)], config));
         data.push("# Session End");
 
         return data.join("\n");
@@ -209,8 +209,9 @@ export class RaceWriterService {
 
         // Current Penalties
         timingData["Current Penalty"] = currentLap.getPenaltyCount(lapTime);
+        timingData["Current Penalty Time"] = currentLap.penalties[0]?.lapTime ?? 0;
 
-        timingData["Current Best Lap Number"] = (lapTime === currentLap.lapTime && currentLap.lapDisplay < previousLap.lapDisplay) ? currentLap.id : previousLap.id;
+        timingData["Current Best Lap Number"] = (lapTime === currentLap.lapTime && (currentLap.lapDisplay < previousLap.lapDisplay || previousLap.lapDisplay < 0)) ? currentLap.id : previousLap.id;
         timingData["Previous Best Lap Number"] = previousLap.id;
         timingData["Previous Lap Number"] = previousLap.id;
         // Previous Sectors
