@@ -49,6 +49,7 @@
     "bezier-js": "^4.1.1",
     "codelyzer": "^6.0.0",
     "dotenv": "^8.2.0",
+    "eslint": "~8.56.0",
     "jasmine-core": "~3.6.0",
     "jasmine-spec-reporter": "~5.0.0",
     "karma": "~6.4.2",
@@ -59,7 +60,6 @@
     "lodash": "^4.17.21",
     "protractor": "~7.0.0",
     "ts-node": "~8.3.0",
-    "tslint": "~6.1.0",
     "typescript": "~5.2.2",
     "yargs": "^16.2.0"
   }
