@@ -62,18 +62,18 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "racerender-formatter:build"
+            "buildTarget": "racerender-formatter:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "racerender-formatter:build:production"
+              "buildTarget": "racerender-formatter:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "racerender-formatter:build"
+            "buildTarget": "racerender-formatter:build"
           }
         },
         "test": {
