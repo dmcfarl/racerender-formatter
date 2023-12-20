@@ -1,4 +1,4 @@
-import { parse, ParseConfig, ParseError, Parser, ParseResult } from 'papaparse';
+import { parse, ParseLocalConfig, ParseError, Parser, ParseResult } from 'papaparse';
 import { Column } from './column';
 import { CSVData } from './csvdata';
 import { Injectable } from '@angular/core';
@@ -55,7 +55,7 @@ export class CSVReaderService {
                 }
             };*/
             data.parsed = [];
-            const config: ParseConfig = {
+            const config: ParseLocalConfig = {
                 header: true,
                 dynamicTyping: true,
                 //preview: 20, // For Testing
@@ -68,7 +68,7 @@ export class CSVReaderService {
                     console.log("Parsing complete");
                     resolve(data);
                 },
-                error: (error: ParseError, file: File) => {
+                error: (error: Error, file: undefined) => {
                     console.log("Error:", error);
                     reject(error);
                 },

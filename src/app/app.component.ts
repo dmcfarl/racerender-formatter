@@ -15,7 +15,7 @@ export class AppComponent implements OnInit {
   tabs: MenuItem[];
   activeItem: MenuItem;
   
-  constructor(private messageService: MessageService, private outlet: RouterOutlet, private router: Router) { }
+  constructor() { }
 
   ngOnInit(): void {
     this.tabs = [
