@@ -23,7 +23,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
         with:
-          ref: prerelease_angular17
+          ref: main
       
       # 3. Setup Node
       - name: Setup Node 
