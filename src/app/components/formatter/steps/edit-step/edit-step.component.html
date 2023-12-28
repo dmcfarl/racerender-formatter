@@ -1,0 +1,34 @@
+<p-toast></p-toast>
+
+<p-card>
+    <ng-template pTemplate="title">
+        Edit Data
+    </ng-template>
+    <ng-template pTemplate="subtitle">
+        Optionally edit values in the data
+    </ng-template>
+    <ng-template pTemplate="content">
+        <app-import></app-import>
+        <p-button label="Back" (onClick)="prevPage()" icon="pi pi-angle-left" [style]="{'margin-right': '.5em'}"></p-button>
+        <p-button label="Next" (onClick)="nextPage()" icon="pi pi-angle-right" iconPos="right"></p-button>
+        <div class="p-d-flex" style="margin-top: 30px;">
+            <div class="p-field p-mr-2">
+                <span class="p-float-label">
+                    <p-dropdown inputId="lap" [options]="lapChoices" (onChange)="showOverlays()"
+                        [(ngModel)]="displayLap" optionLabel="id" [autoWidth]="false"></p-dropdown>
+                    <label for="lap">Lap to Edit</label>
+                </span>
+            </div>
+            <div class="p-field p-mr-2">
+                <span class="p-float-label">
+                    <p-dropdown inputId="field" [autoDisplayFirst]="false" [options]="editFields"
+                        (onChange)="editFieldChange()" [(ngModel)]="editField" [autoWidth]="false"
+                        optionLabel="exportName" scrollHeight="400px"></p-dropdown>
+                    <label for="field">Column to Edit</label>
+                </span>
+            </div>
+        </div>
+
+        <div id="map"></div>
+    </ng-template>
+</p-card>
