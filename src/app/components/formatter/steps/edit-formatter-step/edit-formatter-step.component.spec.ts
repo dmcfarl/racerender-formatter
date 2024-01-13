@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { UploadStepComponent } from './upload-step.component';
+import { EditFormatterStepComponent } from './edit-formatter-step.component';
 
-describe('UploadStepComponent', () => {
-  let component: UploadStepComponent;
-  let fixture: ComponentFixture<UploadStepComponent>;
+describe('EditFormatterStepComponent', () => {
+  let component: EditFormatterStepComponent;
+  let fixture: ComponentFixture<EditFormatterStepComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ UploadStepComponent ]
+      declarations: [ EditFormatterStepComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(UploadStepComponent);
+    fixture = TestBed.createComponent(EditFormatterStepComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

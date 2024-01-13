@@ -6,11 +6,11 @@ import { RaceService } from 'src/app/services/race.service';
 import { SessionTransformService } from '../../../../services/sessiontransform.service';
 
 @Component({
-  selector: 'app-laps-step',
-  templateUrl: './laps-step.component.html',
-  styleUrls: ['./laps-step.component.css']
+  selector: 'app-laps-formatter-step',
+  templateUrl: './laps-formatter-step.component.html',
+  styleUrls: ['./laps-formatter-step.component.css']
 })
-export class LapsStepComponent implements OnInit {
+export class LapsFormatterStepComponent implements OnInit {
   lapSelect: string = "bestGhost";
 
   selectedSessions: Session[];

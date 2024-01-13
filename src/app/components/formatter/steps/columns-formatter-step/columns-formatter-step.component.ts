@@ -6,11 +6,11 @@ import { RaceService } from 'src/app/services/race.service';
 import { Rounder } from '../../transform/rounder';
 
 @Component({
-  selector: 'app-columns-step',
-  templateUrl: './columns-step.component.html',
-  styleUrls: ['./columns-step.component.css']
+  selector: 'app-columns-formatter-step',
+  templateUrl: './columns-formatter-step.component.html',
+  styleUrls: ['./columns-formatter-step.component.css']
 })
-export class ColumnsStepComponent implements OnInit {
+export class ColumnsFormatterStepComponent implements OnInit {
 
   conversions = DataConverter.conversions;
   transforms = DataTransformer.transforms;

@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { LapsStepComponent } from './laps-step.component';
+import { LapsFormatterStepComponent } from './laps-formatter-step.component';
 
-describe('LapsStepComponent', () => {
-  let component: LapsStepComponent;
-  let fixture: ComponentFixture<LapsStepComponent>;
+describe('LapsFormatterStepComponent', () => {
+  let component: LapsFormatterStepComponent;
+  let fixture: ComponentFixture<LapsFormatterStepComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ LapsStepComponent ]
+      declarations: [ LapsFormatterStepComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(LapsStepComponent);
+    fixture = TestBed.createComponent(LapsFormatterStepComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

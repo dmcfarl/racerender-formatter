@@ -13,11 +13,11 @@ import { Rounder } from '../../transform/rounder';
 import { Selection } from './selection';
 
 @Component({
-  selector: 'app-edit-step',
-  templateUrl: './edit-step.component.html',
-  styleUrls: ['./edit-step.component.css']
+  selector: 'app-edit-formatter-step',
+  templateUrl: './edit-formatter-step.component.html',
+  styleUrls: ['./edit-formatter-step.component.css']
 })
-export class EditStepComponent implements OnInit {
+export class EditFormatterStepComponent implements OnInit {
   private overlays: any[];
   private map: google.maps.Map;
   private displayLap: Lap;

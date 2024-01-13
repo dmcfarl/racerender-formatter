@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DownloadStepComponent } from './download-step.component';
+import { DownloadFormatterStepComponent } from './download-formatter-step.component';
 
 describe('DownloadStepComponent', () => {
-  let component: DownloadStepComponent;
-  let fixture: ComponentFixture<DownloadStepComponent>;
+  let component: DownloadFormatterStepComponent;
+  let fixture: ComponentFixture<DownloadFormatterStepComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ DownloadStepComponent ]
+      declarations: [ DownloadFormatterStepComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(DownloadStepComponent);
+    fixture = TestBed.createComponent(DownloadFormatterStepComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

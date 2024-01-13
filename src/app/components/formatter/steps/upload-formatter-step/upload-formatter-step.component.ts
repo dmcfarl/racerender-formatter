@@ -3,11 +3,11 @@ import { Router } from '@angular/router';
 import { RaceService } from 'src/app/services/race.service';
 
 @Component({
-  selector: 'app-upload-step',
-  templateUrl: './upload-step.component.html',
-  styleUrls: ['./upload-step.component.css']
+  selector: 'app-upload-formatter-step',
+  templateUrl: './upload-formatter-step.component.html',
+  styleUrls: ['./upload-formatter-step.component.css']
 })
-export class UploadStepComponent implements OnInit {
+export class UploadFormatterStepComponent implements OnInit {
   isExtracting: boolean = false;
 
   constructor(public raceService: RaceService, private router: Router) { }

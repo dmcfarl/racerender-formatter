@@ -5,11 +5,11 @@ import * as FileSaver from 'file-saver';
 import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-download-step',
-  templateUrl: './download-step.component.html',
-  styleUrls: ['./download-step.component.css']
+  selector: 'app-download-formatter-step',
+  templateUrl: './download-formatter-step.component.html',
+  styleUrls: ['./download-formatter-step.component.css']
 })
-export class DownloadStepComponent implements OnInit {
+export class DownloadFormatterStepComponent implements OnInit {
   isWriting: boolean = false;
 
   constructor(private raceService: RaceService, private router: Router, private raceWriterService: RaceWriterService) { }
