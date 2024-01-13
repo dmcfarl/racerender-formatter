@@ -1,13 +1,15 @@
 
 import { Component, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+
+import { Loader } from "@googlemaps/js-api-loader";
+import { Bezier, Point } from "bezier-js";
+
 import { Lap, Session } from '../../race';
 import { RaceService } from '../../race.service';
-import { Loader } from "@googlemaps/js-api-loader";
-import { environment } from '../../../../../environments/environment';
 import { Column } from '../../reader/column';
 import { Rounder } from '../../transform/rounder';
-import { Bezier, Point } from "bezier-js";
 import { Selection } from './selection';
 
 @Component({
@@ -16,17 +18,17 @@ import { Selection } from './selection';
   styleUrls: ['./edit-step.component.css']
 })
 export class EditStepComponent implements OnInit {
-  overlays: any[];
-  map: google.maps.Map;
-  displayLap: Lap;
-  editFields: Column[];
-  editField: Column;
-  lapChoices: Lap[];
-  mapBounds: google.maps.LatLngBounds;
-  infoWindow: google.maps.InfoWindow;
-  firstVertex: number = null;
-  selections: Selection[] = [];
-  editOddOverlayOptions: google.maps.PolylineOptions = {
+  private overlays: any[];
+  private map: google.maps.Map;
+  private displayLap: Lap;
+  private editFields: Column[];
+  private editField: Column;
+  private lapChoices: Lap[];
+  private mapBounds: google.maps.LatLngBounds;
+  private infoWindow: google.maps.InfoWindow;
+  private firstVertex: number = null;
+  private selections: Selection[] = [];
+  private editOddOverlayOptions: google.maps.PolylineOptions = {
     editable: false,
     geodesic: true,
     strokeColor: '#FF0000',
@@ -34,7 +36,7 @@ export class EditStepComponent implements OnInit {
     strokeWeight: 3,
     zIndex: 3
   };
-  editEvenOverlayOptions: google.maps.PolylineOptions = {
+  private editEvenOverlayOptions: google.maps.PolylineOptions = {
     editable: false,
     geodesic: true,
     strokeColor: '#FFFFFF',
@@ -42,7 +44,7 @@ export class EditStepComponent implements OnInit {
     strokeWeight: 3,
     zIndex: 3
   };
-  dragOverlayOptions: google.maps.PolylineOptions = {
+  private dragOverlayOptions: google.maps.PolylineOptions = {
     editable: false,
     geodesic: true,
     strokeColor: '#F57C00',
@@ -50,8 +52,13 @@ export class EditStepComponent implements OnInit {
     strokeWeight: 3,
     zIndex: 5
   };
+  private keyLocation = '/assets/keys/GMapsApiKey.json';
 
-  constructor(public raceService: RaceService, private router: Router) { }
+  constructor(
+    public raceService: RaceService,
+    private router: Router,
+    private httpClient: HttpClient
+  ) { }
 
   ngOnInit(): void {
     if (this.raceService.csvData == null) {
@@ -84,13 +91,18 @@ export class EditStepComponent implements OnInit {
     if (window.google && window.google.maps && window.google.maps.version) {
       this.displayMap();
     } else {
-      const loader = new Loader({
-        apiKey: environment.GOOGLE_MAPS_API_KEY,
-        version: "weekly",
-        libraries: ["drawing", "geometry"]
-      });
+      this.httpClient.get(this.keyLocation).subscribe((gmapsApiKey: any) => {
+        const loader = new Loader({
+          apiKey: gmapsApiKey.key,
+          version: "weekly",
+          libraries: ["drawing", "geometry"]
+        });
 
-      loader.load().then(() => this.displayMap());
+        loader.importLibrary("drawing").then(
+          () => loader.importLibrary("geometry").then(
+            () => this.displayMap())
+        );
+      });
     }
   }
 
