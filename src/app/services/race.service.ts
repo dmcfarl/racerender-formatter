@@ -1,8 +1,6 @@
 import { Injectable } from "@angular/core";
 import { merge as _merge } from 'lodash';
-import { allRaceExportFields, Lap, Penalty, PenaltyType, Race, Sector } from "../models";
-import { Column } from "../components/formatter/reader/column";
-import { allCSVDataExportFields, CSVData } from "../components/formatter/reader/csvdata";
+import { allCSVDataExportFields, allRaceExportFields, Column, CSVData, Lap, Penalty, PenaltyType, Race, Sector } from "../models";
 import { CSVReaderService } from "./csvreader.service";
 import { LapReaderService } from "./lapreader.service";
 import { Conversion, DataConverter, DataTransformer, Transform } from "../components/formatter/transform/dataconverter";

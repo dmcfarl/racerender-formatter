@@ -1,6 +1,5 @@
-import { FormControl, FormGroup, Validators } from "@angular/forms";
-import { Conversion, DataConverter, DataTransformer, Transform } from "../transform/dataconverter";
-import { Round, Rounder } from "../transform/rounder";
+import { Conversion, DataConverter, DataTransformer, Transform } from "../components/formatter/transform/dataconverter";
+import { Round, Rounder } from "../components/formatter/transform/rounder";
 
 export class Column {
     name: string;

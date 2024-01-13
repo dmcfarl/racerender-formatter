@@ -1,6 +1,5 @@
 import { parse, ParseLocalConfig, ParseError, Parser, ParseResult } from 'papaparse';
-import { Column } from '../components/formatter/reader/column';
-import { CSVData } from '../components/formatter/reader/csvdata';
+import { Column, CSVData } from '../models';
 import { Injectable } from '@angular/core';
 
 @Injectable({

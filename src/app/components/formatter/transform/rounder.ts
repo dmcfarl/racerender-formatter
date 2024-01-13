@@ -1,4 +1,4 @@
-import { Column } from "../reader/column";
+import { Column } from '../../../models';
 
 export class Round {
     value: number;
