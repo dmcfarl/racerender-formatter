@@ -1,6 +1,6 @@
 import { parse, ParseLocalConfig, ParseError, Parser, ParseResult } from 'papaparse';
-import { Column } from './column';
-import { CSVData } from './csvdata';
+import { Column } from '../components/formatter/reader/column';
+import { CSVData } from '../components/formatter/reader/csvdata';
 import { Injectable } from '@angular/core';
 
 @Injectable({
@@ -12,48 +12,6 @@ export class CSVReaderService {
         let promise = new Promise<CSVData>((resolve, reject) => {
             let data = new CSVData();
             data.filename = file.name;
-            /*const config: ParseConfig = {
-                header: true,
-                dynamicTyping: true,
-                //preview: 20, // For Testing
-                worker: false, // async? may need to keep this false to force synchronous
-                skipEmptyLines: true,
-                //Can only use one of step or complete:
-                complete: (results: ParseResult<any>, file: File) => {
-                    data.parsed = results.data;
-                    data.columns = results.meta.fields.map(header => new Column(header));
-                    data.columns.unshift(new Column("Time (s)"));
-
-                    let headers = results.meta.fields.join(",");
-                    if (headers.indexOf("Manifold pressure") >= 0 && headers.indexOf("Barometric pressure") >= 0) {
-                        data.columns.push(new Column("Boost (kPa) *OBD"));
-                    }
-                    console.log("Parsing complete:", results, data);
-                    resolve(data);
-                },
-                error: (error: ParseError, file: File) => {
-                    console.log("Error:", error);
-                    reject(error);
-                },
-                beforeFirstChunk: (chunk: string): string => {
-                    let dataChunk = this.ignoreProlog(chunk).replace("Time (s)", "UTC Time (s)").replace("Speed (m/s)", "GPS Speed (m/s)");
-
-                    let headers = dataChunk.slice(0, dataChunk.indexOf('\n')).split(",");
-                    let headerCounts = new Map<string, number>();
-
-                    // Replace any duplicates
-                    headers.forEach((header: string) => {
-                        if (headerCounts.has(header)) {
-                            headerCounts.set(header, headerCounts.get(header) + 1);
-                            dataChunk = this.replaceSecond(dataChunk, header + ",", header + " (" + headerCounts.get(header) + "),");
-                        } else {
-                            headerCounts.set(header, 1);
-                        }
-                    });
-
-                    return dataChunk;
-                }
-            };*/
             data.parsed = [];
             const config: ParseLocalConfig = {
                 header: true,

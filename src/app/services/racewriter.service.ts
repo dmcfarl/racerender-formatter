@@ -1,11 +1,11 @@
 import { DatePipe } from "@angular/common";
 import { Injectable } from "@angular/core";
 import { unparse, UnparseConfig } from "papaparse";
-import { RaceService } from "src/app/components/formatter/race.service";
-import { Lap, Penalty, Race, Sector, Session } from "../race";
-import { Rounder } from "../transform/rounder";
+import { RaceService } from "src/app/services/race.service";
+import { Lap, Penalty, Race, Sector, Session } from "../models";
+import { Rounder } from "../components/formatter/transform/rounder";
 import * as JSZip from 'jszip';
-import { Column } from "../reader/column";
+import { Column } from "../components/formatter/reader/column";
 
 @Injectable({
     providedIn: 'root'

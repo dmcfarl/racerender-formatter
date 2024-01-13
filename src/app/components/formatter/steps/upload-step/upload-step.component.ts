@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { RaceService } from 'src/app/components/formatter/race.service';
+import { RaceService } from 'src/app/services/race.service';
 
 @Component({
   selector: 'app-upload-step',

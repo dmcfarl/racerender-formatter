@@ -6,8 +6,8 @@ import { Router } from '@angular/router';
 import { Loader } from "@googlemaps/js-api-loader";
 import { Bezier, Point } from "bezier-js";
 
-import { Lap, Session } from '../../race';
-import { RaceService } from '../../race.service';
+import { Lap, Session } from '../../../../models';
+import { RaceService } from '../../../../services/race.service';
 import { Column } from '../../reader/column';
 import { Rounder } from '../../transform/rounder';
 import { Selection } from './selection';

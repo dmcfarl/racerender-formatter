@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { Lap, Penalty, PenaltyType, Sector, Session } from 'src/app/components/formatter/race';
+import { Lap, Penalty, PenaltyType, Sector, Session } from '../../../../models';
 import { Rounder } from 'src/app/components/formatter/transform/rounder';
-import { RaceService } from 'src/app/components/formatter/race.service';
-import { SessionTransformService } from '../../transform/sessiontransform.service';
+import { RaceService } from 'src/app/services/race.service';
+import { SessionTransformService } from '../../../../services/sessiontransform.service';
 
 @Component({
   selector: 'app-laps-step',

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { RaceService } from 'src/app/components/formatter/race.service';
-import { RaceWriterService } from '../../writer/racewriter.service';
+import { RaceService } from 'src/app/services/race.service';
+import { RaceWriterService } from '../../../../services/racewriter.service';
 import * as FileSaver from 'file-saver';
 import { Router } from '@angular/router';
 

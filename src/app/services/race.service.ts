@@ -1,12 +1,12 @@
 import { Injectable } from "@angular/core";
 import { merge as _merge } from 'lodash';
-import { allRaceExportFields, Lap, Penalty, PenaltyType, Race, Sector } from "./race";
-import { Column } from "./reader/column";
-import { allCSVDataExportFields, CSVData } from "./reader/csvdata";
-import { CSVReaderService } from "./reader/csvreader.service";
-import { LapReaderService } from "./reader/lapreader.service";
-import { Conversion, DataConverter, DataTransformer, Transform } from "./transform/dataconverter";
-import { Round, Rounder } from "./transform/rounder";
+import { allRaceExportFields, Lap, Penalty, PenaltyType, Race, Sector } from "../models";
+import { Column } from "../components/formatter/reader/column";
+import { allCSVDataExportFields, CSVData } from "../components/formatter/reader/csvdata";
+import { CSVReaderService } from "./csvreader.service";
+import { LapReaderService } from "./lapreader.service";
+import { Conversion, DataConverter, DataTransformer, Transform } from "../components/formatter/transform/dataconverter";
+import { Round, Rounder } from "../components/formatter/transform/rounder";
 
 @Injectable({
     providedIn: 'root'

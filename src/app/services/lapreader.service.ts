@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
-import { Race, Lap, Sector, Session } from "../race";
-import { Rounder } from "../transform/rounder";
+import { Race, Lap, Sector, Session } from "../models";
+import { Rounder } from "../components/formatter/transform/rounder";
 
 @Injectable({
     providedIn: 'root'

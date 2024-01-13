@@ -1,5 +1,5 @@
 import { Column } from "../reader/column";
-import { Lap, Race, Session } from "../race";
+import { Lap, Race, Session } from "../../../models";
 
 export class Conversion {
     name: string;
