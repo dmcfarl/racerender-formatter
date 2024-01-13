@@ -1,7 +1,6 @@
 /// <reference types="google.maps" />
 import { Component, OnInit } from '@angular/core';
-import { Router, RouterOutlet } from '@angular/router';
-import { MenuItem, MessageService } from 'primeng/api';
+import { MenuItem, MessageService, PrimeIcons } from 'primeng/api';
 import { AppRoutingModule } from './app-routing.module';
 
 @Component({
@@ -21,12 +20,12 @@ export class AppComponent implements OnInit {
     this.tabs = [
       {
         label: 'Home',
-        icon: 'pi pi-fw pi-home',
+        icon: PrimeIcons.HOME,
         routerLink: AppRoutingModule.routes[0].path
       },
       {
         label: 'Formatter',
-        icon: 'pi pi-download',
+        icon: PrimeIcons.DOWNLOAD,
         routerLink: AppRoutingModule.routes[1].path
       },
       /*{
@@ -34,6 +33,11 @@ export class AppComponent implements OnInit {
         icon: 'pi pi-fw pi-pencil',
         routerLink: AppRoutingModule.routes[2].path
       }*/
+      {
+        label: 'Donate',
+        icon: PrimeIcons.HEART,
+        url: 'https://venmo.com/?txn=pay&audience=private&recipients=HoboBob&amount=5.00&note=www.hobo-bob.com%20appreciation'
+      }
     ];
     
     this.activeItem = this.tabs[0];
