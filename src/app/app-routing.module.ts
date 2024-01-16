@@ -9,11 +9,21 @@ import { ColumnsFormatterStepComponent } from './components/formatter/steps/colu
 import { LapsFormatterStepComponent } from './components/formatter/steps/laps-formatter-step/laps-formatter-step.component';
 import { EditFormatterStepComponent } from './components/formatter/steps/edit-formatter-step/edit-formatter-step.component';
 import { DownloadFormatterStepComponent } from './components/formatter/steps/download-formatter-step/download-formatter-step.component';
+import { ComposerComponent } from './components/composer/composer.component';
+import { LapsComposerStepComponent } from './components/composer/steps/laps-composer-step/laps-composer-step.component';
+import { DownloadComposerStepComponent } from './components/composer/steps/download-composer-step/download-composer-step.component';
 
 
 
 const appRoutes: Routes = [
     { path: 'home', component: HomeComponent },
+    {
+        path: 'composer', component: ComposerComponent, children: [
+            { path: '', redirectTo: 'laps-step', pathMatch: 'full' },
+            { path: 'laps-step', component: LapsComposerStepComponent },
+            { path: 'download-step', component: DownloadComposerStepComponent }
+        ]
+    },
     {
         path: 'formatter', component: FormatterComponent, children: [
             { path: '', redirectTo: 'upload-step', pathMatch: 'full' },

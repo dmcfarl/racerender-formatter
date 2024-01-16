@@ -7,4 +7,12 @@ export class Sector {
     static exportFields(): string[] {
         return ['split', 'sector'];
     }
+
+    static fromJson(data: any): Sector {
+        const sector = new Sector();
+        sector.split = data.split;
+        sector.sector = data.sector;
+
+        return sector;
+    }
 }

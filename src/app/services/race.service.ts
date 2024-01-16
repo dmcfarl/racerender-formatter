@@ -1,17 +1,18 @@
-import { Injectable } from "@angular/core";
+import { EventEmitter, Injectable } from "@angular/core";
 import { merge as _merge } from 'lodash';
-import { allCSVDataExportFields, allRaceExportFields, Column, CSVData, Lap, Penalty, PenaltyType, Race, Sector } from "../models";
+import { allCSVDataExportFields, allRaceExportFields, Column, CSVData, Lap, Penalty, PenaltyType, Race, Sector, Session } from "../models";
 import { CSVReaderService } from "./csvreader.service";
 import { LapReaderService } from "./lapreader.service";
-import { Conversion, DataConverter, DataTransformer, Transform } from "../components/formatter/transform/dataconverter";
-import { Round, Rounder } from "../components/formatter/transform/rounder";
+import { Conversion, DataConverter, DataTransformer, Transform } from "./dataconverter.service";
+import { Round, Rounder } from "./rounder.service";
 
 @Injectable({
     providedIn: 'root'
 })
 export class RaceService {
-    csvData: CSVData;
+    csvData: CSVData = null;
     race: Race;
+    importEmitter = new EventEmitter<boolean>();
 
     constructor(private csvReaderService: CSVReaderService, private lapReaderService: LapReaderService) { }
 
@@ -103,20 +104,20 @@ export class RaceService {
             let fileReader = new FileReader();
             fileReader.onload = (event) => {
                 let data = JSON.parse(fileReader.result as string);
+                // Map to classes
+                data.race = Race.fromJson(data.race);
 
                 _merge(this, data);
 
-                // Didn't save functions in Configuration.json.
-                // Iterate through the options in order to find the exact object which has the needed functions.
-                this.csvData.columns.forEach((column: Column) => {
-                    column.conversion = DataConverter.conversions.find((conversion: Conversion) => conversion.name === column.conversion.name);
-                    column.transform = DataTransformer.transforms.find((transform: Transform) => transform.name === column.transform.name);
-                    column.round = Rounder.roundOptions.find((round: Round) => round.value === column.round.value);
-                });
-
-                this.race.allLaps.forEach((lap: Lap) => {
-                    lap.penalties.forEach((penalty: Penalty) => penalty.type = Penalty.penaltyTypes.find((penaltyType: PenaltyType) => penaltyType.name === penalty.type.name));
-                });
+                if (this.csvData != null) {
+                    // Didn't save functions in Configuration.json.
+                    // Iterate through the options in order to find the exact object which has the needed functions.
+                    this.csvData.columns.forEach((column: Column) => {
+                        column.conversion = DataConverter.conversions.find((conversion: Conversion) => conversion.name === column.conversion.name);
+                        column.transform = DataTransformer.transforms.find((transform: Transform) => transform.name === column.transform.name);
+                        column.round = Rounder.roundOptions.find((round: Round) => round.value === column.round.value);
+                    });
+                }
 
                 this.updateBestLap();
 
@@ -129,5 +130,116 @@ export class RaceService {
         });
 
         return promise;
+    }
+
+    initializeRace() {
+        this.race = new Race();
+        const session = new Session(1);
+        this.race.sessions.push(session);
+        
+        const lap = new Lap(1);
+        lap.lapTime = 0;
+        session.laps.push(lap);
+        this.race.allLaps.push(lap);
+
+        const sector = new Sector();
+        sector.split = lap.lapTime;
+        sector.sector = lap.lapTime;
+        lap.sectors.push(sector);
+
+        this.updateBestLap();
+    }
+
+    
+    addSession(): Session {
+        const session = new Session(this.race.sessions.length + 1);
+        session.preciseSessionStart = null;
+        session.absoluteFirstLapFinish = 0;
+        this.addLap(session);
+
+        this.race.sessions.push(session);
+
+        return session;
+    }
+
+    removeSession(toRemove: Session) {
+        // Remove the session and reset sessionNumbers
+        this.race.sessions = this.race.sessions.filter((session: Session) => {
+            const originalSessionNum = session.sessionNum;
+            if (session.sessionNum > toRemove.sessionNum) {
+                session.sessionNum--;
+            }
+            return originalSessionNum !== toRemove.sessionNum
+        });
+        // Remove the laps and reset lap ids
+        if (toRemove.laps.length > 0) {
+            const lapIndex = toRemove.laps[0].id - 1;
+            this.race.allLaps.splice(lapIndex, toRemove.laps.length);
+            for (let i = lapIndex; i < this.race.allLaps.length; i++) {
+                this.race.allLaps[i].id -= toRemove.laps.length;
+            }
+        }
+        // Best lap may have shifted or been removed; recalculate.
+        this.updateBestLap();
+    }
+
+    addLap(session: Session) {
+        let lapNum: number = 1;
+        if (session.laps.length > 0) {
+            // We already have laps in this session; just add 1 to the last id
+            lapNum = session.laps[session.laps.length - 1].id + 1;
+        } else {
+            // Find the last lap that occurred before this session.
+            // id is 1-based, but using 0-based index
+            for (let i = session.sessionNum - 2; i >= 0; i--) {
+                const previousSession = this.race.sessions[i];
+                if (previousSession.laps.length > 0) {
+                    lapNum = previousSession.laps[previousSession.laps.length - 1].id + 1;
+                    break;
+                }
+            }
+        }
+
+        const lap = new Lap(lapNum);
+        lap.lapTime = 0;
+        session.laps.push(lap);
+        if (this.race.allLaps.length > 0) {
+            // Add sectors to the lap
+            for (let i = 0; i < this.race.allLaps[0].sectors.length; i++) {
+                const sector = new Sector();
+                sector.split = lap.lapTime;
+                lap.sectors.push(sector);
+            }
+            this.updateSectors(lap);
+
+            // Add lap and update ids
+            this.race.allLaps.splice(lapNum - 1, 0, lap);
+            for (let i = lapNum; i < this.race.allLaps.length; i++) {
+                this.race.allLaps[i].id += 1;
+            }
+        } else {
+            const sector = new Sector();
+            sector.split = lap.lapTime;
+            sector.sector = lap.lapTime;
+            lap.sectors.push(sector);
+
+            this.race.allLaps.push(lap);
+        }
+
+        this.updateBestLap();
+    }
+
+    removeLap(session: Session, toRemove: Lap) {
+        session.laps = session.laps.filter((lap: Lap) => lap.id !== toRemove.id);
+
+        this.race.allLaps = this.race.allLaps.filter((lap: Lap) => {
+            const originalLapNum = lap.id;
+            if (lap.id > toRemove.id) {
+                lap.id--;
+            }
+            return originalLapNum !== toRemove.id;
+        });
+
+        this.updateBestLap();
     }
 }

@@ -3,28 +3,33 @@ import { Router } from '@angular/router';
 import { Lap, Penalty, PenaltyType, Sector, Session } from '../../../../models';
 import { Rounder } from '../../../../services/rounder.service';
 import { RaceService } from '../../../../services/race.service';
-import { SessionTransformService } from '../../../../services/sessiontransform.service';
 
 @Component({
-  selector: 'app-laps-formatter-step',
-  templateUrl: './laps-formatter-step.component.html',
-  styleUrls: ['./laps-formatter-step.component.css']
+  selector: 'app-laps-composer-step',
+  templateUrl: './laps-composer-step.component.html',
+  styleUrls: ['./laps-composer-step.component.css']
 })
-export class LapsFormatterStepComponent implements OnInit {
-  lapSelect: string = "bestGhost";
+export class LapsComposerStepComponent implements OnInit {
+  lapSelect: string = 'all';
 
   selectedSessions: Session[];
   expandedSessions = {};
 
-  constructor(public raceService: RaceService, private router: Router, private sessionTransformService: SessionTransformService) { }
+  constructor(
+    public raceService: RaceService,
+    private router: Router
+  ) { }
 
   ngOnInit(): void {
+    this.raceService.importEmitter.subscribe(() => this.initializeTable());
     if (this.raceService.race == null) {
-      this.router.navigate(['formatter/upload-step']);
+      this.raceService.initializeRace();
+      this.raceService.race.sessions.forEach((session: Session) => {
+        session.absoluteFirstLapFinish = 0;
+        session.preciseSessionStart = null;
+      });
     }
-    this.expandedSessions = {};
-    this.raceService.race.sessions.forEach(session => (this.expandedSessions[session.sessionNum] = true));
-    this.selectBestAndPrevious();
+    this.initializeTable();
   }
 
   get sessions(): Session[] {
@@ -39,28 +44,52 @@ export class LapsFormatterStepComponent implements OnInit {
     return this.raceService.race.best;
   }
 
+  initializeTable(): void {
+    this.updateBestLap();
+    if (this.lapSelect === 'all') {
+      this.selectAll();
+    } else if (this.lapSelect === 'bestGhost') {
+      this.selectBestAndPrevious();
+    }
+    this.expandedSessions = {};
+    this.raceService.race.sessions.forEach((session: Session) => (this.expandedSessions[session.sessionNum] = true));
+  }
+
   nextPage() {
     this.raceService.race.sessions.forEach((session: Session) => {
       session.isExport = this.selectedSessions.indexOf(session) >= 0;
-      if (session.isExport) {
-        this.sessionTransformService.transformSession(session);
-      }
     });
     this.raceService.race.allLaps.forEach((lap: Lap) => lap.overlay = null);
     if (this.selectedSessions.length > 0) {
-      this.router.navigate(['formatter/edit-step']);
+      this.router.navigate(['composer/download-step']);
     }
-  }
-
-  prevPage() {
-    this.router.navigate(['formatter/columns-step']);
   }
 
   updateBestLap() {
     this.raceService.updateBestLap();
-    if (this.lapSelect === "bestGhost") {
+    if (this.lapSelect === 'bestGhost') {
       this.selectBestAndPrevious();
     }
+  }
+
+  addSession() {
+    const session = this.raceService.addSession();
+    if (this.lapSelect === 'all') {
+      this.selectAll();
+    }
+    this.expandedSessions[session.sessionNum] = true;
+  }
+
+  removeSession(toRemove: Session) {
+    this.raceService.removeSession(toRemove);
+  }
+
+  addLap(session: Session) {
+    this.raceService.addLap(session);
+  }
+
+  removeLap(session: Session, lap: Lap) {
+    this.raceService.removeLap(session, lap);
   }
 
   updateSectors(lap: Lap) {
@@ -80,16 +109,12 @@ export class LapsFormatterStepComponent implements OnInit {
       if (lap.sectors.length > 0) {
         let lastSector = lap.sectors[lap.sectors.length - 1];
         let sector = new Sector();
-        sector.dataRowIndex = lastSector.dataRowIndex - 1;
-        sector.dataRow = this.raceService.csvData.parsed[sector.dataRowIndex];
         sector.split = lastSector.split;
         sector.sector = lastSector.sector;
         lastSector.sector = 0;
         lap.sectors.splice(lap.sectors.length - 1, 0, sector);
       } else {
         let sector = new Sector();
-        sector.dataRow = lap.lapFinish;
-        sector.dataRowIndex = lap.lapFinishIndex;
         sector.split = lap.lapTime;
         sector.sector = lap.lapTime;
         lap.sectors.push(sector);
@@ -113,5 +138,9 @@ export class LapsFormatterStepComponent implements OnInit {
         this.selectedSessions.push(session);
       }
     });
+  }
+
+  selectAll() {
+    this.selectedSessions = [...this.raceService.race.sessions];
   }
 }

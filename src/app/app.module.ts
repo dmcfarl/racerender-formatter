@@ -44,12 +44,19 @@ import { HomeComponent } from './components/home/home.component';
 import { EditorComponent } from './components/editor/editor.component';
 import { AppRoutingModule } from './app-routing.module';
 import { EditFormatterStepComponent } from './components/formatter/steps/edit-formatter-step/edit-formatter-step.component';
-import { ImportComponent } from './components/formatter/reader/import/import.component';
+import { ImportComponent } from './components/import/import.component';
 import { DialogModule } from 'primeng/dialog';
+import { TooltipModule } from 'primeng/tooltip';
+import { ComposerComponent } from './components/composer/composer.component';
+import { LapsComposerStepComponent } from './components/composer/steps/laps-composer-step/laps-composer-step.component';
+import { DownloadComposerStepComponent } from './components/composer/steps/download-composer-step/download-composer-step.component';
 
 @NgModule({
   declarations: [
     AppComponent,
+    ComposerComponent,
+    LapsComposerStepComponent,
+    DownloadComposerStepComponent,
     FormatterComponent,
     UploadFormatterStepComponent,
     ColumnsFormatterStepComponent,
@@ -90,6 +97,7 @@ import { DialogModule } from 'primeng/dialog';
     TabMenuModule,
     TagModule,
     ToastModule,
+    TooltipModule,
     FormatterRoutingModule,
     AppRoutingModule,
   ],

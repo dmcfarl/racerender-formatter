@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { RaceService } from '../../../../services/race.service';
+import { RaceService } from '../../services/race.service';
 
 @Component({
   selector: 'app-import',
@@ -20,6 +20,7 @@ export class ImportComponent implements OnInit {
     this.raceService.import(event.files[0]).then(data => {
       this.isImporting = false;
       this.displayImport = false;
+      this.raceService.importEmitter.emit(true);
     });
   }
 

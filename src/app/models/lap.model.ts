@@ -56,4 +56,13 @@ export class Lap {
         }
         return empty;
     }
+
+    static fromJson(data: any): Lap {
+        const lap = new Lap(data.id);
+        lap.lapTime = data.lapTime;
+        lap.sectors = data.sectors.map((sector: any) => Sector.fromJson(sector));
+        lap.penalties = data.penalties.map((penalty: any) => Penalty.fromJson(penalty));
+
+        return lap;
+    }
 }

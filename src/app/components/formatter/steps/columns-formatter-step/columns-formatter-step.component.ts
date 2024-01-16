@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { Column } from 'src/app/models/column.model';
-import { DataConverter, DataTransformer } from 'src/app/components/formatter/transform/dataconverter';
-import { RaceService } from 'src/app/services/race.service';
-import { Rounder } from '../../transform/rounder';
+import { Column } from '../../../../models/column.model';
+import { DataConverter, DataTransformer } from '../../../../services/dataconverter.service';
+import { RaceService } from '../../../../services/race.service';
+import { Rounder } from '../../../../services/rounder.service';
 
 @Component({
   selector: 'app-columns-formatter-step',

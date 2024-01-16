@@ -16,4 +16,14 @@ export class Race {
     static exportFields(): string[] {
         return ['sessions', 'sessionBuffer'];
     }
+
+    static fromJson(data: any): Race {
+        const race = new Race();
+        race.sessionBuffer = data.sessionBuffer;
+        race.sessions = data.sessions.map((session: any) => Session.fromJson(session));
+
+        race.allLaps = race.sessions.flatMap((session: Session) => session.laps);
+
+        return race;
+    }
 }

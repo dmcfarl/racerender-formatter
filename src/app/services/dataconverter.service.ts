@@ -1,4 +1,4 @@
-import { Column, Lap, Race, Session } from "../../../models";
+import { Column, Lap, Race, Session } from "../models";
 
 export class Conversion {
     name: string;
@@ -83,7 +83,7 @@ export class DataTransformer {
         }),
         new Transform("Session Time", (column: Column, data: Object, race: Race, session: Session, lap: Lap) => {
             // Find the true start of the session: lapAnchor row with the sessionBuffer before it.
-            return data["UTC Time (s)"] - (session.laps[0].lapAnchor["UTC Time (s)"] - race.sessionBuffer);
+            return data["UTC Time (s)"] - (session.laps[0].lapAnchor["UTC Time (s)"]);
         }),
         new Transform("Relative to Lap Start", (column: Column, data: Object, race: Race, session: Session, lap: Lap) => {
             return lap != null ? data[column.name] - lap.lapStartPrecise[column.name] : 0;

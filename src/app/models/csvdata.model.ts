@@ -1,5 +1,5 @@
-import { Conversion, Transform } from "../components/formatter/transform/dataconverter";
-import { Round } from "../components/formatter/transform/rounder";
+import { Conversion, Transform } from "../services/dataconverter.service";
+import { Round } from "../services/rounder.service";
 import { Column } from "./column.model";
 
 export function allCSVDataExportFields(): string[] {

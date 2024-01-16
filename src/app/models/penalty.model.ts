@@ -26,6 +26,10 @@ export class Penalty {
     private static _TIME_MODIFIER = 2 * 60;
 
     static penaltyTypes: PenaltyType[] = [
+        new PenaltyType("Time (+2s)",
+            (lapTime: number) => { return lapTime < Penalty._RERUN_COUNT * Penalty._TIME_MODIFIER ? lapTime + Penalty._TIME_COUNT : lapTime },
+            (penalties: number) => { return penalties < Penalty._RERUN_COUNT ? penalties + 1 : penalties }
+        ),
         new PenaltyType("DNF",
             (lapTime: number) => { return Penalty._DNF_COUNT * Penalty._TIME_MODIFIER; },
             (penalties: number) => { return Penalty._DNF_COUNT }
@@ -37,10 +41,6 @@ export class Penalty {
         new PenaltyType("Rerun",
             (lapTime: number) => { return lapTime <= Penalty._RERUN_COUNT * Penalty._TIME_MODIFIER ? Penalty._RERUN_COUNT * Penalty._TIME_MODIFIER : lapTime; },
             (penalties: number) => { return penalties <= Penalty._RERUN_COUNT ? Penalty._RERUN_COUNT : penalties }
-        ),
-        new PenaltyType("Time (+2s)",
-            (lapTime: number) => { return lapTime < Penalty._RERUN_COUNT * Penalty._TIME_MODIFIER ? lapTime + Penalty._TIME_COUNT : lapTime },
-            (penalties: number) => { return penalties < Penalty._RERUN_COUNT ? penalties + 1 : penalties }
         )
     ];
 
@@ -51,5 +51,9 @@ export class Penalty {
 
     static exportFields(): string[] {
         return ['type', 'lapTime'];
+    }
+
+    static fromJson(data: any): Penalty {
+        return new Penalty(this.penaltyTypes.find((penaltyType: PenaltyType) => penaltyType.name === data.type.name), data.lapTime);
     }
 }

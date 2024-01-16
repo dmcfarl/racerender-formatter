@@ -8,7 +8,7 @@ import { Bezier, Point } from "bezier-js";
 
 import { Column, Lap, Session } from '../../../../models';
 import { RaceService } from '../../../../services/race.service';
-import { Rounder } from '../../transform/rounder';
+import { Rounder } from '../../../../services/rounder.service';
 import { Selection } from './selection';
 
 @Component({

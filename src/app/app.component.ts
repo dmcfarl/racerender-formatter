@@ -24,14 +24,19 @@ export class AppComponent implements OnInit {
         routerLink: AppRoutingModule.routes[0].path
       },
       {
+        label: 'Composer',
+        icon: PrimeIcons.CLOCK,
+        routerLink: AppRoutingModule.routes[1].path
+      },
+      {
         label: 'Formatter',
         icon: PrimeIcons.DOWNLOAD,
-        routerLink: AppRoutingModule.routes[1].path
+        routerLink: AppRoutingModule.routes[2].path
       },
       /*{
         label: 'Editor',
         icon: 'pi pi-fw pi-pencil',
-        routerLink: AppRoutingModule.routes[2].path
+        routerLink: AppRoutingModule.routes[3].path
       }*/
       {
         label: 'Donate',

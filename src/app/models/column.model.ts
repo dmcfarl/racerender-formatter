@@ -1,5 +1,5 @@
-import { Conversion, DataConverter, DataTransformer, Transform } from "../components/formatter/transform/dataconverter";
-import { Round, Rounder } from "../components/formatter/transform/rounder";
+import { Conversion, DataConverter, DataTransformer, Transform } from "../services/dataconverter.service";
+import { Round, Rounder } from "../services/rounder.service";
 
 export class Column {
     name: string;
