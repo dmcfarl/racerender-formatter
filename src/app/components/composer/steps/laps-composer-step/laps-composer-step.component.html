@@ -1,0 +1,219 @@
+<p-toast></p-toast>
+
+<p-card>
+    <ng-template pTemplate="title">
+        Select Sessions/Laps
+    </ng-template>
+    <ng-template pTemplate="subtitle">
+        Enter the lap times including any precise timing and penalties.
+        Note that sessions are not continuous, but laps within a session begin directly once the previous lap ends.
+        For autocross, use a single lap per session since there is time between one run finishing and the next run starting.
+    </ng-template>
+    <ng-template pTemplate="content">
+        <app-import></app-import>
+        <div class="p-d-flex p-ai-end">
+            <p-button label="Next" (onClick)="nextPage()" icon="pi pi-angle-right" iconPos="right"></p-button>
+            <div class="p-ml-auto">
+                <p-radioButton name="lapSelect" value="all" [(ngModel)]="lapSelect" inputId="select1" (click)="selectAll()"></p-radioButton>
+                <label for="select1">All Laps</label>
+                <p-radioButton name="lapSelect" value="bestGhost" [(ngModel)]="lapSelect" inputId="select2" (click)="selectBestAndPrevious()"></p-radioButton>
+                <label for="select2">Best and Previous Only</label>
+                <p-radioButton name="lapSelect" value="manual" [(ngModel)]="lapSelect" inputId="select3"></p-radioButton>
+                <label for="select3">Manual</label>
+            </div>
+        </div>
+        <p-table [value]="sessions" [(selection)]="selectedSessions" [expandedRowKeys]="expandedSessions" dataKey="sessionNum" styleClass="p-datatable-striped">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="width: 5rem"></th>
+                    <th style="width: 5rem">
+                        <p-tableHeaderCheckbox [disabled]="lapSelect!=='manual'"></p-tableHeaderCheckbox>
+                    </th>
+                    <th pTooltip="This is the number of the session in the day.  For Autocross, this is essentially the run number.">Session #</th>
+                    <th pTooltip="This is the precise time in the video when your car crosses the finish line for the first time.  For Autocross, this is simply the only time that your car would cross the finish line.">Absolute First Lap Finish Time</th>
+                    <th style="width: 3rem"></th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-session let-expanded="expanded">
+                <tr>
+                    <td>
+                        <button type="button" pButton pRipple [pRowToggler]="session" class="p-button-text p-button-rounded p-button-plain" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                            pTooltip="Expand the Session to add/remove laps, sectors, and penalties."></button>
+                    </td>
+                    <td>
+                        <p-tableCheckbox [value]="session" [disabled]="lapSelect!=='manual'"></p-tableCheckbox>
+                    </td>
+                    <td pTooltip="This is the number of the session in the day.  For Autocross, this is essentially the run number.">
+                        {{session.sessionNum}}
+                    </td>
+                    <td pTooltip="This is the precise time in the video when your car crosses the finish line for the first time.  For Autocross, this is simply the only time that your car would cross the finish line." pEditableColumn>
+                        <p-cellEditor>
+                            <ng-template pTemplate="input">
+                                <p-inputNumber [(ngModel)]="session.absoluteFirstLapFinish" [minFractionDigits]="3" [maxFractionDigits]="3"></p-inputNumber>
+                            </ng-template>
+                            <ng-template pTemplate="output">
+                                {{session.absoluteFirstLapFinish | number : '1.3-3'}}
+                            </ng-template>
+                        </p-cellEditor>
+                    </td>
+                    <td>
+                        <button pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-danger" (click)="removeSession(session)"></button>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="rowexpansion" let-session>
+                <tr>
+                    <td colspan="5">
+                        <p-table [value]="session.laps" dataKey="id" styleClass="p-datatable-striped" (onEditComplete)="updateBestLap()">
+                            <ng-template pTemplate="colgroup">
+                                <colgroup>
+                                    <col style="width:8%">
+                                    <col style="width:28%">
+                                    <col style="width:28%">
+                                    <col style="width:28%">
+                                    <col style="width:8%">
+                                </colgroup>
+                            </ng-template>
+                            <ng-template pTemplate="header">
+                                <tr>
+                                    <th>Lap #</th>
+                                    <th>Time</th>
+                                    <th>Sectors</th>
+                                    <th>Penalties</th>
+                                    <th style="width: 3rem"></th>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-lap let-expanded="expanded">
+                                <tr>
+                                    <td>
+                                        {{lap.id}}
+                                        <p-tag *ngIf="best.id==lap.id" styleClass="p-ml-2" severity="success" value="Best" [rounded]="true"></p-tag>
+                                        <p-tag *ngIf="best.previousBest.id==lap.id" styleClass="p-ml-2" severity="warning" value="Previous" [rounded]="true"></p-tag>
+                                    </td>
+                                    <td pEditableColumn>
+                                        <p-cellEditor>
+                                            <ng-template pTemplate="input">
+                                                <p-inputNumber [(ngModel)]="lap.lapTime" [minFractionDigits]="3" [maxFractionDigits]="3" (input)="updateBestLap()"></p-inputNumber>
+                                            </ng-template>
+                                            <ng-template pTemplate="output">
+                                                {{lap.lapTime | number : '1.3-3'}}
+                                            </ng-template>
+                                        </p-cellEditor>
+                                    </td>
+                                    <td>
+                                        <button type="button" pButton pRipple [pRowToggler]="lap" label="Expand" class="p-button-text p-button-rounded p-button-plain" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
+                                    </td>
+                                    <td>
+                                        <button type="button" pButton pRipple [pRowToggler]="lap" label="Expand" class="p-button-text p-button-rounded p-button-plain" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
+                                    </td>
+                                    <td>
+                                        <button pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-danger" (click)="removeLap(session, lap)"></button>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="rowexpansion" let-lap>
+                                <tr>
+                                    <td colspan="1"></td>
+                                    <td style="vertical-align: top;">
+                                        <p-table [value]="lap.sectors" dataKey="dataRowIndex" styleClass="p-datatable-striped" (onEditComplete)="updateSectors(lap)">
+                                            <ng-template pTemplate="colgroup">
+                                                <colgroup>
+                                                    <col style="width:80%">
+                                                    <col style="width:20%">
+                                                </colgroup>
+                                            </ng-template>
+                                            <ng-template pTemplate="header">
+                                                <tr>
+                                                    <th>Sector Splits</th>
+                                                    <th style="width: 3rem"></th>
+                                                </tr>
+                                            </ng-template>
+                                            <ng-template pTemplate="body" let-sector let-i="rowIndex">
+                                                <tr>
+                                                    <td pEditableColumn>
+                                                        <p-cellEditor>
+                                                            <ng-template pTemplate="input">
+                                                                <p-inputNumber ngDefaultControl [(ngModel)]="sector.split" [minFractionDigits]="3" [maxFractionDigits]="3" (input)="updateSectors(lap)" [disabled]="i+1==lap.sectors.length ? '' : null"></p-inputNumber>
+                                                            </ng-template>
+                                                            <ng-template pTemplate="output">
+                                                                {{sector.split | number : '1.3-3'}}
+                                                            </ng-template>
+                                                        </p-cellEditor>
+                                                    </td>
+                                                    <td>
+                                                        <button pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-danger" (click)="removeSector(i)"></button>
+                                                    </td>
+                                                </tr>
+                                            </ng-template>
+                                            <ng-template pTemplate="summary">
+                                                <button pButton pRipple type="button" icon="pi pi-plus" class="p-button-rounded p-button-success" (click)="addSector()" label="Add Sector"></button>
+                                            </ng-template>
+                                        </p-table>
+                                    </td>
+                                    <td colspan="3" style="vertical-align: top;">
+                                        <p-table [value]="lap.penalties" dataKey="dataRowIndex" styleClass="p-datatable-striped" (onEditComplete)="updateSectors(lap)">
+                                            <ng-template pTemplate="colgroup">
+                                                <colgroup>
+                                                    <col style="width:45%">
+                                                    <col style="width:45%">
+                                                    <col style="width:10%">
+                                                </colgroup>
+                                            </ng-template>
+                                            <ng-template pTemplate="header">
+                                                <tr>
+                                                    <th>Type</th>
+                                                    <th>Time</th>
+                                                    <th style="width: 3rem"></th>
+                                                </tr>
+                                            </ng-template>
+                                            <ng-template pTemplate="body" let-penalty let-i="rowIndex">
+                                                <tr>
+                                                    <td pEditableColumn>
+                                                        <p-cellEditor>
+                                                            <ng-template pTemplate="input">
+                                                                <p-dropdown [options]="penaltyTypes" [(ngModel)]="penalty.type" optionLabel="name" required></p-dropdown>
+                                                            </ng-template>
+                                                            <ng-template pTemplate="output">
+                                                                {{penalty.type.name}}
+                                                            </ng-template>
+                                                        </p-cellEditor>
+                                                    </td>
+                                                    <td pEditableColumn>
+                                                        <p-cellEditor>
+                                                            <ng-template pTemplate="input">
+                                                                <p-inputNumber ngDefaultControl [(ngModel)]="penalty.lapTime" [minFractionDigits]="3" [maxFractionDigits]="3" (input)="updateSectors(lap)"></p-inputNumber>
+                                                            </ng-template>
+                                                            <ng-template pTemplate="output">
+                                                                {{penalty.lapTime | number : '1.3-3'}}
+                                                            </ng-template>
+                                                        </p-cellEditor>
+                                                    </td>
+                                                    <td>
+                                                        <button pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-danger" (click)="removePenalty(lap, i)"></button>
+                                                    </td>
+                                                </tr>
+                                            </ng-template>
+                                            <ng-template pTemplate="summary">
+                                                <button pButton pRipple type="button" icon="pi pi-plus" class="p-button-rounded p-button-success" (click)="addPenalty(lap)" label="Add Penalty"></button>
+                                            </ng-template>
+                                        </p-table>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="summary">
+                                <button pButton pRipple type="button" icon="pi pi-plus" class="p-button-rounded p-button-success" (click)="addLap(session)" label="Add Lap within Session"></button>
+                            </ng-template>
+                        </p-table>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="summary">
+                <button pButton pRipple type="button" icon="pi pi-plus" class="p-button-rounded p-button-success" (click)="addSession()" label="Add Session or Run"></button>
+            </ng-template>
+        </p-table>
+    </ng-template>
+    
+    <ng-template pTemplate="footer">
+        <p-button label="Next" (onClick)="nextPage()" icon="pi pi-angle-right" iconPos="right"></p-button>
+    </ng-template>
+</p-card>

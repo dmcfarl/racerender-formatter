@@ -2,7 +2,11 @@
 name: Continuous Deployment
 
 # This allows manual start of the pipeline as needed.
-on: workflow_dispatch
+on: 
+  push:
+    branches:
+      - main
+  workflow_dispatch:
 
 # The list of jobs to run 
 jobs:
@@ -25,13 +29,22 @@ jobs:
         with:
           ref: main
       
-      # 3. Setup Node
+      # 3. Create the GMapsApiKey.json file from Actions Secrets
+      - name: Echo secret to file
+        run: |
+          echo $GOOGLE_MAPS_API_KEY >> src/assets/keys/GMapsApiKey.json
+        shell: bash
+        env:
+          # Feel free to rename this variable, but make sure to update it everywhere. You should paste your entire file in your secrets
+          GOOGLE_MAPS_API_KEY : ${{ secrets.GOOGLE_MAPS_API_KEY }}
+
+      # 4. Setup Node
       - name: Setup Node 
         uses: actions/setup-node@v3
         with:
           node-version: '20.10.0'
           
-      # 4. Setup Cache
+      # 5. Setup Cache
       - name: Setup Cache
         uses: actions/cache@v3
         with:
@@ -40,7 +53,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      # 5. Build Angular
+      # 6. Build Angular
       - name: Build Angular Application
         run: |
           ls
@@ -48,12 +61,12 @@ jobs:
           npm install
           ng build -c production
           
-      # 6. Copy to S3 bucket.
+      # 7. Copy to S3 bucket.
       - name: Copy to S3 Bucket
         run: |
           aws s3 cp ./dist/* s3://hobo-bob.com --recursive --sse AES256
           
-      # 7. (Optional) Invalidate CloudFront
+      # 8. (Optional) Invalidate CloudFront
       #- name: Invalidate CloudFront
         #run: |
           #aws cloudfront create-invalidation --distribution-id <CLOUDFRONT DISTRIBUTION ID> --paths "/*"

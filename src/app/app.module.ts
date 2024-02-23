@@ -15,16 +15,16 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FormatterComponent } from './components/formatter/formatter.component';
-import { UploadStepComponent } from './components/formatter/steps/upload-step/upload-step.component';
+import { UploadFormatterStepComponent } from './components/formatter/steps/upload-formatter-step/upload-formatter-step.component';
 import { StepsModule } from 'primeng/steps';
 import { ToastModule } from 'primeng/toast';
 import { FormatterRoutingModule } from './components/formatter/formatter-routing.module';
-import { LapReaderService } from './components/formatter/reader/lapreader.service';
-import { CSVReaderService } from './components/formatter/reader/csvreader.service';
+import { LapReaderService } from './services/lapreader.service';
+import { CSVReaderService } from './services/csvreader.service';
 import { RouterOutlet } from '@angular/router';
-import { ColumnsStepComponent } from './components/formatter/steps/columns-step/columns-step.component';
-import { LapsStepComponent } from './components/formatter/steps/laps-step/laps-step.component';
-import { DownloadStepComponent } from './components/formatter/steps/download-step/download-step.component';
+import { ColumnsFormatterStepComponent } from './components/formatter/steps/columns-formatter-step/columns-formatter-step.component';
+import { LapsFormatterStepComponent } from './components/formatter/steps/laps-formatter-step/laps-formatter-step.component';
+import { DownloadFormatterStepComponent } from './components/formatter/steps/download-formatter-step/download-formatter-step.component';
 import { FileUploadModule } from 'primeng/fileupload';
 import { HttpClientModule } from '@angular/common/http';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
@@ -38,26 +38,33 @@ import { RadioButtonModule } from 'primeng/radiobutton';
 import { TabMenuModule } from 'primeng/tabmenu';
 import { TagModule } from "primeng/tag";
 import { DatePipe } from '@angular/common';
-import { SessionTransformService } from './components/formatter/transform/sessiontransform.service';
-import { RaceWriterService } from './components/formatter/writer/racewriter.service';
+import { SessionTransformService } from './services/sessiontransform.service';
+import { RaceWriterService } from './services/racewriter.service';
 import { HomeComponent } from './components/home/home.component';
 import { EditorComponent } from './components/editor/editor.component';
 import { AppRoutingModule } from './app-routing.module';
-import { EditStepComponent } from './components/formatter/steps/edit-step/edit-step.component';
-import { ImportComponent } from './components/formatter/reader/import/import.component';
+import { EditFormatterStepComponent } from './components/formatter/steps/edit-formatter-step/edit-formatter-step.component';
+import { ImportComponent } from './components/import/import.component';
 import { DialogModule } from 'primeng/dialog';
+import { TooltipModule } from 'primeng/tooltip';
+import { ComposerComponent } from './components/composer/composer.component';
+import { LapsComposerStepComponent } from './components/composer/steps/laps-composer-step/laps-composer-step.component';
+import { DownloadComposerStepComponent } from './components/composer/steps/download-composer-step/download-composer-step.component';
 
 @NgModule({
   declarations: [
     AppComponent,
+    ComposerComponent,
+    LapsComposerStepComponent,
+    DownloadComposerStepComponent,
     FormatterComponent,
-    UploadStepComponent,
-    ColumnsStepComponent,
-    LapsStepComponent,
-    DownloadStepComponent,
+    UploadFormatterStepComponent,
+    ColumnsFormatterStepComponent,
+    LapsFormatterStepComponent,
+    DownloadFormatterStepComponent,
     HomeComponent,
     EditorComponent,
-    EditStepComponent,
+    EditFormatterStepComponent,
     ImportComponent
   ],
   imports: [
@@ -90,6 +97,7 @@ import { DialogModule } from 'primeng/dialog';
     TabMenuModule,
     TagModule,
     ToastModule,
+    TooltipModule,
     FormatterRoutingModule,
     AppRoutingModule,
   ],

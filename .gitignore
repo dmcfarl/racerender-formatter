@@ -1,6 +1,6 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
-GMaps API Key.txt
+/src/assets/keys
 
 # compiled output
 /dist
