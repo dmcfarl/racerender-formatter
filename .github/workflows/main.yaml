@@ -17,7 +17,7 @@ jobs:
 
       # 1. Configure AWS credentials      
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -25,14 +25,14 @@ jobs:
           
       # 2. Checkout Repository
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: main
       
       # 3. Create the GMapsApiKey.json file from Actions Secrets
       - name: Echo secret to file
         run: |
-          echo $GOOGLE_MAPS_API_KEY >> src/assets/keys/GMapsApiKey.json
+          echo $GOOGLE_MAPS_API_KEY > src/assets/keys/GMapsApiKey.json
         shell: bash
         env:
           # Feel free to rename this variable, but make sure to update it everywhere. You should paste your entire file in your secrets
