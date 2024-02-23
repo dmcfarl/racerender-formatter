@@ -146,7 +146,7 @@
                                                 </tr>
                                             </ng-template>
                                             <ng-template pTemplate="summary">
-                                                <button pButton pRipple type="button" icon="pi pi-plus" class="p-button-rounded p-button-success" (click)="addSector()"></button>
+                                                <button pButton pRipple type="button" icon="pi pi-plus" class="p-button-rounded p-button-success" (click)="addSector()" label="Add Sector"></button>
                                             </ng-template>
                                         </p-table>
                                     </td>
@@ -194,21 +194,21 @@
                                                 </tr>
                                             </ng-template>
                                             <ng-template pTemplate="summary">
-                                                <button pButton pRipple type="button" icon="pi pi-plus" class="p-button-rounded p-button-success" (click)="addPenalty(lap)"></button>
+                                                <button pButton pRipple type="button" icon="pi pi-plus" class="p-button-rounded p-button-success" (click)="addPenalty(lap)" label="Add Penalty"></button>
                                             </ng-template>
                                         </p-table>
                                     </td>
                                 </tr>
                             </ng-template>
                             <ng-template pTemplate="summary">
-                                <button pButton pRipple type="button" icon="pi pi-plus" class="p-button-rounded p-button-success" (click)="addLap(session)"></button>
+                                <button pButton pRipple type="button" icon="pi pi-plus" class="p-button-rounded p-button-success" (click)="addLap(session)" label="Add Lap within Session"></button>
                             </ng-template>
                         </p-table>
                     </td>
                 </tr>
             </ng-template>
             <ng-template pTemplate="summary">
-                <button pButton pRipple type="button" icon="pi pi-plus" class="p-button-rounded p-button-success" (click)="addSession()"></button>
+                <button pButton pRipple type="button" icon="pi pi-plus" class="p-button-rounded p-button-success" (click)="addSession()" label="Add Session or Run"></button>
             </ng-template>
         </p-table>
     </ng-template>
