@@ -40,10 +40,30 @@ export class LapsFormatterStepComponent implements OnInit {
   }
 
   nextPage() {
+    let lapNum = 1;
+    let sessionNum = 1;
+
     this.raceService.race.sessions.forEach((session: Session) => {
       session.isExport = this.selectedSessions.indexOf(session) >= 0;
       if (session.isExport) {
         this.sessionTransformService.transformSession(session);
+      }
+      let anyValid = false;
+      session.laps.forEach((lap: Lap) => {
+        if (lap.isInvalid) {
+          lap.displayId = -lapNum;
+        } else {
+          anyValid = true;
+          lap.displayId = lapNum;
+          lapNum++;
+        }
+      });
+
+      if (!anyValid) {
+        session.sessionNum = -sessionNum;
+      } else {
+        session.sessionNum = sessionNum;
+        sessionNum++;
       }
     });
     this.raceService.race.allLaps.forEach((lap: Lap) => lap.overlay = null);

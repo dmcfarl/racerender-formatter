@@ -46,7 +46,7 @@ export class RaceWriterService {
         data.push(this.getLapComment(0, this.raceService.race.sessionBuffer + session.preciseSessionStart));
 
         // Unparse each lap
-        session.laps.forEach((lap: Lap, lapIndex: number) => {
+        session.laps.filter((lap: Lap) => !lap.isInvalid).forEach((lap: Lap, lapIndex: number) => {
             let lapDataIndex = 0;
             lap.lapData.forEach((sectorData: Object[], index: number) => {
                 // Push all data from the sector.
@@ -134,11 +134,11 @@ export class RaceWriterService {
             data.push(this.getLapComment(session.laps.length + 1, 0));
             // Print data for each lap that occurred in a previous session.
             this.raceService.race.sessions.filter((previousSession: Session) => previousSession.sessionNum < session.sessionNum).forEach((previousSession: Session) => {
-                previousSession.laps.forEach((lap: Lap) => {
+                previousSession.laps.filter((lap: Lap) => !lap.isInvalid).forEach((lap: Lap) => {
                     lap.sectors.forEach((sector: Sector, index: number) => {
                         data.push(this.getSectorComment(index + 1, sector.sector));
                     });
-                    data.push(this.getLapComment(session.laps.length + 1 + lap.id, lap.lapTime));
+                    data.push(this.getLapComment(session.laps.length + 1 + lap.displayId, lap.lapTime));
                     sessionTime += lap.lapTime;
                 });
             });
@@ -206,10 +206,10 @@ export class RaceWriterService {
         lapTime = Rounder.round(lapTime, 3);
         let timingData = {
             "Time": Rounder.round(sessionTime, 3),
-            "Session Lap Start": session.laps[0].id,
-            "Session Laps": session.laps.length,
-            "Total Laps": race.allLaps.length,
-            "Current Lap Number": currentLap.id
+            "Session Lap Start": session.laps[0].displayId,
+            "Session Laps": session.laps.filter((lap: Lap) => !lap.isInvalid).length,
+            "Total Laps": race.allLaps.filter((lap: Lap) => !lap.isInvalid).length,
+            "Current Lap Number": currentLap.displayId
         };
         // Current Sectors
         currentLap.sectors.forEach((sector: Sector, index: number) => {
@@ -221,9 +221,9 @@ export class RaceWriterService {
         timingData["Current Penalty"] = currentLap.getPenaltyCount(lapTime);
         timingData["Current Penalty Time"] = currentLap.penalties[0]?.lapTime ?? 0;
 
-        timingData["Current Best Lap Number"] = (lapTime === currentLap.lapTime && (currentLap.lapDisplay < previousLap.lapDisplay || previousLap.lapDisplay < 0)) ? currentLap.id : previousLap.id;
-        timingData["Previous Best Lap Number"] = previousLap.id;
-        timingData["Previous Lap Number"] = previousLap.id;
+        timingData["Current Best Lap Number"] = (lapTime === currentLap.lapTime && (currentLap.lapDisplay < previousLap.lapDisplay || previousLap.lapDisplay < 0)) ? currentLap.displayId : previousLap.displayId;
+        timingData["Previous Best Lap Number"] = previousLap.displayId;
+        timingData["Previous Lap Number"] = previousLap.displayId;
         // Previous Sectors
         previousLap.sectors.forEach((sector: Sector, index: number) => {
             timingData[`Previous Split ${index + 1}`] = sector.split;
@@ -233,8 +233,8 @@ export class RaceWriterService {
         // Current Penalties
         timingData["Previous Penalty"] = previousLap.getPenaltyCount(lapTime);
 
-        race.allLaps.filter((lap: Lap) => lap.id <= session.laps[session.laps.length - 1].id && lap.penalties.length > 0).forEach((lap: Lap) => {
-            timingData["Penalty Lap " + lap.id] = lap.penalties.reduce((count: number, curr: Penalty) => curr.type.countPenalties(count), 0);
+        race.allLaps.filter((lap: Lap) => !lap.isInvalid && lap.displayId <= session.laps[session.laps.length - 1].displayId && lap.penalties.length > 0).forEach((lap: Lap) => {
+            timingData["Penalty Lap " + lap.displayId] = lap.penalties.reduce((count: number, curr: Penalty) => curr.type.countPenalties(count), 0);
         });
 
         return timingData;

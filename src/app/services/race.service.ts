@@ -107,7 +107,17 @@ export class RaceService {
                 // Map to classes
                 data.race = Race.fromJson(data.race);
 
-                _merge(this, data);
+                _merge(this.csvData, data.csvData);
+                _merge(this.race.sessionBuffer, data.race.sessionBuffer);
+                // _merge has suddenly decided to overwrite existing values with null/undefined if they are recursive...
+                // Merge individual Laps instead of the overall Race.
+                if (data.race.allLaps.length === this.race.allLaps.length) {
+                    this.race.allLaps.forEach((lap: Lap, lapIndex: number) => {
+                        _merge(lap, data.race.allLaps[lapIndex]);
+                    });
+                } else {
+                    _merge(this.race, data.race);
+                }
 
                 if (this.csvData != null) {
                     // Didn't save functions in Configuration.json.
