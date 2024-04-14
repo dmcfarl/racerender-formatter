@@ -76,7 +76,7 @@
                             <ng-template pTemplate="body" let-lap let-expanded="expanded">
                                 <tr>
                                     <td>
-                                        {{lap.id}}
+                                        {{lap.displayId ?? lap.id}}
                                         <p-tag *ngIf="best.id==lap.id" styleClass="p-ml-2" severity="success" value="Best" [rounded]="true"></p-tag>
                                         <p-tag *ngIf="best.previousBest.id==lap.id" styleClass="p-ml-2" severity="warning" value="Previous" [rounded]="true"></p-tag>
                                     </td>
@@ -100,7 +100,9 @@
                             </ng-template>
                             <ng-template pTemplate="rowexpansion" let-lap>
                                 <tr>
-                                    <td colspan="1"></td>
+                                    <td colspan="1">
+                                        <p-checkbox [(ngModel)]="lap.isInvalid" [binary]="true" label="Invalid Lap" pTooltip="Skip exporting this lap and do not count it against the numbered laps."></p-checkbox>
+                                    </td>
                                     <td style="vertical-align: top;">
                                         <p-table [value]="lap.sectors" dataKey="dataRowIndex" styleClass="p-datatable-striped" (onEditComplete)="updateSectors(lap)">
                                             <ng-template pTemplate="header">

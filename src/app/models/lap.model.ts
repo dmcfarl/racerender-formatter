@@ -16,9 +16,11 @@ export class Lap {
     lapFinish: Object;
     lapFinishIndex: number;
     id: number;
+    displayId: number;
     penalties: Penalty[] = [];
     previousBest: Lap;
     overlay?: any;
+    isInvalid: boolean = false;
 
     constructor(id: number) {
         this.id = id;
@@ -42,7 +44,7 @@ export class Lap {
     }
 
     static exportFields(): string[] {
-        return ['editedData', 'sectors', 'lapTime', 'id', 'penalties'];
+        return ['editedData', 'sectors', 'lapTime', 'id', 'penalties', 'displayId', 'isInvalid'];
     }
 
     static getEmptyLap(lap: Lap): Lap {
@@ -62,6 +64,8 @@ export class Lap {
         lap.lapTime = data.lapTime;
         lap.sectors = data.sectors.map((sector: any) => Sector.fromJson(sector));
         lap.penalties = data.penalties.map((penalty: any) => Penalty.fromJson(penalty));
+        lap.displayId = data.displayId;
+        lap.isInvalid = data.isInvalid;
 
         return lap;
     }
