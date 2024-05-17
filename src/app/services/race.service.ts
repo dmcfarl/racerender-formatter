@@ -1,6 +1,6 @@
 import { EventEmitter, Injectable } from "@angular/core";
 import { merge as _merge } from 'lodash';
-import { allCSVDataExportFields, allRaceExportFields, Column, CSVData, Lap, Penalty, PenaltyType, Race, Sector, Session } from "../models";
+import { allCSVDataExportFields, allRaceExportFields, Column, CSVData, Lap, Penalty, PenaltyType, Race, Sector, Session, TimeReference } from "../models";
 import { CSVReaderService } from "./csvreader.service";
 import { LapReaderService } from "./lapreader.service";
 import { Conversion, DataConverter, DataTransformer, Transform } from "./dataconverter.service";
@@ -12,6 +12,7 @@ import { Round, Rounder } from "./rounder.service";
 export class RaceService {
     csvData: CSVData = null;
     race: Race;
+    timeReference: TimeReference = TimeReference.RELATIVE;
     importEmitter = new EventEmitter<boolean>();
 
     constructor(private csvReaderService: CSVReaderService, private lapReaderService: LapReaderService) { }
@@ -42,25 +43,36 @@ export class RaceService {
 
     updateBestLap() {
         this.race.best = null;
-        this.race.allLaps.forEach(lap => {
-            lap.lapTime = Rounder.round(lap.lapTime, 3);
-            let lapDisplay = lap.lapDisplay;
-            if (this.race.best == null) {
-                this.race.best = lap;
-                lap.previousBest = Lap.getEmptyLap(lap);
-            } else if (lapDisplay < this.race.best.lapDisplay) {
-                lap.previousBest = this.race.best;
-                this.race.best = lap;
-            } else {
-                lap.previousBest = this.race.best;
-            }
-            if (lap.sectors.length > 0) {
-                let lastSector = lap.sectors[lap.sectors.length - 1];
-                if (lastSector.split !== lap.lapTime) {
-                    lastSector.split = lap.lapTime;
-                    lastSector.sector = lap.sectors.length > 1 ? Rounder.round(lastSector.split - lap.sectors[lap.sectors.length - 2].split, 3) : lastSector.split;
+        this.race.sessions.forEach((session: Session) => {
+            let absoluteTime = Rounder.round(session.preciseSessionStart - (session.laps[0]?.lapTime ?? 0), 3);
+            session.laps.forEach((lap: Lap) => {
+                lap.lapTime = Rounder.round(lap.lapTime, 3);
+                let lapDisplay = lap.lapDisplay;
+                if (this.race.best == null) {
+                    this.race.best = lap;
+                    lap.previousBest = Lap.getEmptyLap(lap);
+                } else if (lapDisplay < this.race.best.lapDisplay) {
+                    lap.previousBest = this.race.best;
+                    this.race.best = lap;
+                } else {
+                    lap.previousBest = this.race.best;
                 }
-            }
+                if (lap.sectors.length > 0) {
+                    let lastSector = lap.sectors[lap.sectors.length - 1];
+                    if (this.timeReference === TimeReference.RELATIVE) {
+                        if (lastSector.split !== lap.lapTime) {
+                            lastSector.split = lap.lapTime;
+                            lastSector.sector = lap.sectors.length > 1 ? Rounder.round(lastSector.split - lap.sectors[lap.sectors.length - 2].split, 3) : lastSector.split;
+                        }
+                    } else {
+                        if (lastSector.split !== absoluteTime + lap.lapTime) {
+                            lastSector.split = absoluteTime + lap.lapTime;
+                            lastSector.sector = lap.sectors.length > 1 ? Rounder.round(lastSector.split - lap.sectors[lap.sectors.length - 2].split, 3) : lastSector.split;
+                        }
+                        absoluteTime += lap.lapTime;
+                    }
+                }
+            });
         });
     }
 
@@ -163,8 +175,6 @@ export class RaceService {
     
     addSession(): Session {
         const session = new Session(this.race.sessions.length + 1);
-        session.preciseSessionStart = null;
-        session.absoluteFirstLapFinish = 0;
         this.addLap(session);
 
         this.race.sessions.push(session);
@@ -251,5 +261,64 @@ export class RaceService {
         });
 
         this.updateBestLap();
+    }
+
+    convertToRelativeTime(): void {
+        if (this.timeReference === TimeReference.RELATIVE) {
+            return;
+        }
+
+        this.race.sessions.forEach((session: Session) => {
+            session.preciseSessionStart = Rounder.round(session.preciseSessionStart - (session.laps[0]?.lapTime ?? 0), 3);
+            if (session.preciseSessionStart < 0) {
+                session.preciseSessionStart = 0;
+            }
+            let absoluteTime = session.preciseSessionStart;
+            session.laps.forEach((lap: Lap) => {
+                lap.sectors.forEach((sector: Sector) => {
+                    sector.split = Rounder.round(sector.split - absoluteTime, 3);
+                    if (sector.split < 0) {
+                        sector.split = 0;
+                    }
+                });
+                this.updateSectors(lap);
+                lap.penalties.forEach((penalty: Penalty) => {
+                    penalty.lapTime = Rounder.round(penalty.lapTime - absoluteTime, 3);
+                    if (penalty.lapTime < 0) {
+                        penalty.lapTime = 0;
+                    }
+                });
+                absoluteTime = Rounder.round(absoluteTime + lap.lapTime, 3);
+            });
+        });
+        this.timeReference = TimeReference.RELATIVE;
+    }
+
+    convertToAbsoluteTime(): void {
+        if (this.timeReference === TimeReference.ABSOLUTE) {
+            return;
+        }
+
+        this.race.sessions.forEach((session: Session) => {
+            let absoluteTime = session.preciseSessionStart;
+            session.laps.forEach((lap: Lap) => {
+                lap.sectors.forEach((sector: Sector) => {
+                    sector.split = Rounder.round(sector.split + absoluteTime, 3);
+                    if (sector.split > absoluteTime + lap.lapTime) {
+                        sector.split = Rounder.round(absoluteTime + lap.lapTime, 3);
+                    }
+                    this.updateSectors(lap);
+                });
+                lap.penalties.forEach((penalty: Penalty) => {
+                    penalty.lapTime = Rounder.round(penalty.lapTime + absoluteTime, 3);
+                    if (penalty.lapTime > absoluteTime + lap.lapTime) {
+                        penalty.lapTime = Rounder.round(absoluteTime + lap.lapTime, 3);
+                    }
+                });
+                absoluteTime = Rounder.round(absoluteTime + lap.lapTime, 3);
+            });
+            session.preciseSessionStart = Rounder.round(session.preciseSessionStart + (session.laps[0]?.lapTime ?? 0), 3);
+        });
+        this.timeReference = TimeReference.ABSOLUTE;
     }
 }
