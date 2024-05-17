@@ -134,7 +134,7 @@
                                         </p-table>
                                     </td>
                                     <td colspan="2" style="vertical-align: top;">
-                                        <p-table [value]="lap.penalties" dataKey="dataRowIndex" styleClass="p-datatable-striped" (onEditComplete)="updateSectors(lap)">
+                                        <p-table [value]="lap.penalties" dataKey="dataRowIndex" styleClass="p-datatable-striped" (onEditComplete)="updateBestLap()">
                                             <ng-template pTemplate="header">
                                                 <tr>
                                                     <th>Type</th>

@@ -7,6 +7,11 @@ export function allRaceExportFields(): string[] {
     return ['race'].concat(Race.exportFields(), Session.exportFields(), Lap.exportFields(), Sector.exportFields(), Penalty.exportFields(), PenaltyType.exportFields());
 }
 
+export enum TimeReference {
+    ABSOLUTE = "Absolute",
+    RELATIVE = "Relative"
+}
+
 export class Race {
     best: Lap;
     sessions: Session[] = [];

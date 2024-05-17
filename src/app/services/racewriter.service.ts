@@ -85,15 +85,7 @@ export class RaceWriterService {
         data.push(unparse([firstTimingRow], config));
         // Only need the header once.  Set to false so that subsequent unparsing doesn't contain any headers.
         config.header = false;
-        if (session.preciseSessionStart != null) {
-            sessionTime += this.raceService.race.sessionBuffer + session.preciseSessionStart;
-        } else if (session.absoluteFirstLapFinish != null) {
-            if (session.absoluteFirstLapFinish > session.laps[0].lapTime) {
-                sessionTime += session.absoluteFirstLapFinish - session.laps[0].lapTime;
-            } else {
-                sessionTime += 0.001;
-            }
-        }
+        sessionTime += this.raceService.race.sessionBuffer + session.preciseSessionStart;
         data.push(unparse([this.getTimingRow(sessionTime, -1, this.raceService.race, session, session.laps[0], session.laps[0].previousBest)], config));
         // Lap 0 Comment
         data.push(this.getLapComment(0, sessionTime));
@@ -136,7 +128,9 @@ export class RaceWriterService {
             this.raceService.race.sessions.filter((previousSession: Session) => previousSession.sessionNum < session.sessionNum).forEach((previousSession: Session) => {
                 previousSession.laps.filter((lap: Lap) => !lap.isInvalid).forEach((lap: Lap) => {
                     lap.sectors.forEach((sector: Sector, index: number) => {
-                        data.push(this.getSectorComment(index + 1, sector.sector));
+                        if (sector.sector > 0) {
+                            data.push(this.getSectorComment(index + 1, sector.sector));
+                        }
                     });
                     data.push(this.getLapComment(session.laps.length + 1 + lap.displayId, lap.lapTime));
                     sessionTime += lap.lapTime;

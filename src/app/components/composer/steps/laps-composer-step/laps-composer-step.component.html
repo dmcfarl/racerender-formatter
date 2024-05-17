@@ -22,7 +22,7 @@
                 <label for="select3">Manual</label>
             </div>
         </div>
-        <p-table [value]="sessions" [(selection)]="selectedSessions" [expandedRowKeys]="expandedSessions" dataKey="sessionNum" styleClass="p-datatable-striped">
+        <p-table [value]="sessions" [(selection)]="selectedSessions" [expandedRowKeys]="expandedSessions" dataKey="sessionNum" styleClass="p-datatable-striped" (onEditComplete)="updateBestLap()">
             <ng-template pTemplate="header">
                 <tr>
                     <th style="width: 5rem"></th>
@@ -49,10 +49,10 @@
                     <td pTooltip="This is the precise time in the video when your car crosses the finish line for the first time.  For Autocross, this is simply the only time that your car would cross the finish line." pEditableColumn>
                         <p-cellEditor>
                             <ng-template pTemplate="input">
-                                <p-inputNumber [(ngModel)]="session.absoluteFirstLapFinish" [minFractionDigits]="3" [maxFractionDigits]="3"></p-inputNumber>
+                                <p-inputNumber [(ngModel)]="session.preciseSessionStart" [minFractionDigits]="3" [maxFractionDigits]="3"></p-inputNumber>
                             </ng-template>
                             <ng-template pTemplate="output">
-                                {{session.absoluteFirstLapFinish | number : '1.3-3'}}
+                                {{session.preciseSessionStart | number : '1.3-3'}}
                             </ng-template>
                         </p-cellEditor>
                     </td>
@@ -93,7 +93,7 @@
                                     <td pEditableColumn>
                                         <p-cellEditor>
                                             <ng-template pTemplate="input">
-                                                <p-inputNumber [(ngModel)]="lap.lapTime" [minFractionDigits]="3" [maxFractionDigits]="3" (input)="updateBestLap()"></p-inputNumber>
+                                                <p-inputNumber [(ngModel)]="lap.lapTime" [minFractionDigits]="3" [maxFractionDigits]="3" (onBlur)="updateBestLap()"></p-inputNumber>
                                             </ng-template>
                                             <ng-template pTemplate="output">
                                                 {{lap.lapTime | number : '1.3-3'}}
@@ -151,7 +151,7 @@
                                         </p-table>
                                     </td>
                                     <td colspan="3" style="vertical-align: top;">
-                                        <p-table [value]="lap.penalties" dataKey="dataRowIndex" styleClass="p-datatable-striped" (onEditComplete)="updateSectors(lap)">
+                                        <p-table [value]="lap.penalties" dataKey="dataRowIndex" styleClass="p-datatable-striped" (onEditComplete)="updateBestLap()">
                                             <ng-template pTemplate="colgroup">
                                                 <colgroup>
                                                     <col style="width:45%">

@@ -18,6 +18,8 @@ export class DownloadComposerStepComponent implements OnInit {
     if (this.raceService.race == null) {
       this.router.navigate(['composer/laps-step']);
     }
+    // Attempt to convert to Relative; may not be necessary.
+    this.raceService.convertToRelativeTime();
   }
 
   onDownload() {
@@ -30,6 +32,8 @@ export class DownloadComposerStepComponent implements OnInit {
   }
 
   prevPage() {
+    this.raceService.convertToAbsoluteTime();
+
     this.router.navigate(['composer/laps-step']);
   }
 }

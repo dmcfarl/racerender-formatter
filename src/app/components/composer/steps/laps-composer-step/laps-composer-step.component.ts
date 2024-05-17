@@ -24,10 +24,8 @@ export class LapsComposerStepComponent implements OnInit {
     this.raceService.importEmitter.subscribe(() => this.initializeTable());
     if (this.raceService.race == null) {
       this.raceService.initializeRace();
-      this.raceService.race.sessions.forEach((session: Session) => {
-        session.absoluteFirstLapFinish = 0;
-        session.preciseSessionStart = null;
-      });
+      this.raceService.race.sessionBuffer = 0;
+      this.raceService.convertToAbsoluteTime();
     }
     this.initializeTable();
   }
@@ -56,8 +54,30 @@ export class LapsComposerStepComponent implements OnInit {
   }
 
   nextPage() {
+    this.raceService.convertToRelativeTime();
+
+    let lapNum = 1;
+    let sessionNum = 1;
     this.raceService.race.sessions.forEach((session: Session) => {
       session.isExport = this.selectedSessions.indexOf(session) >= 0;
+
+      let anyValid = false;
+      session.laps.forEach((lap: Lap) => {
+        if (lap.isInvalid) {
+          lap.displayId = -lapNum;
+        } else {
+          anyValid = true;
+          lap.displayId = lapNum;
+          lapNum++;
+        }
+      });
+
+      if (!anyValid) {
+        session.sessionNum = -sessionNum;
+      } else {
+        session.sessionNum = sessionNum;
+        sessionNum++;
+      }
     });
     this.raceService.race.allLaps.forEach((lap: Lap) => lap.overlay = null);
     if (this.selectedSessions.length > 0) {
@@ -124,7 +144,7 @@ export class LapsComposerStepComponent implements OnInit {
 
   removeSector(i: number) {
     this.raceService.race.allLaps.forEach(lap => {
-      if (lap.sectors.length > 1) {
+      if (lap.sectors.length > 1 && i < lap.sectors.length) {
         lap.sectors.splice(i, 1);
         lap.sectors[i].sector = Rounder.round(lap.sectors[i].split - (i > 0 ? lap.sectors[i - 1].split : 0), 3);
       }
