@@ -1,5 +1,5 @@
 import { EventEmitter, Injectable } from "@angular/core";
-import { merge as _merge } from 'lodash';
+import { mergeWith as _mergeWith, isNull, omitBy } from 'lodash';
 import { allCSVDataExportFields, allRaceExportFields, Column, CSVData, Lap, Penalty, PenaltyType, Race, Sector, Session, TimeReference } from "../models";
 import { CSVReaderService } from "./csvreader.service";
 import { LapReaderService } from "./lapreader.service";
@@ -59,7 +59,7 @@ export class RaceService {
                 }
                 if (lap.sectors.length > 0) {
                     let lastSector = lap.sectors[lap.sectors.length - 1];
-                    if (this.timeReference === TimeReference.RELATIVE) {
+                    if (this.timeReference == TimeReference.RELATIVE) {
                         if (lastSector.split !== lap.lapTime) {
                             lastSector.split = lap.lapTime;
                             lastSector.sector = lap.sectors.length > 1 ? Rounder.round(lastSector.split - lap.sectors[lap.sectors.length - 2].split, 3) : lastSector.split;
@@ -117,19 +117,10 @@ export class RaceService {
             fileReader.onload = (event) => {
                 let data = JSON.parse(fileReader.result as string);
                 // Map to classes
-                data.race = Race.fromJson(data.race);
-
-                _merge(this.csvData, data.csvData);
-                _merge(this.race.sessionBuffer, data.race.sessionBuffer);
-                // _merge has suddenly decided to overwrite existing values with null/undefined if they are recursive...
-                // Merge individual Laps instead of the overall Race.
-                if (data.race.allLaps.length === this.race.allLaps.length) {
-                    this.race.allLaps.forEach((lap: Lap, lapIndex: number) => {
-                        _merge(lap, data.race.allLaps[lapIndex]);
-                    });
-                } else {
-                    _merge(this.race, data.race);
+                if (data.race != null) {
+                    this.race.importFromJson(data.race);
                 }
+                this.updateBestLap();
 
                 if (this.csvData != null) {
                     // Didn't save functions in Configuration.json.
@@ -140,8 +131,6 @@ export class RaceService {
                         column.round = Rounder.roundOptions.find((round: Round) => round.value === column.round.value);
                     });
                 }
-
-                this.updateBestLap();
 
                 resolve(data);
             }
@@ -264,7 +253,7 @@ export class RaceService {
     }
 
     convertToRelativeTime(): void {
-        if (this.timeReference === TimeReference.RELATIVE) {
+        if (this.timeReference == TimeReference.RELATIVE) {
             return;
         }
 
@@ -295,7 +284,7 @@ export class RaceService {
     }
 
     convertToAbsoluteTime(): void {
-        if (this.timeReference === TimeReference.ABSOLUTE) {
+        if (this.timeReference == TimeReference.ABSOLUTE) {
             return;
         }
 
@@ -320,5 +309,9 @@ export class RaceService {
             session.preciseSessionStart = Rounder.round(session.preciseSessionStart + (session.laps[0]?.lapTime ?? 0), 3);
         });
         this.timeReference = TimeReference.ABSOLUTE;
+    }
+
+    private mergeCustomizer(objValue, srcValue) {
+        return srcValue === null ? objValue : undefined;
     }
 }

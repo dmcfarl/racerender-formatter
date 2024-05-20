@@ -53,7 +53,16 @@ export class Penalty {
         return ['type', 'lapTime'];
     }
 
-    static fromJson(data: any): Penalty {
-        return new Penalty(this.penaltyTypes.find((penaltyType: PenaltyType) => penaltyType.name === data.type.name), data.lapTime);
+    static findPenaltyType(name: string): PenaltyType {
+        return Penalty.penaltyTypes.find((penaltyType: PenaltyType) => penaltyType.name === name);
+    }
+
+    public importFromJson(data: any): void {
+        if (data.lapTime != null) {
+            this.lapTime = data.lapTime;
+        }
+        if (data.type != null) {
+            this.type = Penalty.findPenaltyType(data.type.name);
+        }
     }
 }

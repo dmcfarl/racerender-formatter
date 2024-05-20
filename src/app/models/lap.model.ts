@@ -59,14 +59,47 @@ export class Lap {
         return empty;
     }
 
-    static fromJson(data: any): Lap {
-        const lap = new Lap(data.id);
-        lap.lapTime = data.lapTime;
-        lap.sectors = data.sectors.map((sector: any) => Sector.fromJson(sector));
-        lap.penalties = data.penalties.map((penalty: any) => Penalty.fromJson(penalty));
-        lap.displayId = data.displayId;
-        lap.isInvalid = data.isInvalid;
-
-        return lap;
+    public importFromJson(data: any): void {
+        if (data.id != null) {
+            this.id = data.id;
+        }
+        if (data.lapTime != null) {
+            this.lapTime = data.lapTime;
+        }
+        if (data.sectors != null) {
+            this.sectors.forEach((sector: Sector, sectorIndex: number) => {
+                if (sectorIndex < data.sectors.length) {
+                    sector.importFromJson(data.sectors[sectorIndex]);
+                }
+            });
+            if (data.sectors.length > this.sectors.length) {
+                this.sectors.push(...data.sectors.slice(this.sectors.length));
+            }
+        }
+        if (data.penalties != null) {
+            this.penalties.forEach((penalty: Penalty, penaltyIndex: number) => {
+                if (penaltyIndex < data.penalties.length) {
+                    penalty.importFromJson(data.penalties[penaltyIndex]);
+                }
+            });
+            if (data.penalties.length > this.penalties.length) {
+                this.penalties.push(
+                    ...data.penalties
+                        .slice(this.penalties.length)
+                        .map((data: any) => {
+                            return new Penalty(Penalty.findPenaltyType(data.type.name), data.lapTime);
+                        })
+                );
+            }
+        }
+        if (data.displayId != null) {
+            this.displayId = data.displayId;
+        }
+        if (data.isInvalid != null) {
+            this.isInvalid = data.isInvalid;
+        }
+        if (data.editedData != null) {
+            this.editedData = data.editedData;
+        }
     }
 }

@@ -16,12 +16,25 @@ export class Session {
         return ['isExport', 'laps', 'sessionNum', 'preciseSessionStart'];
     }
 
-    static fromJson(data: any): Session {
-        const session = new Session(data.sessionNum);
-        session.isExport = data.isExport;
-        session.preciseSessionStart = data.preciseSessionStart;
-        session.laps = data.laps.map((lap: any) => Lap.fromJson(lap));
-
-        return session;
+    public  importFromJson(data: any): void {
+        if (data.sessionNum != null) {
+            this.sessionNum = data.sessionNum;
+        }
+        if (data.isExport != null) {
+            this.isExport = data.isExport;
+        }
+        if (data.preciseSessionStart != null) {
+            this.preciseSessionStart = data.preciseSessionStart;
+        }
+        if (data.laps != null) {
+            this.laps.forEach((lap: Lap, lapIndex: number) => {
+                if (lapIndex < data.laps.length) {
+                    lap.importFromJson(data.laps[lapIndex]);
+                }
+            });
+            if (data.laps.length > this.laps.length) {
+                this.laps.push(...data.laps.slice(this.laps.length));
+            }
+        }
     }
 }

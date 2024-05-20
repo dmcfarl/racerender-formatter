@@ -22,13 +22,21 @@ export class Race {
         return ['sessions', 'sessionBuffer'];
     }
 
-    static fromJson(data: any): Race {
-        const race = new Race();
-        race.sessionBuffer = data.sessionBuffer;
-        race.sessions = data.sessions.map((session: any) => Session.fromJson(session));
+    public importFromJson(data: any): void {
+        if (data.sessionBuffer != null) {
+            this.sessionBuffer = data.sessionBuffer;
+        }
+        if (data.sessions != null) {
+            this.sessions.forEach((session: Session, sessionIndex: number) => {
+                if (sessionIndex < data.sessions.length) {
+                    session.importFromJson(data.sessions[sessionIndex]);
+                }
+            });
+            if (data.sessions.length > this.sessions.length) {
+                this.sessions.push(...data.sessions.slice(this.sessions.length));
+            }
+        }
 
-        race.allLaps = race.sessions.flatMap((session: Session) => session.laps);
-
-        return race;
+        this.allLaps = this.sessions.flatMap((session: Session) => session.laps);
     }
 }
