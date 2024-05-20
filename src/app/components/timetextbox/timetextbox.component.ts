@@ -18,7 +18,7 @@ export class TimeTextBoxComponent implements OnInit, ControlValueAccessor {
   @Input()
   private _seconds: number = 0;
 
-  readonly: boolean = false;
+  disabled: boolean = false;
 
   constructor() { }
 
@@ -65,7 +65,7 @@ export class TimeTextBoxComponent implements OnInit, ControlValueAccessor {
   registerOnTouched(fn: any): void {}
 
   setDisabledState?(isDisabled: boolean): void {
-    this.readonly = isDisabled;
+    this.disabled = isDisabled;
   }
 
   ngOnInit(): void {
