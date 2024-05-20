@@ -8,8 +8,7 @@ import { formatNumber } from "@angular/common";
 export class TimePipe implements PipeTransform {
     transform(value: number, ...args: any[]): string {
         let output = '';
-        if (value != null) {
-            value /= 1000;
+        if (value != null && value >= 0) {
             if (value > 3600) {
                 const hours = Math.trunc(value / 3600.0);
                 output += hours + ':';
