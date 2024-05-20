@@ -51,6 +51,7 @@ import { ComposerComponent } from './components/composer/composer.component';
 import { LapsComposerStepComponent } from './components/composer/steps/laps-composer-step/laps-composer-step.component';
 import { DownloadComposerStepComponent } from './components/composer/steps/download-composer-step/download-composer-step.component';
 import { TimeTextBoxComponent } from './components/timetextbox/timetextbox.component';
+import { TimePipe } from './components/timetextbox/time.pipe';
 
 @NgModule({
   declarations: [
@@ -67,7 +68,8 @@ import { TimeTextBoxComponent } from './components/timetextbox/timetextbox.compo
     EditorComponent,
     EditFormatterStepComponent,
     ImportComponent,
-    TimeTextBoxComponent
+    TimeTextBoxComponent,
+    TimePipe
   ],
   imports: [
     BrowserModule,
