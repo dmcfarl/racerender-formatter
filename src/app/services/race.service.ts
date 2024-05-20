@@ -1,6 +1,5 @@
 import { EventEmitter, Injectable } from "@angular/core";
-import { mergeWith as _mergeWith, isNull, omitBy } from 'lodash';
-import { allCSVDataExportFields, allRaceExportFields, Column, CSVData, Lap, Penalty, PenaltyType, Race, Sector, Session, TimeReference } from "../models";
+import { allCSVDataExportFields, allRaceExportFields, Column, CSVData, Lap, Penalty, Race, Sector, Session, TimeReference } from "../models";
 import { CSVReaderService } from "./csvreader.service";
 import { LapReaderService } from "./lapreader.service";
 import { Conversion, DataConverter, DataTransformer, Transform } from "./dataconverter.service";
