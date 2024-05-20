@@ -310,8 +310,4 @@ export class RaceService {
         });
         this.timeReference = TimeReference.ABSOLUTE;
     }
-
-    private mergeCustomizer(objValue, srcValue) {
-        return srcValue === null ? objValue : undefined;
-    }
 }
