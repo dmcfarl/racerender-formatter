@@ -103,8 +103,7 @@ import { TimePipe } from './components/timetextbox/time.pipe';
     ToastModule,
     TooltipModule,
     FormatterRoutingModule,
-    AppRoutingModule,
-    DatePipe
+    AppRoutingModule
   ],
   providers: [
     CSVReaderService,
