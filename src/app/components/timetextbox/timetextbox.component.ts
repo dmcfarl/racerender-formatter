@@ -30,15 +30,19 @@ export class TimeTextBoxComponent implements OnInit, ControlValueAccessor {
       const groups = /(([0-9]+):(?=[0-9]+:))?(([0-9]{1,2}):)?([0-9]+([.][0-9]+)?)/.exec(value);
 
       if (groups[2] != null) {
+        // Hours
         this._seconds += 60 * 60 * (+groups[2]);
       }
       if (groups[4] != null) {
+        // Minutes
         this._seconds += 60 * (+groups[4]);
       }
       if (groups[5] != null) {
+        // Seconds
         this._seconds += (+groups[5]);
       }
     } else if (typeof value === 'number') {
+      // Assume this is already in seconds.
       this._seconds = value;
     } else {
       console.log('Unknown type: ' + (typeof value));
@@ -53,9 +57,11 @@ export class TimeTextBoxComponent implements OnInit, ControlValueAccessor {
       this.value = obj;
     }
   }
+
   registerOnChange(fn: any): void {
     this.propagateChange = fn;
   }
+
   registerOnTouched(fn: any): void {}
 
   setDisabledState?(isDisabled: boolean): void {
