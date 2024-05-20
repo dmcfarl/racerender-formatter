@@ -49,10 +49,10 @@
                     <td pTooltip="This is the precise time in the video when your car crosses the finish line for the first time.  For Autocross, this is simply the only time that your car would cross the finish line." pEditableColumn>
                         <p-cellEditor>
                             <ng-template pTemplate="input">
-                                <p-inputNumber [(ngModel)]="session.preciseSessionStart" [minFractionDigits]="3" [maxFractionDigits]="3"></p-inputNumber>
+                                <time-textbox [(ngModel)]="session.preciseSessionStart"></time-textbox>
                             </ng-template>
                             <ng-template pTemplate="output">
-                                {{session.preciseSessionStart | number : '1.3-3'}}
+                                {{session.preciseSessionStart ?? 0 | time }}
                             </ng-template>
                         </p-cellEditor>
                     </td>
@@ -93,10 +93,10 @@
                                     <td pEditableColumn>
                                         <p-cellEditor>
                                             <ng-template pTemplate="input">
-                                                <p-inputNumber [(ngModel)]="lap.lapTime" [minFractionDigits]="3" [maxFractionDigits]="3" (onBlur)="updateBestLap()"></p-inputNumber>
+                                                <time-textbox [(ngModel)]="lap.lapTime" (onBlur)="updateBestLap()"></time-textbox>
                                             </ng-template>
                                             <ng-template pTemplate="output">
-                                                {{lap.lapTime | number : '1.3-3'}}
+                                                {{lap.lapTime ?? 0 | time }}
                                             </ng-template>
                                         </p-cellEditor>
                                     </td>
@@ -133,10 +133,10 @@
                                                     <td pEditableColumn>
                                                         <p-cellEditor>
                                                             <ng-template pTemplate="input">
-                                                                <p-inputNumber ngDefaultControl [(ngModel)]="sector.split" [minFractionDigits]="3" [maxFractionDigits]="3" (input)="updateSectors(lap)" [disabled]="i+1==lap.sectors.length ? '' : null"></p-inputNumber>
+                                                                <time-textbox ngDefaultControl [(ngModel)]="sector.split" (input)="updateSectors(lap)" [disabled]="i+1==lap.sectors.length ? '' : null"></time-textbox>
                                                             </ng-template>
                                                             <ng-template pTemplate="output">
-                                                                {{sector.split | number : '1.3-3'}}
+                                                                {{sector.split ?? 0 | time }}
                                                             </ng-template>
                                                         </p-cellEditor>
                                                     </td>
@@ -181,10 +181,10 @@
                                                     <td pEditableColumn>
                                                         <p-cellEditor>
                                                             <ng-template pTemplate="input">
-                                                                <p-inputNumber ngDefaultControl [(ngModel)]="penalty.lapTime" [minFractionDigits]="3" [maxFractionDigits]="3" (input)="updateSectors(lap)"></p-inputNumber>
+                                                                <time-textbox ngDefaultControl [(ngModel)]="penalty.lapTime" (input)="updateSectors(lap)"></time-textbox>
                                                             </ng-template>
                                                             <ng-template pTemplate="output">
-                                                                {{penalty.lapTime | number : '1.3-3'}}
+                                                                {{penalty.lapTime ?? 0 | time }}
                                                             </ng-template>
                                                         </p-cellEditor>
                                                     </td>

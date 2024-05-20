@@ -8,11 +8,12 @@ export class Sector {
         return ['split', 'sector'];
     }
 
-    static fromJson(data: any): Sector {
-        const sector = new Sector();
-        sector.split = data.split;
-        sector.sector = data.sector;
-
-        return sector;
+    public importFromJson(data: any): void {
+        if (data.split != null) {
+            this.split = data.split;
+        }
+        if (data.sector != null) {
+            this.sector = data.sector;
+        }
     }
 }
