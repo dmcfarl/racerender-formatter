@@ -1,17 +1,18 @@
-import { DatePipe } from "@angular/common";
+
 import { Injectable } from "@angular/core";
 import { unparse, UnparseConfig } from "papaparse";
 import { RaceService } from "src/app/services/race.service";
 import { Column, Lap, Penalty, Race, Sector, Session } from "../models";
 import { Rounder } from "./rounder.service";
 import * as JSZip from 'jszip';
+import { TimePipe } from "../components/timetextbox/time.pipe";
 
 @Injectable({
     providedIn: 'root'
 })
 export class RaceWriterService {
     
-    constructor(private raceService: RaceService, private datePipe: DatePipe) { }
+    constructor(private raceService: RaceService, private timePipe: TimePipe) { }
 
     write(): Promise<Blob> {
         let zip = new JSZip();
@@ -189,11 +190,11 @@ export class RaceWriterService {
     }
 
     private getLapComment(lapNum: number, seconds: number) : string {
-        return `# Lap ${lapNum}: ${this.datePipe.transform(seconds * 1000, 'HH:mm:ss.SSS', 'UTC')}`;
+        return `# Lap ${lapNum}: ${this.timePipe.transform(seconds, true)}`;
     }
 
     private getSectorComment(sectorNum: number, seconds: number) : string {
-        return `# Sector ${sectorNum}: ${this.datePipe.transform(seconds * 1000, 'HH:mm:ss.SSS', 'UTC')}`;
+        return `# Sector ${sectorNum}: ${this.timePipe.transform(seconds, true)}`;
     }
 
     private getTimingRow(sessionTime: number, lapTime: number, race: Race, session: Session, currentLap: Lap, previousLap: Lap): Object {

@@ -111,7 +111,7 @@ import { TimePipe } from './components/timetextbox/time.pipe';
     LapReaderService,
     SessionTransformService,
     RouterOutlet,
-    DatePipe
+    TimePipe
   ],
   bootstrap: [AppComponent]
 })
