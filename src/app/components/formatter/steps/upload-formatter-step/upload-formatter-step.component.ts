@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { TimeReference } from 'src/app/models';
 import { RaceService } from 'src/app/services/race.service';
 
 @Component({
@@ -17,8 +18,10 @@ export class UploadFormatterStepComponent implements OnInit {
 
   onUpload(event) {
     this.isExtracting = true;
+    this.raceService.timeReference = TimeReference.RELATIVE;
     this.raceService.extractData(event.files[0]).then(data => {
       this.isExtracting = false;
+      this.raceService.race.sessionBuffer = 15;
       this.router.navigate(['formatter/columns-step']);
     });
   }
