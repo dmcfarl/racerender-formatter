@@ -20,6 +20,9 @@ export class TimeTextBoxComponent implements OnInit, ControlValueAccessor {
 
   disabled: boolean = false;
 
+  @Input()
+  textboxStyle: string = '';
+
   constructor() { }
 
   propagateChange = (_: any) => {};
