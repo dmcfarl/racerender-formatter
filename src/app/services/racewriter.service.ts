@@ -103,7 +103,7 @@ export class RaceWriterService {
             let eventTimes = lap.sectors.map(sector => sector.split).concat(...lap.penalties.map(penalty => penalty.lapTime));
             if (session.enableRT60) {
                 if (session.reactionTime != null && session.reactionTime > 0.5) {
-                    eventTimes.push(session.reactionTime);
+                    eventTimes.push(session.reactionTime - 0.5);
                 }
                 if (session.sixtyFootTime != null) {
                     eventTimes.push(session.sixtyFootTime);
