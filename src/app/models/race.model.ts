@@ -17,14 +17,18 @@ export class Race {
     sessions: Session[] = [];
     allLaps: Lap[] = [];
     sessionBuffer: number = 15;
+    lapSelect: string = "bestGhost";
 
     static exportFields(): string[] {
-        return ['sessions', 'sessionBuffer'];
+        return ['sessions', 'sessionBuffer', 'lapSelect'];
     }
 
     public importFromJson(data: any): void {
         if (data.sessionBuffer != null) {
             this.sessionBuffer = data.sessionBuffer;
+        }
+        if (data.lapSelect != null) {
+            this.lapSelect = data.lapSelect;
         }
         if (data.sessions != null) {
             this.sessions.forEach((session: Session, sessionIndex: number) => {

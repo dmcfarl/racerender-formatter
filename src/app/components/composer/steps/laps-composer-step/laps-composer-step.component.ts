@@ -10,7 +10,6 @@ import { RaceService } from '../../../../services/race.service';
   styleUrls: ['./laps-composer-step.component.css']
 })
 export class LapsComposerStepComponent implements OnInit {
-  lapSelect: string = 'all';
 
   selectedSessions: Session[];
   expandedSessions = {};
@@ -28,6 +27,14 @@ export class LapsComposerStepComponent implements OnInit {
       this.raceService.convertToAbsoluteTime();
     }
     this.initializeTable();
+  }
+
+  set lapSelect(lapSelect: string) {
+    this.raceService.race.lapSelect = lapSelect;
+  }
+
+  get lapSelect(): string {
+    return this.raceService.race.lapSelect;
   }
 
   get sessions(): Session[] {
@@ -48,6 +55,8 @@ export class LapsComposerStepComponent implements OnInit {
       this.selectAll();
     } else if (this.lapSelect === 'bestGhost') {
       this.selectBestAndPrevious();
+    } else {
+      this.selectedSessions = this.raceService.race.sessions.filter((session: Session) => session.isExport);
     }
     this.expandedSessions = {};
     this.raceService.race.sessions.forEach((session: Session) => (this.expandedSessions[session.sessionNum] = true));
