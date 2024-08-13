@@ -7,13 +7,16 @@ export class Session {
     laps: Lap[] = [];
     sessionNum: number;
     preciseSessionStart: number = 0;
+    enableRT60: boolean = false;
+    reactionTime?: number;
+    sixtyFootTime?: number;
 
     constructor(sessionNum: number) {
         this.sessionNum = sessionNum;
     }
 
     static exportFields(): string[] {
-        return ['isExport', 'laps', 'sessionNum', 'preciseSessionStart'];
+        return ['isExport', 'laps', 'sessionNum', 'preciseSessionStart', 'enableRT60', 'reactionTime', 'sixtyFootTime'];
     }
 
     public  importFromJson(data: any): void {
@@ -25,6 +28,15 @@ export class Session {
         }
         if (data.preciseSessionStart != null) {
             this.preciseSessionStart = data.preciseSessionStart;
+        }
+        if (data.enableRT60 != null) {
+            this.enableRT60 = data.enableRT60;
+        }
+        if (data.reactionTime != null) {
+            this.reactionTime = data.reactionTime;
+        }
+        if (data.sixtyFootTime != null) {
+            this.sixtyFootTime = data.sixtyFootTime;
         }
         if (data.laps != null) {
             this.laps.forEach((lap: Lap, lapIndex: number) => {

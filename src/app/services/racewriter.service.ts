@@ -87,6 +87,13 @@ export class RaceWriterService {
         // Only need the header once.  Set to false so that subsequent unparsing doesn't contain any headers.
         config.header = false;
         sessionTime += this.raceService.race.sessionBuffer + session.preciseSessionStart;
+        /*
+        // ReactionTime and 60FT time are just constants now; ignore this.
+        data.push(unparse([this.getTimingRow(sessionTime - 0.5, -0.5, this.raceService.race, session, session.laps[0], session.laps[0].previousBest)], config));
+        if (session.reactionTime != null && session.reactionTime < 0.5) {
+            data.push(unparse([this.getTimingRow(sessionTime - 0.5 + session.reactionTime, session.reactionTime - 0.5, this.raceService.race, session, session.laps[0], session.laps[0].previousBest)], config));
+        }
+        */
         data.push(unparse([this.getTimingRow(sessionTime, -1, this.raceService.race, session, session.laps[0], session.laps[0].previousBest)], config));
         // Lap 0 Comment
         data.push(this.getLapComment(0, sessionTime));
@@ -96,8 +103,19 @@ export class RaceWriterService {
 
             // Determine a timeline of "events" that happen within the lap: either crossing a sector or a penalty occurring.
             // Remove any duplicates by using a Set but then converting back into an array.
-            let eventTimes = [...new Set(lap.sectors.map(sector => sector.split).concat(...lap.penalties.map(penalty => penalty.lapTime)))];
-            // Sort the events so that we com across them in order.
+            let eventTimes = lap.sectors.map(sector => sector.split).concat(...lap.penalties.map(penalty => penalty.lapTime));
+            /*
+            // ReactionTime and 60FT time are just constants now; ignore this.
+            if (session.enableRT60) {
+                if (session.reactionTime != null && session.reactionTime > 0.5) {
+                    eventTimes.push(session.reactionTime - 0.5);
+                }
+                if (session.sixtyFootTime != null) {
+                    eventTimes.push(session.sixtyFootTime);
+                }
+            }*/
+            eventTimes = [...new Set(eventTimes)];
+            // Sort the events so that we come across them in order.
             eventTimes.sort((a: number, b: number) => a - b);
 
             let nextSector = 0;
@@ -231,7 +249,46 @@ export class RaceWriterService {
         race.allLaps.filter((lap: Lap) => !lap.isInvalid && lap.displayId <= session.laps[session.laps.length - 1].displayId && lap.penalties.length > 0).forEach((lap: Lap) => {
             timingData["Penalty Lap " + lap.displayId] = lap.penalties.reduce((count: number, curr: Penalty) => curr.type.countPenalties(count), 0);
         });
+        if (session.enableRT60) {
+            timingData["Reaction Time"] = session.reactionTime;
+            timingData["60ft Time"] = session.sixtyFootTime;
+        }
 
         return timingData;
     }
+
+    /*private getReactionTime(sessionTime: number, session: Session): number {
+        let reactionTime = 0;
+        if (session.enableRT60 && session.reactionTime != null) {
+            let reactionStart = this.raceService.race.sessionBuffer + session.preciseSessionStart - 0.5;
+            if (sessionTime > reactionStart) {
+                if (sessionTime < reactionStart + session.reactionTime) {
+                    // reactionTime has started, calculate the time
+                    reactionTime = sessionTime - reactionStart;
+                } else {
+                    reactionTime = session.reactionTime;
+                }
+            }
+        }
+        return Rounder.round(reactionTime, 3);
+    }
+
+    private getSixtyFootTime(sessionTime: number, session: Session): number {
+        let sixtyFootTime = 0;
+        if (session.enableRT60 && session.sixtyFootTime != null && session.reactionTime != null) {
+            let sixtyFootStart = this.raceService.race.sessionBuffer + session.preciseSessionStart;
+            if (session.reactionTime < 0.5) {
+                sixtyFootStart -= (0.5 - session.reactionTime);
+            }
+            if (sessionTime > sixtyFootStart) {
+                if (sessionTime < sixtyFootStart + session.sixtyFootTime) {
+                    // reactionTime has started, calculate the time
+                    sixtyFootTime = sessionTime - sixtyFootStart;
+                } else {
+                    sixtyFootTime = session.sixtyFootTime;
+                }
+            }
+        }
+        return Rounder.round(sixtyFootTime, 3);
+    }*/
 }

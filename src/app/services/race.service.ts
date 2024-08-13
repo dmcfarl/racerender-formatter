@@ -44,7 +44,7 @@ export class RaceService {
         this.race.best = null;
         this.race.sessions.forEach((session: Session) => {
             let absoluteTime = Rounder.round(session.preciseSessionStart - (session.laps[0]?.lapTime ?? 0), 3);
-            session.laps.forEach((lap: Lap) => {
+            session.laps.filter((lap: Lap) => !lap.isInvalid).forEach((lap: Lap) => {
                 lap.lapTime = Rounder.round(lap.lapTime, 3);
                 let lapDisplay = lap.lapDisplay;
                 if (this.race.best == null) {

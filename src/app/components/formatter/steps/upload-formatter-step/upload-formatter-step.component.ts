@@ -21,7 +21,9 @@ export class UploadFormatterStepComponent implements OnInit {
     this.raceService.timeReference = TimeReference.RELATIVE;
     this.raceService.extractData(event.files[0]).then(data => {
       this.isExtracting = false;
-      this.raceService.race.sessionBuffer = 15;
+      if (this.raceService.race != null) {
+        this.raceService.race.sessionBuffer = 15;
+      }
       this.router.navigate(['formatter/columns-step']);
     });
   }

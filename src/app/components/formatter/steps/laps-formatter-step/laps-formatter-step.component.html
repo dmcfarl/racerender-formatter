@@ -13,6 +13,9 @@
             <p-button label="Back" (onClick)="prevPage()" icon="pi pi-angle-left" [style]="{'margin-right': '.5em'}"></p-button>
             <p-button label="Next" (onClick)="nextPage()" icon="pi pi-angle-right" iconPos="right"></p-button>
             <div class="p-ml-auto">
+                <p-checkbox [(ngModel)]="enableRT60" [binary]="true" label="Enable RT/60" pTooltip="Enable Reaction Time and 60 Foot time textboxes for ProSolo additions."></p-checkbox>
+            </div>
+            <div class="p-ml-auto">
                 <p-radioButton name="lapSelect" value="bestGhost" [(ngModel)]="lapSelect" inputId="select1" (click)="selectBestAndPrevious()"></p-radioButton>
                 <label for="select1">Best and Previous Only</label>
                 <p-radioButton name="lapSelect" value="manual" [(ngModel)]="lapSelect" inputId="select2"></p-radioButton>
@@ -28,6 +31,8 @@
                     </th>
                     <th>Session #</th>
                     <th>Precise Start Time</th>
+                    <th *ngIf="enableRT60">Reaction Time</th>
+                    <th *ngIf="enableRT60">60ft Time</th>
                 </tr>
             </ng-template>
             <ng-template pTemplate="body" let-session let-expanded="expanded">
@@ -51,11 +56,31 @@
                             </ng-template>
                         </p-cellEditor>
                     </td>
+                    <td *ngIf="enableRT60" pEditableColumn>
+                        <p-cellEditor>
+                            <ng-template pTemplate="input">
+                                <time-textbox [(ngModel)]="session.reactionTime"></time-textbox>
+                            </ng-template>
+                            <ng-template pTemplate="output">
+                                {{session.reactionTime ?? 0 | time }}
+                            </ng-template>
+                        </p-cellEditor>
+                    </td>
+                    <td *ngIf="enableRT60" pEditableColumn>
+                        <p-cellEditor>
+                            <ng-template pTemplate="input">
+                                <time-textbox [(ngModel)]="session.sixtyFootTime"></time-textbox>
+                            </ng-template>
+                            <ng-template pTemplate="output">
+                                {{session.sixtyFootTime ?? 0 | time }}
+                            </ng-template>
+                        </p-cellEditor>
+                    </td>
                 </tr>
             </ng-template>
             <ng-template pTemplate="rowexpansion" let-session>
                 <tr>
-                    <td colspan="4">
+                    <td colspan="6">
                         <p-table [value]="session.laps" dataKey="id" styleClass="p-datatable-striped" (onEditComplete)="updateBestLap()">
                             <ng-template pTemplate="colgroup">
                                 <colgroup>
@@ -104,6 +129,8 @@
                                         <p-checkbox [(ngModel)]="lap.isInvalid" [binary]="true" label="Invalid Lap" pTooltip="Skip exporting this lap and do not count it against the numbered laps."></p-checkbox>
                                     </td>
                                     <td style="vertical-align: top;">
+                                    </td>
+                                    <td style="vertical-align: top;">
                                         <p-table [value]="lap.sectors" dataKey="dataRowIndex" styleClass="p-datatable-striped" (onEditComplete)="updateSectors(lap)">
                                             <ng-template pTemplate="header">
                                                 <tr>
@@ -133,7 +160,7 @@
                                             </ng-template>
                                         </p-table>
                                     </td>
-                                    <td colspan="2" style="vertical-align: top;">
+                                    <td style="vertical-align: top;">
                                         <p-table [value]="lap.penalties" dataKey="dataRowIndex" styleClass="p-datatable-striped" (onEditComplete)="updateBestLap()">
                                             <ng-template pTemplate="header">
                                                 <tr>

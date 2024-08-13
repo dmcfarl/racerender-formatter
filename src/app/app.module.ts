@@ -37,7 +37,6 @@ import { CardModule } from 'primeng/card';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { TabMenuModule } from 'primeng/tabmenu';
 import { TagModule } from "primeng/tag";
-import { DatePipe } from '@angular/common';
 import { SessionTransformService } from './services/sessiontransform.service';
 import { RaceWriterService } from './services/racewriter.service';
 import { HomeComponent } from './components/home/home.component';

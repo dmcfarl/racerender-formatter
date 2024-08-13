@@ -12,6 +12,7 @@ import { SessionTransformService } from '../../../../services/sessiontransform.s
 })
 export class LapsFormatterStepComponent implements OnInit {
   lapSelect: string = "bestGhost";
+  enableRT60: boolean = false;
 
   selectedSessions: Session[];
   expandedSessions = {};
@@ -24,6 +25,7 @@ export class LapsFormatterStepComponent implements OnInit {
     }
     this.expandedSessions = {};
     this.raceService.race.sessions.forEach(session => (this.expandedSessions[session.sessionNum] = true));
+    this.enableRT60 = this.raceService.race.sessions.find((session: Session) => session.enableRT60) != null;
     this.selectBestAndPrevious();
   }
 
@@ -45,6 +47,7 @@ export class LapsFormatterStepComponent implements OnInit {
 
     this.raceService.race.sessions.forEach((session: Session) => {
       session.isExport = this.selectedSessions.indexOf(session) >= 0;
+      session.enableRT60 = this.enableRT60;
       if (session.isExport) {
         this.sessionTransformService.transformSession(session);
       }
