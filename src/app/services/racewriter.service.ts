@@ -103,7 +103,7 @@ export class RaceWriterService {
 
             // Determine a timeline of "events" that happen within the lap: either crossing a sector or a penalty occurring.
             // Remove any duplicates by using a Set but then converting back into an array.
-            let eventTimes = lap.sectors.map(sector => sector.split).concat(...lap.penalties.map(penalty => penalty.lapTime));
+            let eventTimes = lap.sectors.map(sector => sector.split).concat(...lap.penalties.map(penalty => penalty.lapTime)).concat(...lap.previousBest.penalties.map(penalty => penalty.lapTime));
             /*
             // ReactionTime and 60FT time are just constants now; ignore this.
             if (session.enableRT60) {
