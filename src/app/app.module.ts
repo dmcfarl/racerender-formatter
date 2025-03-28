@@ -51,6 +51,7 @@ import { LapsComposerStepComponent } from './components/composer/steps/laps-comp
 import { DownloadComposerStepComponent } from './components/composer/steps/download-composer-step/download-composer-step.component';
 import { TimeTextBoxComponent } from './components/timetextbox/timetextbox.component';
 import { TimePipe } from './components/timetextbox/time.pipe';
+import { ZipReaderService } from './services/zipreader.service';
 
 @NgModule({
   declarations: [
@@ -109,6 +110,7 @@ import { TimePipe } from './components/timetextbox/time.pipe';
     RaceWriterService,
     LapReaderService,
     SessionTransformService,
+    ZipReaderService,
     RouterOutlet,
     TimePipe
   ],

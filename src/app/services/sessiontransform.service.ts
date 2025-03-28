@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 import { RaceService } from "src/app/services/race.service";
 import { Column, Lap, Session } from "../models";
 import { Rounder } from "./rounder.service";
+import { clone } from "lodash";
 
 @Injectable({
     providedIn: 'root'
@@ -49,6 +50,16 @@ export class SessionTransformService {
             }
             startLap.lapStartPrecise = csvData[i];
             startLap.lapStartIndexPrecise = i;
+        }
+
+        // Check if the first row is not exactly at 0
+        if (startBuffer[0]["Time (s)"] != 0) {
+            // Add a cloned row at the start 
+            let firstRow = clone(startBuffer[0]);
+            // Already converted; use (s)
+            firstRow["UTC Time (s)"] = firstRow["UTC Time (s)"] - startBuffer[0]["Time (s)"];
+            firstRow["Time (s)"] = 0;
+            startBuffer.unshift(firstRow);
         }
 
         session.startBufferData = startBuffer;
@@ -114,14 +125,18 @@ export class SessionTransformService {
     }
 
     private getSessionTime(lhsIndex: number, rhsIndex: number): number {
-        return this.raceService.csvData.parsed[lhsIndex]["UTC Time (s)"] - this.raceService.csvData.parsed[rhsIndex]["UTC Time (s)"];
+        let sessionTime = this.raceService.csvData.parsed[lhsIndex][this.raceService.csvData.timeColumn] - this.raceService.csvData.parsed[rhsIndex][this.raceService.csvData.timeColumn];
+        if (this.raceService.csvData.timeColumn.indexOf("(ms)") > 0) {
+            sessionTime = Rounder.round(sessionTime / 1000, 3);
+        }
+        return sessionTime;
     }
 
     private transformRow(datum: Object, session: Session, lap: Lap): Object {
         let transformed = {};
         this.raceService.csvData.columns.forEach((column: Column) => {
             if (column.isExport) {
-                let value = column.transform.transform(column, datum, this.raceService.race, session, lap);
+                let value = column.transform.transform(column, datum, this.raceService, session, lap);
                 value = column.conversion.convert(value);
                 if (typeof value === "number") {
                     value = Rounder.round(value, column.round.value);

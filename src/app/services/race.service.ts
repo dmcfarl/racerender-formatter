@@ -4,6 +4,7 @@ import { CSVReaderService } from "./csvreader.service";
 import { LapReaderService } from "./lapreader.service";
 import { Conversion, DataConverter, DataTransformer, Transform } from "./dataconverter.service";
 import { Round, Rounder } from "./rounder.service";
+import { ZipReaderService } from "./zipreader.service";
 
 @Injectable({
     providedIn: 'root'
@@ -14,22 +15,36 @@ export class RaceService {
     timeReference: TimeReference = TimeReference.RELATIVE;
     importEmitter = new EventEmitter<boolean>();
 
-    constructor(private csvReaderService: CSVReaderService, private lapReaderService: LapReaderService) { }
+    constructor(private csvReaderService: CSVReaderService, private zipReaderService: ZipReaderService, private lapReaderService: LapReaderService) { }
 
-    extractData(file: File): Promise<CSVData> {
-        let promise = this.csvReaderService.extract(file);
-        promise.then((data: CSVData) => {
-            this.csvData = data;
-            this.extractLaps();
-        }).catch((reason: any) => {
-            console.log(reason);
-        });
+    extractData(file: File): Promise<CSVData | CSVData[]> {
+        if (file.type.toLowerCase().indexOf('zip') >= 0) {
+            let promise = this.zipReaderService.extract(file);
+            promise.then((data: CSVData) => {
+                this.csvData = data;
+                this.extractLaps();
+            }).catch((reason: any) => {
+                console.log(reason);
+            });
 
-        return promise;
+            return promise;
+        } else if (file.type.toLowerCase().indexOf('csv') >= 0) {
+            let promise = this.csvReaderService.extractFile(file);
+            promise.then((data: CSVData) => {
+                this.csvData = data;
+                this.extractLaps();
+            }).catch((reason: any) => {
+                console.log(reason);
+            });
+
+            return promise;
+        } else {
+            throw new Error("Unknown type: " + file.type);
+        }
     }
 
     extractLaps(): Promise<Race> {
-        let promise = this.lapReaderService.extract(this.csvData.parsed);
+        let promise = this.lapReaderService.extract(this.csvData);
         promise.then((race) => {
             this.race = race;
             this.updateBestLap();
