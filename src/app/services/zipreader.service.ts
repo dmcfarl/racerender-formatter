@@ -30,7 +30,11 @@ export class ZipReaderService {
                     });
 
                     Promise.all(allCSVData).then((allData: CSVData[]) => {
-                        allData.sort((a: CSVData, b: CSVData) => a.filename.localeCompare(b.filename)).forEach((parsedData: CSVData) => {
+                        allData.sort((a: CSVData, b: CSVData) => {
+                            const lapA = this.lapNumberFromFilename(a.filename);
+                            const lapB = this.lapNumberFromFilename(b.filename);
+                            return lapA - lapB;
+                        }).forEach((parsedData: CSVData) => {
                             if (csvData == null) {
                                 csvData = parsedData;
                             } else {
@@ -46,5 +50,12 @@ export class ZipReaderService {
         });
 
         return promise;
+    }
+
+    private lapNumberFromFilename(filename: string): number {
+        // Assume filename is in the format:
+        // EventName-Driver-RunNumber.csv
+        const dashIndex = filename.lastIndexOf('-') + 1;
+        return Number(filename.substring(dashIndex, filename.indexOf('.', dashIndex)));
     }
 }
