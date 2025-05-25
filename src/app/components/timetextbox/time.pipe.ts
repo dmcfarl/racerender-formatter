@@ -10,6 +10,11 @@ export class TimePipe implements PipeTransform {
         let output = '';
         const displayFullFormat = args?.[0] ?? false;
 
+        let isNegative: boolean = false;
+        if (value != null && value < 0) {
+            isNegative = true;
+            value *= -1;
+        }
         if (value != null && value >= 0) {
             if (value > 3600 || displayFullFormat) {
                 const hours = Math.trunc(value / 3600.0);
@@ -27,6 +32,9 @@ export class TimePipe implements PipeTransform {
             } else {
                 output += Rounder.round(value, 3).toFixed(3);
             }
+        }
+        if (isNegative) {
+            output = '-' + output;
         }
         return output;
     }

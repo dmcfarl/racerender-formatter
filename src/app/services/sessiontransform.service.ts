@@ -53,11 +53,18 @@ export class SessionTransformService {
         }
 
         // Check if the first row is not exactly at 0
-        if (startBuffer[0]["Time (s)"] != 0) {
+        if (startBuffer.length > 0 && startBuffer[0]["Time (s)"] != 0) {
             // Add a cloned row at the start 
             let firstRow = clone(startBuffer[0]);
             // Already converted; use (s)
             firstRow["UTC Time (s)"] = firstRow["UTC Time (s)"] - startBuffer[0]["Time (s)"];
+            firstRow["Time (s)"] = 0;
+            startBuffer.unshift(firstRow);
+        } else {
+            // preciseSessionStart is probably negative; just grab the first row and use that since we don't have any start buffer
+            let firstRow = this.transformRow(csvData[startLap.lapAnchorIndex], session, null);
+            // Already converted; use (s)
+            firstRow["UTC Time (s)"] = firstRow["UTC Time (s)"] - firstRow["Time (s)"];
             firstRow["Time (s)"] = 0;
             startBuffer.unshift(firstRow);
         }
