@@ -67,30 +67,17 @@ export class Lap {
             this.lapTime = data.lapTime;
         }
         if (data.sectors != null) {
-            this.sectors.forEach((sector: Sector, sectorIndex: number) => {
-                if (sectorIndex < data.sectors.length) {
-                    sector.importFromJson(data.sectors[sectorIndex]);
-                }
+            this.sectors = data.sectors.map((sector: Sector) => {
+                const newSector = new Sector();
+                newSector.importFromJson(sector);
+                return newSector;
             });
-            if (data.sectors.length > this.sectors.length) {
-                this.sectors.push(...data.sectors.slice(this.sectors.length));
-            }
         }
         if (data.penalties != null) {
-            this.penalties.forEach((penalty: Penalty, penaltyIndex: number) => {
-                if (penaltyIndex < data.penalties.length) {
-                    penalty.importFromJson(data.penalties[penaltyIndex]);
-                }
+            this.penalties = data.penalties.map((penalty: Penalty) => {
+                const newPenalty = new Penalty(Penalty.findPenaltyType(penalty.type.name), penalty.lapTime);
+                return newPenalty;
             });
-            if (data.penalties.length > this.penalties.length) {
-                this.penalties.push(
-                    ...data.penalties
-                        .slice(this.penalties.length)
-                        .map((data: any) => {
-                            return new Penalty(Penalty.findPenaltyType(data.type.name), data.lapTime);
-                        })
-                );
-            }
         }
         if (data.displayId != null) {
             this.displayId = data.displayId;
