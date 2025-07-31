@@ -1,4 +1,5 @@
 import { Column, Lap, Race, Session } from "../models";
+import { RaceService } from "./race.service";
 
 export class Conversion {
     name: string;
@@ -41,12 +42,18 @@ export class DataConverter {
         }),
         new Conversion("KPA to PSI", "KiloPascals To Pounds per Square Inch", (data: any) => {
             return data * 4000 / 27579;
+        }),
+        new Conversion("m/s^2 to G", "Meters Per Second Squared to G-Force", (data: any) => {
+            return data / 9.80665;
+        }),
+        new Conversion("ms to s", "Milliseconds to Seconds", (data: any) => {
+            return data / 1000;
         })
     ];
 
     public static estimateConversion(column: Column): Conversion {
-        if (column.name.indexOf("(.C)") >= 0) {
-            column.exportName = column.exportName.replace("(.C)", "(.F)");
+        if (column.name.indexOf("(.C)") >= 0 || column.name.indexOf("(°C)") >= 0) {
+            column.exportName = column.exportName.replace(/\(.C\)/, "(.F)");
             return DataConverter.conversions[5];
         } else if (column.name.indexOf("(m)") >= 0 && column.name.indexOf("position") < 0) {
             column.exportName = column.exportName.replace("(m)", "(mi)");
@@ -57,6 +64,12 @@ export class DataConverter {
         } else if (column.name.indexOf("(kPa)") >= 0) {
             column.exportName = column.exportName.replace("(kPa)", "(psi)");
             return DataConverter.conversions[7];
+        } else if (column.name.indexOf("(m/s^2)") >= 0) {
+            column.exportName = column.exportName.replace("(m/s^2)", "(G)");
+            return DataConverter.conversions[8];
+        } else if (column.name.indexOf("(ms)") >= 0) {
+            column.exportName = column.exportName.replace("(ms)", "(s)");
+            return DataConverter.conversions[9];
         }
         return DataConverter.conversions[0];
     }
@@ -64,9 +77,9 @@ export class DataConverter {
 
 export class Transform {
     name: string;
-    transform: (column: Column, data: Object, race: Race, session: Session, lap: Lap) => any;
+    transform: (column: Column, data: Object, raceService: RaceService, session: Session, lap: Lap) => any;
 
-    constructor(name: string, transform: (column: Column, data: Object, race: Race, session: Session, lap: Lap) => any) {
+    constructor(name: string, transform: (column: Column, data: Object, raceService: RaceService, session: Session, lap: Lap) => any) {
         this.name = name;
         this.transform = transform;
     }
@@ -78,18 +91,18 @@ export class Transform {
 
 export class DataTransformer {
     static transforms: Transform[] = [
-        new Transform("None", (column: Column, data: Object, race: Race, session: Session, lap: Lap) => {
+        new Transform("None", (column: Column, data: Object, raceService: RaceService, session: Session, lap: Lap) => {
             return data[column.name];
         }),
-        new Transform("Session Time", (column: Column, data: Object, race: Race, session: Session, lap: Lap) => {
+        new Transform("Session Time", (column: Column, data: Object, raceService: RaceService, session: Session, lap: Lap) => {
             // Find the true start of the session: lapAnchor row with the sessionBuffer before it.
             // Also include the session buffer so that times are positive.
-            return data["UTC Time (s)"] - (session.laps[0].lapAnchor["UTC Time (s)"]) + race.sessionBuffer;
+            return ((data[raceService.csvData.timeColumn] - session.laps[0].lapAnchor[raceService.csvData.timeColumn]) / (raceService.csvData.timeColumn.indexOf("(ms)") > 0 ? 1000 : 1)) + raceService.race.sessionBuffer;
         }),
-        new Transform("Relative to Lap Start", (column: Column, data: Object, race: Race, session: Session, lap: Lap) => {
+        new Transform("Relative to Lap Start", (column: Column, data: Object, raceService: RaceService, session: Session, lap: Lap) => {
             return lap != null ? data[column.name] - lap.lapStartPrecise[column.name] : 0;
         }),
-        new Transform("Boost (kPa)", (column: Column, data: Object, race: Race, session: Session, lap: Lap) => {
+        new Transform("Boost (kPa)", (column: Column, data: Object, raceService: RaceService, session: Session, lap: Lap) => {
             return data["Manifold pressure (kPa) *obd"] - data["Barometric pressure (kPa) *obd"];
         })
     ]

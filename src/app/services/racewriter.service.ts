@@ -54,7 +54,7 @@ export class RaceWriterService {
                 // Keep track of the index since that was what was used when editting the data.
                 // Assign the edited data on top of the existing row if it exists.
                 data.push(unparse(sectorData.map((row: Object) => 
-                    row["UTC Time (s)"] in lap.editedData ? Object.assign({}, row, lap.editedData[row["UTC Time (s)"]]) : row), 
+                    row[this.raceService.csvData.timeColumn] in lap.editedData ? Object.assign({}, row, lap.editedData[row[this.raceService.csvData.timeColumn]]) : row), 
                     config));
                 if (index < lap.sectors.length) {
                     data.push(this.getSectorComment(index + 1, lap.sectors[index].sector));
@@ -196,12 +196,12 @@ export class RaceWriterService {
         let bestLap = this.raceService.race.best;
 
         if (bestLap.lapStartPrecise != null && bestLap.lapFinish != null) {
-            data.push(`# Start Point: ${bestLap.lapStartPrecise["Longitude (deg)"]},${bestLap.lapStartPrecise["Latitude (deg)"]} @ ${Rounder.round(bestLap.lapStartPrecise["Bearing (deg)"], 2)} deg`);
+            data.push(`# Start Point: ${bestLap.lapStartPrecise[this.raceService.csvData.longitudeColumn]},${bestLap.lapStartPrecise[this.raceService.csvData.latitudeColumn]} @ ${Rounder.round(bestLap.lapStartPrecise[this.raceService.csvData.bearingColumn], 2)} deg`);
             // Don't print a sector for the finish line.  Handled as "End Point" instead.
             bestLap.sectors.filter((sector: Sector, index: number) => index < bestLap.sectors.length - 1).forEach((sector: Sector, index: number) => {
-                data.push(`# Split Point ${index + 1}: ${sector.dataRow["Longitude (deg)"]},${sector.dataRow["Latitude (deg)"]} @ ${Rounder.round(sector.dataRow["Bearing (deg)"], 2)} deg`);
+                data.push(`# Split Point ${index + 1}: ${sector.dataRow[this.raceService.csvData.longitudeColumn]},${sector.dataRow[this.raceService.csvData.latitudeColumn]} @ ${Rounder.round(sector.dataRow[this.raceService.csvData.bearingColumn], 2)} deg`);
             });
-            data.push(`# End Point: ${bestLap.lapFinish["Longitude (deg)"]},${bestLap.lapFinish["Latitude (deg)"]} @ ${Rounder.round(bestLap.lapFinish["Bearing (deg)"], 2)} deg`);
+            data.push(`# End Point: ${bestLap.lapFinish[this.raceService.csvData.longitudeColumn]},${bestLap.lapFinish[this.raceService.csvData.latitudeColumn]} @ ${Rounder.round(bestLap.lapFinish[this.raceService.csvData.bearingColumn], 2)} deg`);
         }
 
         return data;

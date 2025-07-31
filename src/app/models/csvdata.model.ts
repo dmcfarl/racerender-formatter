@@ -10,6 +10,10 @@ export class CSVData {
     filename: string;
     columns: Column[];
     parsed: Object[];
+    timeColumn: string;
+    longitudeColumn: string;
+    latitudeColumn: string;
+    bearingColumn: string;
 
     static exportFields(): string[] {
         return ['filename', 'columns'];

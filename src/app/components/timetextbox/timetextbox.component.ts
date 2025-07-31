@@ -30,19 +30,25 @@ export class TimeTextBoxComponent implements OnInit, ControlValueAccessor {
   set value(value: number | string) {
     this._seconds = 0;
     if (typeof value === 'string') {
-      const groups = /(([0-9]+):(?=[0-9]+:))?(([0-9]{1,2}):)?([0-9]+([.][0-9]+)?)/.exec(value);
+      const groups = /(-)?(([0-9]+):(?=[0-9]+:))?(([0-9]{1,2}):)?([0-9]+([.][0-9]+)?)/.exec(value);
 
-      if (groups[2] != null) {
-        // Hours
-        this._seconds += 60 * 60 * (+groups[2]);
-      }
-      if (groups[4] != null) {
-        // Minutes
-        this._seconds += 60 * (+groups[4]);
-      }
-      if (groups[5] != null) {
-        // Seconds
-        this._seconds += (+groups[5]);
+      if (groups != null) {
+        if (groups[3] != null) {
+          // Hours
+          this._seconds += 60 * 60 * (+groups[3]);
+        }
+        if (groups[5] != null) {
+          // Minutes
+          this._seconds += 60 * (+groups[5]);
+        }
+        if (groups[6] != null) {
+          // Seconds
+          this._seconds += (+groups[6]);
+        }
+
+        if (groups[1] != null) {
+          this._seconds *= -1;
+        }
       }
     } else if (typeof value === 'number') {
       // Assume this is already in seconds.
