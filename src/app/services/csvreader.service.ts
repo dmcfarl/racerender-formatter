@@ -31,7 +31,7 @@ export class CSVReaderService {
                 },
                 beforeFirstChunk: (chunk: string): string => {
                     let dataChunk: string;
-                    if (chunk.indexOf('RaceChorno') >= 0) {
+                    if (chunk.indexOf('RaceChrono') >= 0) {
                         data.timeColumn = "UTC Time (s)";
                         data.longitudeColumn = "Longitude (deg)";
                         data.latitudeColumn = "Latitude (deg)";
@@ -97,7 +97,7 @@ export class CSVReaderService {
                 },*/
                 beforeFirstChunk: (chunk: string): string => {
                     let dataChunk: string;
-                    if (chunk.indexOf('RaceChorno') >= 0) {
+                    if (chunk.indexOf('RaceChrono') >= 0) {
                         data.timeColumn = "UTC Time (s)";
                         data.longitudeColumn = "Longitude (deg)";
                         data.latitudeColumn = "Latitude (deg)";
